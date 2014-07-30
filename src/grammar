@@ -1,11 +1,11 @@
 s        = ( stmt | comment )*
 
 array    = name sect
+c        = real | string | logical | complex
 colon    = ':'
 comma    = ','
 comment  = ws? '!' #'[^\n]*\n?' | ws '\n'?
 complex  = <'('> <ws?> real <ws?> <','> <ws?> real <ws?> <')'>
-c        = real | string | logical | complex
 dataref  = partref ( percent partref )*
 dec      = dot uint?
 dot      = '.'
@@ -20,8 +20,8 @@ nvseq    = nvchoice nvpair*
 nvsubseq = <ws?> dataref <ws?> <'='> <ws?> values <ws?>
 partref  = array | name
 percent  = '%'
-real     = int dec? exp?
 r        = uint
+real     = int dec? exp?
 sect     = <'('> ( int? colon int? | int ) ( colon int )? <')'>
 sep      = ws? ( comma | slash ) ws?
 sign     = '-' | '+'
