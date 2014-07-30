@@ -1,0 +1,37 @@
+s        = stmt+
+
+array    = name sect
+colon    = ':'
+comma    = ','
+comment  = ws? '!' #'[^\n]*'
+complex  = <'('> <ws?> real <ws?> <','> <ws?> real <ws?> <')'>
+c        = real / string / logical / complex
+dataref  = partref ( percent partref )*
+dec      = dot uint?
+dot      = '.'
+exp      = ( sign uint ) | ( 'e' <ws?> int ) | ( 'd' <ws?> int )
+false    = #'[fF]'
+int      = sign? uint
+logical  = <'.'?> ( true | false ) <#'[^/,\s]'*>
+name     = #'[a-zA-Z]' #'[a-zA-Z0-9_]{1,30}'?
+nvchoice = comment | nvsubseq
+nvpair   = ( <sep> | <ws> ) nvchoice
+nvseq    = nvchoice nvpair*
+nvsubseq = <ws?> dataref <ws?> <'='> <ws?> values <ws?>
+partref  = array | name
+percent  = '%'
+real     = int dec? exp?
+r        = uint
+sect     = <'('> ( int? colon int? | int ) ( colon int )? <')'>
+sep      = ws? ( comma | slash ) ws?
+sign     = '+' | '-'
+slash    = '/'
+star     = '*'
+stmt     = <ws?> <'&'> name <ws> nvseq? <ws?> <'/'> <ws?>
+string   = "'" ( #'[^\']' | "''" )* "'" | '"' ( #'[^\"]' | '""' )* '"'
+true     = #'[tT]'
+uint     = #'[0-9]+'
+value    = r star c | r star | c
+values   = value ( <( sep | ws &value )> value )* | comment
+ws       = #'[\s\n]'+
+
