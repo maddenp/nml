@@ -1,9 +1,9 @@
-s        = ( comment | stmt )*
+s        = ( stmt | comment )*
 
 array    = name sect
 colon    = ':'
 comma    = ','
-comment  = ws? '!' #'[^\n]*\s*'
+comment  = ws? '!' #'[^\n]*\n?' | ws '\n'?
 complex  = <'('> <ws?> real <ws?> <','> <ws?> real <ws?> <')'>
 c        = real | string | logical | complex
 dataref  = partref ( percent partref )*
