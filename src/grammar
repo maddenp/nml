@@ -1,36 +1,35 @@
-s        = ( stmt | comment )*
+s        = ( stmt | <comment> )* <wsopt>
 
 array    = name sect
 c        = real | string | logical | complex
 colon    = ':'
 comma    = ','
-comment  = ws? '!' #'[^\n]*\n?' | ws '\n'?
-complex  = <'('> <ws?> real <ws?> <','> <ws?> real <ws?> <')'>
+comment  = wsopt '!' #'[^\n]*' wsopt | wsopt '\n'
+complex  = <'('> <wsopt> real <wsopt> <','> <wsopt> real <wsopt> <')'>
 dataref  = partref ( percent partref )*
 dec      = dot uint?
 dot      = '.'
-exp      = ( sign uint ) | ( 'e' <ws?> int ) | ( 'd' <ws?> int )
+exp      = ( sign uint ) | ( 'e' <wsopt> int ) | ( 'd' <wsopt> int )
 false    = 'f' | 'F'
 int      = sign? uint
 logical  = <'.'?> ( true | false ) <#'[^/,\s]*'>
 name     = #'[a-zA-Z]' #'[a-zA-Z0-9_]{0,30}'
-nvchoice = comment | nvsubseq
-nvpair   = ( ( <sep> | <ws> ) nvchoice ) | comment
-nvseq    = nvchoice nvpair*
-nvsubseq = <ws?> dataref <ws?> <'='> <ws?> values <ws?>
+nvseq    = nvsubseq ( ( <sep> | <ws> ) nvsubseq )*
+nvsubseq = <comment>* dataref <wsopt> <'='> <wsopt> values <comment>*
 partref  = array | name
 percent  = '%'
 r        = uint
 real     = int dec? exp?
 sect     = <'('> ( int? colon int? | int ) ( colon int )? <')'>
-sep      = ws? ( comma | slash ) ws?
+sep      = <wsopt> ( comma | slash ) <wsopt>
 sign     = '-' | '+'
 slash    = '/'
 star     = '*'
-stmt     = <ws?> <'&'> name <ws> nvseq? <ws?> <slash> <ws?>
+stmt     = <wsopt> <'&'> name <ws> nvseq? <wsopt> <slash> <wsopt>
 string   = "'" ( #'[^\']' | "''" )* "'" | '"' ( #'[^\"]' | '""' )* '"'
 true     = 't' | 'T'
 uint     = #'[0-9]+'
 value    = r star c | r star | c
-values   = value ( <( sep | ws &value )> value )* | comment
+values   = value ( ( <sep> | <ws> &value ) value )* | <comment>
 ws       = #'\s+'
+wsopt    = #'\s*'
