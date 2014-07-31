@@ -30,6 +30,6 @@ string   = "'" ( #'[^\']' | "''" )* "'" | '"' ( #'[^\"]' | '""' )* '"'
 true     = 't' | 'T'
 uint     = #'[0-9]+'
 value    = r star c | r star | c
-values   = value ( ( <sep> | <ws> &value ) value )* | <comment>
+values   = value ( ( <sep> | <ws> ) value )* | <comment>
 ws       = #'\s+'
 wsopt    = #'\s*'
