@@ -29,6 +29,7 @@
              :exp      [(first v) (sl v)]
              :false    "f"
              :int      (delegate v)
+             :junk     ""
              :logical  (sf v)
              :name     (map string/lower-case v)
              :nvseq    (delegate v)
