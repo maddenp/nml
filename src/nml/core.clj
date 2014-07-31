@@ -16,7 +16,7 @@
 ;;   (println (str "k=" k " v=" v))
     (apply str
            (case k
-             :s        (delegate v)
+             :s        (delegate (sort-by #(s (second %)) v))
              :array    [(sf v) (sl v)]
              :c        (sf v)
              :colon    ":"
