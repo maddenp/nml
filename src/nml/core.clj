@@ -10,13 +10,14 @@
         v (rest  x)
         cjoin    #(string/join "," %)
         delegate #(map s %)
+        ds       (fn [v] (delegate (sort-by #(s (second %)) v)))
         list2str #(apply str (map s %))
         sf       #(s (first %))
         sl       #(s (last %))]
 ;;   (println (str "k=" k " v=" v))
     (apply str
            (case k
-             :s        (delegate (sort-by #(s (second %)) v))
+             :s        (ds v)
              :array    [(sf v) (sl v)]
              :c        (sf v)
              :colon    ":"
@@ -32,7 +33,7 @@
              :junk     ""
              :logical  (sf v)
              :name     (map string/lower-case v)
-             :nvseq    (delegate v)
+             :nvseq    (ds v)
              :nvsubseq ["  " (sf v) "=" (sl v) "\n"]
              :partref  (sf v)
              :percent  "%"
