@@ -3,7 +3,7 @@
   (:require [instaparse.core :as insta ])
   (:require [clojure.string  :as string]))
 
-(def nml (insta/parser (clojure.java.io/resource "grammar")))
+(def parse (insta/parser (clojure.java.io/resource "grammar")))
 
 (defn prpr [x]
   (let [k (first x)
@@ -56,4 +56,4 @@
 (defn -main [& args]
   (alter-var-root #'*read-eval* (constantly false))
   (let [namelist-file (last args)]
-    (println (prpr (nml (slurp "nl"))))))
+    (println (prpr (parse (slurp namelist-file))))))
