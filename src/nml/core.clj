@@ -3,6 +3,8 @@
   (:require [instaparse.core :as insta ])
   (:require [clojure.string  :as string]))
 
+(def debug false)
+
 (def parse (insta/parser (clojure.java.io/resource "grammar")))
 
 (defn prpr [x]
@@ -14,7 +16,7 @@
         list2str #(apply str (map prpr %))
         sf       #(prpr (first %))
         sl       #(prpr (last %))]
-;;   (println (str "k=" k " v=" v))
+    (if debug (println (str "k=" k " v=" v)))
     (apply str
            (case k
              :s        (ds v)
