@@ -5,15 +5,15 @@
 
 (def nml (insta/parser (clojure.java.io/resource "grammar")))
 
-(defn s [x]
+(defn prpr [x]
   (let [k (first x)
         v (rest  x)
         cjoin    #(string/join "," %)
-        delegate #(map s %)
-        ds       (fn [v] (delegate (sort-by #(s (second %)) v)))
-        list2str #(apply str (map s %))
-        sf       #(s (first %))
-        sl       #(s (last %))]
+        delegate #(map prpr %)
+        ds       (fn [v] (delegate (sort-by #(prpr (second %)) v)))
+        list2str #(apply str (map prpr %))
+        sf       #(prpr (first %))
+        sl       #(prpr (last %))]
 ;;   (println (str "k=" k " v=" v))
     (apply str
            (case k
@@ -56,4 +56,4 @@
 (defn -main
   [& args]
   (alter-var-root #'*read-eval* (constantly false))
-  (println (s (nml "a"))))
+  (println (prpr (nml "a"))))
