@@ -1,4 +1,4 @@
-s        = ( stmt | <junk> )* <wsopt>
+s        = ( stmt | <comment> | <junk> )*
 
 array    = name sect
 c        = real | string | logical | complex
@@ -15,7 +15,7 @@ int      = sign? uint
 junk     = #'[^&]+'
 logical  = <'.'?> ( true | false ) <#'[^/,\s]*'>
 name     = #'[a-zA-Z]' #'[a-zA-Z0-9_]{0,30}'
-nvseq    = nvsubseq ( ( <sep> | <ws> ) nvsubseq )*
+nvseq    = nvsubseq ( ( <sep> | <ws> ) nvsubseq )* <sep>?
 nvsubseq = <comment>* dataref <wsopt> <'='> <wsopt> values <comment>*
 partref  = array | name
 percent  = '%'
@@ -31,6 +31,6 @@ string   = "'" ( #'[^\']' | "''" )* "'" | '"' ( #'[^\"]' | '""' )* '"'
 true     = 't' | 'T'
 uint     = #'[0-9]+'
 value    = r star c | r star | c
-values   = value ( ( <sep> | <ws> ) value )* | <comment>
+values   = value ( ( <sep> | <ws> ) value )* <sep>? | <comment>
 ws       = #'\s+'
 wsopt    = #'\s*'
