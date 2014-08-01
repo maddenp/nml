@@ -1,6 +1,6 @@
-- getter
 - tests
 - command-line 'get'
 - setter
 - command-line 'set'
 - programmatic interface
+- deal with duplicates (last wins)

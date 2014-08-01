@@ -3,19 +3,28 @@
   (:require [instaparse.core :as insta ])
   (:require [clojure.string  :as string]))
 
+(declare prpr)
+
 (def debug false)
-
-(defn nmlget [] )
-(defn nmlset [] )
-
 (def parse (insta/parser (clojure.java.io/resource "grammar")))
+
+(defn nmlget [tree namelist key]
+  (let [stmts     (rest tree)
+        stmt      (last (filter #(= (nmlname %) namelist) stmts))
+        nvsubseqs (rest (last stmt))
+        nvsubseq  (last (filter #(= (nmlname %) key) nvsubseqs))
+        values    (last nvsubseq)]
+    (if (nil? values) "" (prpr values))))
+
+(defn nmlname [x]
+  (prpr (second x)))
 
 (defn prpr [x]
   (let [k (first x)
         v (rest  x)
         cjoin    #(string/join "," %)
         delegate #(map prpr %)
-        ds       (fn [v] (delegate (sort-by #(prpr (second %)) v)))
+        ds       (fn [v] (delegate (sort-by #(nmlname %) v)))
         list2str #(apply str (map prpr %))
         sf       #(prpr (first %))
         sl       #(prpr (last %))]
@@ -61,4 +70,5 @@
   (alter-var-root #'*read-eval* (constantly false))
   (let [namelist-file (last args)
         tree (parse (slurp namelist-file))]
-    (println (prpr tree))))
+    (println (nmlget tree "n1" "a"))))
+;;   (println (prpr tree))))
