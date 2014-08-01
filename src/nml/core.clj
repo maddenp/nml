@@ -53,7 +53,7 @@
              :ws       ""
              :wsopt    ""))))
 
-(defn -main
-  [& args]
+(defn -main [& args]
   (alter-var-root #'*read-eval* (constantly false))
-  (println (prpr (nml "a"))))
+  (let [namelist-file (last args)]
+    (println (prpr (nml (slurp "nl"))))))
