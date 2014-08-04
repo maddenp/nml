@@ -4,3 +4,4 @@
 - command-line 'set'
 - programmatic interface
 - deal with duplicates (last wins)
+- error checking (e.g. bad args, namelist/key not found)

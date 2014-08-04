@@ -3,37 +3,35 @@
   (:require [instaparse.core :as insta ])
   (:require [clojure.string  :as string]))
 
-(declare prpr)
+(declare nmlname nmlstr nmlsub)
 
 (def debug false)
+
 (def parse (insta/parser (clojure.java.io/resource "grammar")))
 
-(defn nmlname [x]
-  (prpr (second x)))
-
-(defn nmlfind [tree namelist key]
+(defn nmlfind [tree nml key]
   (let [stmts     (rest tree)
-        stmt      (last (filter #(= (nmlname %) namelist) stmts))
+        stmt      (last (filter #(= (nmlname %) nml) stmts))
         nvsubseqs (rest (last stmt))]
     (last (filter #(= (nmlname %) key) nvsubseqs))))
 
-(defn nmlget [tree namelist key]
-  (let [nvsubseq  (nmlfind tree namelist key)
+(defn nmlget [tree nml key]
+  (let [nvsubseq  (nmlfind tree nml key)
         values    (last nvsubseq)]
-    (if (nil? values) "" (prpr values))))
+    (if (nil? values) "" (nmlstr values))))
 
-(defn nmlset [tree namelist key val]
-  )
+(defn nmlname [x]
+  (nmlstr (second x)))
 
-(defn prpr [x]
+(defn nmlstr [x]
   (let [k (first x)
         v (rest  x)
         cjoin    #(string/join "," %)
-        delegate #(map prpr %)
+        delegate #(map nmlstr %)
         ds       (fn [v] (delegate (sort-by #(nmlname %) v)))
-        list2str #(apply str (map prpr %))
-        sf       #(prpr (first %))
-        sl       #(prpr (last %))]
+        list2str #(apply str (map nmlstr %))
+        sf       #(nmlstr (first %))
+        sl       #(nmlstr (last %))]
     (if debug (println (str "k=" k " v=" v)))
     (apply str (case k
                  :s        (ds v)
@@ -72,10 +70,19 @@
                  :ws       ""
                  :wsopt    ""))))
 
+(defn nmlset [tree nml key val]
+  (let [swap-if (fn [k v] (if (= (nmlstr k) nml) [k (nmlsub v nml key val)] [k v]))]
+    (println (insta/transform {:stmt swap-if} tree))))
+
+(defn nmlsub [nvseq nml key val]
+  (let [val-tree (parse val :start :values)
+        swap-if (fn [k v] (if (= (nmlstr k) key) [k val-tree] [k v]))]
+    (insta/transform {:nvsubseq swap-if} nvseq)))
+
 (defn -main [& args]
   (alter-var-root #'*read-eval* (constantly false))
-  (let [namelist-file (last args)
-        tree (parse (slurp namelist-file))]
-;;   (nmlset tree "n1" "a" "88")
-    (println (nmlget tree "n1" "s"))))
-;;   (println (prpr tree))))
+  (let [filename (last args)
+        tree (parse (slurp filename))]
+    (nmlset tree "n1" "s" "'orly'")))
+;;   (println (nmlget tree "n1" "s"))))
+;;   (println (nmlstr tree))))
