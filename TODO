@@ -1,6 +1,6 @@
-- tests
 - command-line 'get'
 - command-line 'set'
+- tests
 - programmatic interface
 - deal with duplicates (last wins)
 - error checking (e.g. bad args, namelist/key not found)
