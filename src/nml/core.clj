@@ -3,20 +3,15 @@
   (:require [instaparse.core :as insta ])
   (:require [clojure.string  :as string]))
 
-(declare nmlname nmlstr nmlsub)
+(declare nmlname nmlstr)
 
 (def debug false)
 
 (def parse (insta/parser (clojure.java.io/resource "grammar")))
 
-(defn nmlfind [tree nml key]
-  (let [stmts     (rest tree)
-        stmt      (last (filter #(= (nmlname %) nml) stmts))
-        nvsubseqs (rest (last stmt))]
-    (last (filter #(= (nmlname %) key) nvsubseqs))))
-
 (defn nmlget [tree nml key]
-  (let [nvsubseq  (nmlfind tree nml key)
+  (let [stmt      (last (filter #(= (nmlname %) nml) (rest tree)))
+        nvsubseq  (last (filter #(= (nmlname %) key) (rest (last stmt))))
         values    (last nvsubseq)]
     (if (nil? values) "" (nmlstr values))))
 
@@ -70,19 +65,15 @@
                  :ws       ""
                  :wsopt    ""))))
 
-(defn nmlset [tree nml key val]
-  (let [swap-if (fn [k v] (if (= (nmlstr k) nml) [k (nmlsub v nml key val)] [k v]))]
-    (println (insta/transform {:stmt swap-if} tree))))
-
-(defn nmlsub [nvseq nml key val]
-  (let [val-tree (parse val :start :values)
-        swap-if (fn [k v] (if (= (nmlstr k) key) [k val-tree] [k v]))]
-    (insta/transform {:nvsubseq swap-if} nvseq)))
+(defn nmlset [tree nml key val & sub]
+  (let [child (if sub :nvsubseq :stmt)
+        match (if sub key nml)
+        vnew  (if sub (fn [tree] (parse val :start :values)) #(nmlset % nml key val true))
+        f     (fn [k v] [child k (if (= (nmlstr k) match) (vnew v) v)])]
+    (insta/transform {child f} tree)))
 
 (defn -main [& args]
   (alter-var-root #'*read-eval* (constantly false))
   (let [filename (last args)
         tree (parse (slurp filename))]
-    (nmlset tree "n1" "s" "'orly'")))
-;;   (println (nmlget tree "n1" "s"))))
-;;   (println (nmlstr tree))))
+    (println (nmlget (nmlset tree "n1" "s" "'orly'") "n1" "s"))))
