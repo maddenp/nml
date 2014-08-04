@@ -10,9 +10,9 @@
 (def parse (insta/parser (clojure.java.io/resource "grammar")))
 
 (defn nmlget [tree nml key]
-  (let [stmt      (last (filter #(= (nmlname %) nml) (rest tree)))
-        nvsubseq  (last (filter #(= (nmlname %) key) (rest (last stmt))))
-        values    (last nvsubseq)]
+  (let [stmt     (last (filter #(= (nmlname %) nml) (rest tree)))
+        nvsubseq (last (filter #(= (nmlname %) key) (rest (last stmt))))
+        values   (last nvsubseq)]
     (if (nil? values) "" (nmlstr values))))
 
 (defn nmlname [x]
