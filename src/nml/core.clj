@@ -8,16 +8,22 @@
 (def debug false)
 (def parse (insta/parser (clojure.java.io/resource "grammar")))
 
-(defn nmlget [tree namelist key]
+(defn nmlname [x]
+  (prpr (second x)))
+
+(defn nmlfind [tree namelist key]
   (let [stmts     (rest tree)
         stmt      (last (filter #(= (nmlname %) namelist) stmts))
-        nvsubseqs (rest (last stmt))
-        nvsubseq  (last (filter #(= (nmlname %) key) nvsubseqs))
+        nvsubseqs (rest (last stmt))]
+    (last (filter #(= (nmlname %) key) nvsubseqs))))
+
+(defn nmlget [tree namelist key]
+  (let [nvsubseq  (nmlfind tree namelist key)
         values    (last nvsubseq)]
     (if (nil? values) "" (prpr values))))
 
-(defn nmlname [x]
-  (prpr (second x)))
+(defn nmlset [tree namelist key val]
+  )
 
 (defn prpr [x]
   (let [k (first x)
@@ -70,5 +76,6 @@
   (alter-var-root #'*read-eval* (constantly false))
   (let [namelist-file (last args)
         tree (parse (slurp namelist-file))]
-    (println (nmlget tree "n1" "a"))))
+;;   (nmlset tree "n1" "a" "88")
+    (println (nmlget tree "n1" "s"))))
 ;;   (println (prpr tree))))
