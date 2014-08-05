@@ -1,7 +1,7 @@
 (ns nml.core
-  (:gen-class)
-  (:require [instaparse.core :as insta ])
-  (:require [clojure.string  :as string]))
+  (:require [clojure.string    :as string])
+  (:require [instaparse.core   :as insta ])
+  (:gen-class))
 
 (declare nmlname nmlstr)
 
@@ -9,11 +9,17 @@
 
 (def parse (insta/parser (clojure.java.io/resource "grammar")))
 
+(defn fail [& msg]
+  (if msg (println (apply str msg)))
+  (System/exit 1))
+
 (defn nmlget [tree nml key]
   (let [stmt     (last (filter #(= (nmlname %) nml) (rest tree)))
         nvsubseq (last (filter #(= (nmlname %) key) (rest (last stmt))))
-        values   (last nvsubseq)]
-    (if (nil? values) "" (nmlstr values))))
+        values   (last nvsubseq)
+        value    (if (nil? values) "" (nmlstr values))]
+    (println (str nml ":" key " " value))
+    tree))
 
 (defn nmlname [x]
   (nmlstr (second x)))
@@ -72,8 +78,24 @@
         f     (fn [k v] [child k (if (= (nmlstr k) match) (vnew v) v)])]
     (insta/transform {child f} tree)))
 
+(defn nmltree [f]
+  (try (parse (slurp f))
+       (catch Exception e (fail "Could not open namelist file '" f "'"))))
+
+(defn process [tree commands]
+  (if (empty? commands)
+    tree
+    (let [cmd (first commands)
+          arg (second commands)
+          rst (drop 2 commands)]
+      (case cmd
+        "--get" (let [[nml key] (string/split arg #":")]
+                  (process (nmlget tree nml key) rst))
+        "--set" (println "### set!")))))
+
 (defn -main [& args]
   (alter-var-root #'*read-eval* (constantly false))
-  (let [filename (last args)
-        tree (parse (slurp filename))]
-    (println (nmlget (nmlset tree "n1" "s" "'orly'") "n1" "s"))))
+  (let [commands (butlast args)
+        filename (last args)
+        tree (nmltree filename)]
+    (println (nmlstr (process tree commands)))))
