@@ -3,18 +3,50 @@
   (:require [instaparse.core   :as insta ])
   (:gen-class))
 
-(declare nmlname nmlstr)
+(declare nk nkv nmlget nmlname nmlset nmlstr)
 
 (def debug false)
 
 (def parse (insta/parser (clojure.java.io/resource "grammar")))
 
+(defn exe [tree commands]
+  (if (empty? commands)
+    tree
+    (let [cmd (first  commands)
+          arg (second commands)
+          rst (drop 2 commands)]
+      (case cmd
+        "--get" (let [[nml key    ] (nk  arg)] (exe (nmlget tree nml key)     rst))
+        "--set" (let [[nml key val] (nkv arg)] (exe (nmlset tree nml key val) rst))))))
+
 (defn fail [& msg]
   (if msg (println (apply str msg)))
   (System/exit 1))
 
+(defn nk [x]
+  (string/split x #":" 2))
+
+(defn nkv [x]
+  (let [[nmlkey val] (string/split x #"=" 2)]
+    (concat (nk nmlkey) (list val))))
+  
+(defn nmlget [tree nml key]
+  (let [stmt     (last (filter #(= (nmlname %) nml) (rest tree)))
+        nvsubseq (last (filter #(= (nmlname %) key) (rest (last stmt))))
+        values   (last nvsubseq)
+        value    (if (nil? values) "" (nmlstr values))]
+    (println (str nml ":" key "=" value))
+    tree))
+
 (defn nmlname [x]
   (nmlstr (second x)))
+
+(defn nmlset [tree nml key val & sub]
+  (let [child (if sub :nvsubseq :stmt)
+        match (if sub key nml)
+        vnew  (if sub (fn [tree] (parse val :start :values)) #(nmlset % nml key val true))
+        f     (fn [k v] [child k (if (= (nmlstr k) match) (vnew v) v)])]
+    (insta/transform {child f} tree)))
 
 (defn nmlstr [x]
   (let [k (first x)
@@ -63,41 +95,9 @@
                  :ws       ""
                  :wsopt    ""))))
 
-(defn nmlget [tree nml key]
-  (let [stmt     (last (filter #(= (nmlname %) nml) (rest tree)))
-        nvsubseq (last (filter #(= (nmlname %) key) (rest (last stmt))))
-        values   (last nvsubseq)
-        value    (if (nil? values) "" (nmlstr values))]
-    (println (str nml ":" key "=" value))
-    tree))
-
-(defn nmlset [tree nml key val & sub]
-  (let [child (if sub :nvsubseq :stmt)
-        match (if sub key nml)
-        vnew  (if sub (fn [tree] (parse val :start :values)) #(nmlset % nml key val true))
-        f     (fn [k v] [child k (if (= (nmlstr k) match) (vnew v) v)])]
-    (insta/transform {child f} tree)))
-
 (defn nmltree [fname]
   (try (parse (slurp fname))
        (catch Exception e (fail "Could not open namelist file '" fname "'"))))
-
-(defn nk [x]
-  (string/split x #":" 2))
-
-(defn nkv [x]
-  (let [[nmlkey val] (string/split x #"=" 2)]
-    (concat (nk nmlkey) (list val))))
-  
-(defn exe [tree commands]
-  (if (empty? commands)
-    tree
-    (let [cmd (first commands)
-          arg (second commands)
-          rst (drop 2 commands)]
-      (case cmd
-        "--get" (let [[nml key    ] (nk  arg)] (exe (nmlget tree nml key)     rst))
-        "--set" (let [[nml key val] (nkv arg)] (exe (nmlset tree nml key val) rst))))))
 
 (defn -main [& args]
   (alter-var-root #'*read-eval* (constantly false))
