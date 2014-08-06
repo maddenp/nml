@@ -4,33 +4,29 @@
   (:require [clojure.tools.cli :as cli   ])
   (:gen-class))
 
-(declare nk nkv nmlget nmlname nmlset nmlstr)
+(declare nmlget nmlname nmlset nmlstr)
+
+; defs
 
 (def debug false)
 
 (def parse (insta/parser (clojure.java.io/resource "grammar")))
 
-(defn exe [tree commands]
-  (if (empty? commands)
-    tree
-    (let [cmd (first  commands)
-          arg (second commands)
-          rst (drop 2 commands)]
-      (case cmd
-        "--get" (let [[nml key    ] (nk  arg)] (exe (nmlget tree nml key)     rst))
-        "--set" (let [[nml key val] (nkv arg)] (exe (nmlset tree nml key val) rst))))))
+;; defns
+
+;;(defn exe [tree commands]
+;; (if (empty? commands)
+;;   tree
+;;   (let [cmd (first  commands)
+;;         arg (second commands)
+;;         rst (drop 2 commands)]
+;;     (case cmd
+;;       "--get" (let [[nml key    ] (parse-get arg)] (exe (nmlget tree nml key)     rst))
+;;       "--set" (let [[nml key val] (parse-set arg)] (exe (nmlset tree nml key val) rst))))))
 
 (defn fail [& msg]
   (if msg (println (apply str msg)))
   (System/exit 1))
-
-(defn nk [x]
-  (string/split x #":" 2))
-
-(defn nkv [x]
-  (let [[nmlkey val] (string/split x #"=" 2)
-        [nml key] (nk nmlkey)]
-    [nml key val]))
 
 (defn nmlget [tree nml key]
   (let [stmt     (last (filter #(= (nmlname %) nml) (rest tree)))
@@ -101,6 +97,8 @@
   (try (parse (slurp fname))
        (catch Exception e (fail "Could not open namelist file '" fname "'"))))
 
+;; cli
+
 (defn assoc-get [m k v]
   (let [gets (:get m [])]
     (assoc m :get (into gets [v]))))
@@ -109,10 +107,20 @@
   (let [sets (:set m [])]
     (assoc m :set (into sets [v]))))
 
+(defn parse-get [x]
+  (string/split x #":" 2))
+
+(defn parse-set [x]
+  (let [[nmlkey val] (string/split x #"=" 2)
+        [nml key] (parse-get nmlkey)]
+    [nml key val]))
+
 (def cliopts
-  [["-g" "--get n:k"   "get value of key 'k' in namelist 'n'"        :assoc-fn assoc-get :parse-fn nk ]
-   ["-s" "--set n:k=v" "set value of key 'k' in namelist 'n' to 'v'" :assoc-fn assoc-set :parse-fn nkv]])
+  [["-g" "--get n:k"   "get value of key 'k' in namelist 'n'"        :assoc-fn assoc-get :parse-fn parse-get ]
+   ["-s" "--set n:k=v" "set value of key 'k' in namelist 'n' to 'v'" :assoc-fn assoc-set :parse-fn parse-set]])
   
+;; main
+
 (defn -main [& args]
   (alter-var-root #'*read-eval* (constantly false))
   (let [{:keys [options arguments summary]} (cli/parse-opts args cliopts)
