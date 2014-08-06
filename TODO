@@ -1,7 +1,5 @@
-- command-line 'get'
-- command-line 'set'
-- allow addition of new items via setter
 - deal with get/set split on stdout
+- allow addition of new items via setter
 - tests
 - programmatic interface
 - deal with duplicates (last wins)
