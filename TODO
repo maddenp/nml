@@ -1,6 +1,5 @@
 - deal with get/set split on stdout
-- allow addition of new items
-- allow deletion of old items
+- allow addition of new items via -s/--set
 - deal with duplicates (last wins)
 - error checking (e.g. bad args, namelist/key not found)
 - programmatic interface
