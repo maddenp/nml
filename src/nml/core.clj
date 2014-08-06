@@ -83,6 +83,13 @@
                  :ws       ""
                  :wsopt    ""))))
 
+(defn nmlxform [tree sets]
+  (loop [t tree s sets]
+    (if (empty? s)
+      t
+      (let [[nml key val] (first s)]
+        (recur (nmlset t nml key val) (rest s))))))
+
 (defn nmltree [fname]
   (try (parse (slurp fname))
        (catch Exception e (fail "Could not open namelist file '" fname "'."))))
@@ -111,12 +118,6 @@
   
 ;; main
 
-(defn transform [tree sets]
-  (if (empty? sets)
-    tree
-    (let [[nml key val] (first sets)]
-      (transform (nmlset tree nml key val) (rest sets)))))
-
 (defn -main [& args]
   (alter-var-root #'*read-eval* (constantly false))
   (let [{:keys [options arguments summary]} (cli/parse-opts args cliopts)
@@ -125,5 +126,5 @@
         tree (nmltree (first arguments))]
     (if (and gets sets) (fail "Do not mix get and set operations."))
     (cond gets (doseq [[nml key] gets] (nmlget tree nml key))
-          sets (println (nmlstr (transform tree sets)))
+          sets (println (nmlstr (nmlxform tree sets)))
           :else (println (nmlstr tree)))))
