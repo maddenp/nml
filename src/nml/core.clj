@@ -85,7 +85,7 @@
 
 (defn nmltree [fname]
   (try (parse (slurp fname))
-       (catch Exception e (fail "Could not open namelist file '" fname "'"))))
+       (catch Exception e (fail "Could not open namelist file '" fname "'."))))
 
 ;; cli
 
@@ -123,7 +123,7 @@
         gets (:get options)
         sets (:set options)
         tree (nmltree (first arguments))]
-    (if (and gets sets) (fail "Separate invocations required for read and write operations"))
+    (if (and gets sets) (fail "Do not mix get and set operations."))
     (cond gets (doseq [[nml key] gets] (nmlget tree nml key))
           sets (println (nmlstr (transform tree sets)))
           :else (println (nmlstr tree)))))
