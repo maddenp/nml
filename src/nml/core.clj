@@ -4,7 +4,7 @@
   (:require [clojure.tools.cli :as cli   ])
   (:gen-class))
 
-(declare nmlget nmlname nmlset nmlstr)
+(declare nml-get nml-name nml-set nml-str)
 
 ; defs
 
@@ -18,33 +18,33 @@
   (if msg (println (apply str msg)))
   (System/exit 1))
 
-(defn nmlget [tree nml key]
-  (let [stmt     (last (filter #(= (nmlname %) nml) (rest tree)))
-        nvsubseq (last (filter #(= (nmlname %) key) (rest (last stmt))))
+(defn nml-get [tree nml key]
+  (let [stmt     (last (filter #(= (nml-name %) nml) (rest tree)))
+        nvsubseq (last (filter #(= (nml-name %) key) (rest (last stmt))))
         values   (last nvsubseq)
-        value    (if (nil? values) "" (nmlstr values))]
+        value    (if (nil? values) "" (nml-str values))]
     (println (str nml ":" key "=" value))
     tree))
 
-(defn nmlname [x]
-  (nmlstr (second x)))
+(defn nml-name [x]
+  (nml-str (second x)))
 
-(defn nmlset [tree nml key val & sub]
+(defn nml-set [tree nml key val & sub]
   (let [child (if sub :nvsubseq :stmt)
         match (if sub key nml)
-        vnew  (if sub (fn [tree] (parse val :start :values)) #(nmlset % nml key val true))
-        f     (fn [k v] [child k (if (= (nmlstr k) match) (vnew v) v)])]
+        vnew  (if sub (fn [tree] (parse val :start :values)) #(nml-set % nml key val true))
+        f     (fn [k v] [child k (if (= (nml-str k) match) (vnew v) v)])]
     (insta/transform {child f} tree)))
 
-(defn nmlstr [x]
+(defn nml-str [x]
   (let [k (first x)
         v (rest  x)
         cjoin    #(string/join "," %)
-        delegate #(map nmlstr %)
-        ds       (fn [v] (delegate (sort-by #(nmlname %) v)))
-        list2str #(apply str (map nmlstr %))
-        sf       #(nmlstr (first %))
-        sl       #(nmlstr (last %))]
+        delegate #(map nml-str %)
+        ds       (fn [v] (delegate (sort-by #(nml-name %) v)))
+        list2str #(apply str (map nml-str %))
+        sf       #(nml-str (first %))
+        sl       #(nml-str (last %))]
     (if debug (println (str "k=" k " v=" v)))
     (apply str (case k
                  :s        (ds v)
@@ -83,16 +83,16 @@
                  :ws       ""
                  :wsopt    ""))))
 
-(defn nmlxform [tree sets]
+(defn nml-tree [fname]
+  (try (parse (slurp fname))
+       (catch Exception e (fail "Could not open namelist file '" fname "'."))))
+
+(defn nml-xform [tree sets]
   (loop [t tree s sets]
     (if (empty? s)
       t
       (let [[nml key val] (first s)]
-        (recur (nmlset t nml key val) (rest s))))))
-
-(defn nmltree [fname]
-  (try (parse (slurp fname))
-       (catch Exception e (fail "Could not open namelist file '" fname "'."))))
+        (recur (nml-set t nml key val) (rest s))))))
 
 ;; cli
 
@@ -108,8 +108,8 @@
   (string/split x #":" 2))
 
 (defn parse-set [x]
-  (let [[nmlkey val] (string/split x #"=" 2)
-        [nml key] (parse-get nmlkey)]
+  (let [[nml+key val] (string/split x #"=" 2)
+        [nml key] (parse-get nml+key)]
     [nml key val]))
 
 (def cliopts
@@ -123,8 +123,8 @@
   (let [{:keys [options arguments summary]} (cli/parse-opts args cliopts)
         gets (:get options)
         sets (:set options)
-        tree (nmltree (first arguments))]
+        tree (nml-tree (first arguments))]
     (if (and gets sets) (fail "Do not mix get and set operations."))
-    (cond gets (doseq [[nml key] gets] (nmlget tree nml key))
-          sets (println (nmlstr (nmlxform tree sets)))
-          :else (println (nmlstr tree)))))
+    (cond gets (doseq [[nml key] gets] (nml-get tree nml key))
+          sets (println (nml-str (nml-xform tree sets)))
+          :else (println (nml-str tree)))))
