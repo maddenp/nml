@@ -33,12 +33,25 @@
 (defn nml-name [x]
   (nml-str (second x)))
 
+;;(defn nml-set [tree nml key val & sub]
+;; (let [child (if sub :nvsubseq :stmt)
+;;       match (if sub key nml)
+;;       vnew  (if sub (fn [tree] (parse val :start :values)) #(nml-set % nml key val true))
+;;       f     (fn [k v] [child k (if (= (nml-str k) match) (vnew v) v)])]
+;;   (insta/transform {child f} tree)))
 (defn nml-set [tree nml key val & sub]
-  (let [child (if sub :nvsubseq :stmt)
-        match (if sub key nml)
-        vnew  (if sub (fn [tree] (parse val :start :values)) #(nml-set % nml key val true))
-        f     (fn [k v] [child k (if (= (nml-str k) match) (vnew v) v)])]
-    (insta/transform {child f} tree)))
+  (let [child  (if sub :nvsubseq :stmt)
+        match  (if sub key nml)
+        parent (if sub :nvseq :s)
+        vnew   (if sub (fn [tree] (parse val :start :values)) #(nml-set % nml key val true))
+        f      (fn [k v] [child k (if (= (nml-str k) match) (vnew v) v)])]
+;;   (if sub (println (insta/transform {parent (fn [& children] [parent (if (some #(= (nml-str (second %)) match) children) children (conj children (parse (str key "=0") :start child)))])} tree)))
+    (println tree)
+    (println "###")
+    (let [t2 (if sub (insta/transform {parent (fn [& children] [parent (if (some #(= (nml-str (second %)) match) children) children (conj children (parse (str key "=0") :start child)))])} tree) tree)]
+      (println t2)
+      (println "###")
+      (insta/transform {child f} t2))))
 
 (defn nml-sets [tree sets]
   (loop [t tree s sets]
@@ -129,6 +142,7 @@
         sets (:set options)
         tree (nml-tree (first arguments))]
     (if (and gets sets) (fail "Do not mix get and set operations."))
+;;(println tree)
     (cond gets (nml-gets tree gets)
           sets (println (nml-str (nml-sets tree sets)))
           :else (println (nml-str tree)))))
