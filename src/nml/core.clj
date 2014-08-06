@@ -26,6 +26,10 @@
     (println (str nml ":" key "=" value))
     tree))
 
+(defn nml-gets [tree gets]
+  (doseq [[nml key] gets]
+    (nml-get tree nml key)))
+
 (defn nml-name [x]
   (nml-str (second x)))
 
@@ -35,6 +39,13 @@
         vnew  (if sub (fn [tree] (parse val :start :values)) #(nml-set % nml key val true))
         f     (fn [k v] [child k (if (= (nml-str k) match) (vnew v) v)])]
     (insta/transform {child f} tree)))
+
+(defn nml-sets [tree sets]
+  (loop [t tree s sets]
+    (if (empty? s)
+      t
+      (let [[nml key val] (first s)]
+        (recur (nml-set t nml key val) (rest s))))))
 
 (defn nml-str [x]
   (let [k (first x)
@@ -87,13 +98,6 @@
   (try (parse (slurp fname))
        (catch Exception e (fail "Could not open namelist file '" fname "'."))))
 
-(defn nml-xform [tree sets]
-  (loop [t tree s sets]
-    (if (empty? s)
-      t
-      (let [[nml key val] (first s)]
-        (recur (nml-set t nml key val) (rest s))))))
-
 ;; cli
 
 (defn assoc-get [m k v]
@@ -125,6 +129,6 @@
         sets (:set options)
         tree (nml-tree (first arguments))]
     (if (and gets sets) (fail "Do not mix get and set operations."))
-    (cond gets (doseq [[nml key] gets] (nml-get tree nml key))
-          sets (println (nml-str (nml-xform tree sets)))
+    (cond gets (nml-gets tree gets)
+          sets (println (nml-str (nml-sets tree sets)))
           :else (println (nml-str tree)))))

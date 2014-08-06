@@ -5,3 +5,5 @@
 - programmatic interface
 - tests
 - trim declares?
+- store generated parser vs regerating each time?
+- switch for values-only output
