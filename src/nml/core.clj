@@ -126,6 +126,7 @@
   (let [{:keys [options arguments summary]} (cli/parse-opts args cliopts)
         filename (first arguments)
         tree (nmltree filename)]
+    (if (and (:get options) (:set options))(fail "Separate invocations required for read and write operations"))
     (println (str "### options " options))
     (println (str "### arguments " arguments))
     (println (str "### summary " summary))
