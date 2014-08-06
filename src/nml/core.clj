@@ -28,8 +28,9 @@
   (string/split x #":" 2))
 
 (defn nkv [x]
-  (let [[nmlkey val] (string/split x #"=" 2)]
-    (concat (nk nmlkey) (list val))))
+  (let [[nmlkey val] (string/split x #"=" 2)
+        [nml key] (nk nmlkey)]
+    [nml key val]))
 
 (defn nmlget [tree nml key]
   (let [stmt     (last (filter #(= (nmlname %) nml) (rest tree)))
@@ -100,27 +101,24 @@
   (try (parse (slurp fname))
        (catch Exception e (fail "Could not open namelist file '" fname "'"))))
 
-(defn parse-get [x] (println (str "### parse-get " x)))
-(defn parse-set [x] (println (str "### parse-set " x)))
-(defn assoc-get [m k v] (println (str "### assoc-get m=" m " k=" k " v=" v)))
-(defn assoc-set [m k v] (println (str "### assoc-set m=" m " k=" k " v=" v)))
+(defn assoc-get [m k v]
+  (let [gets (:get m [])]
+    (assoc m :get (into gets [v]))))
 
-;;(def cli-options
-;; [["-g namelist:key"     "get value of key from namelist"      :parse-fn parse-get :assoc-fn assoc-get]
-;;  ["-s namelist:key=val" "set value of key in namelist to val" :parse-fn parse-set :assoc-fn assoc-set]
-;;  ["-h"                  "help"]])
-(def cli-options
-  [["-i"]])
+(defn assoc-set [m k v]
+  (let [sets (:set m [])]
+    (assoc m :set (into sets [v]))))
+
+(def cliopts
+  [["-g" "--get n:k"   "get value of key 'k' in namelist 'n'"        :assoc-fn assoc-get :parse-fn nk ]
+   ["-s" "--set n:k=v" "set value of key 'k' in namelist 'n' to 'v'" :assoc-fn assoc-set :parse-fn nkv]])
   
 (defn -main [& args]
   (alter-var-root #'*read-eval* (constantly false))
-;; (let [commands (butlast args)
-;;       filename (last args)
-;;       tree (nmltree filename)]
-;;   (exe tree commands)))
-;; (let [{:keys [opts args errs summ]} (cli/parse-opts args cli-options)]
-;;   (println (str "### opts " opts))
-;;   (println (str "### args " args))
-;;   (println (str "### errs " errs))
-;;   (println (str "### summ " summ))))
-  (println (cli/parse-opts args cli-options)))
+  (let [{:keys [options arguments summary]} (cli/parse-opts args cliopts)
+        filename (first arguments)
+        tree (nmltree filename)]
+    (println (str "### options " options))
+    (println (str "### arguments " arguments))
+    (println (str "### summary " summary))
+    (println (nmlstr tree))))

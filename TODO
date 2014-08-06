@@ -5,3 +5,4 @@
 - error checking (e.g. bad args, namelist/key not found)
 - programmatic interface
 - tests
+- trim declares?
