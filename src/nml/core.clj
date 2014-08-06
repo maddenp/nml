@@ -1,6 +1,7 @@
 (ns nml.core
   (:require [clojure.string    :as string])
   (:require [instaparse.core   :as insta ])
+  (:require [clojure.tools.cli :as cli   ])
   (:gen-class))
 
 (declare nk nkv nmlget nmlname nmlset nmlstr)
@@ -29,7 +30,7 @@
 (defn nkv [x]
   (let [[nmlkey val] (string/split x #"=" 2)]
     (concat (nk nmlkey) (list val))))
-  
+
 (defn nmlget [tree nml key]
   (let [stmt     (last (filter #(= (nmlname %) nml) (rest tree)))
         nvsubseq (last (filter #(= (nmlname %) key) (rest (last stmt))))
@@ -99,9 +100,27 @@
   (try (parse (slurp fname))
        (catch Exception e (fail "Could not open namelist file '" fname "'"))))
 
+(defn parse-get [x] (println (str "### parse-get " x)))
+(defn parse-set [x] (println (str "### parse-set " x)))
+(defn assoc-get [m k v] (println (str "### assoc-get m=" m " k=" k " v=" v)))
+(defn assoc-set [m k v] (println (str "### assoc-set m=" m " k=" k " v=" v)))
+
+;;(def cli-options
+;; [["-g namelist:key"     "get value of key from namelist"      :parse-fn parse-get :assoc-fn assoc-get]
+;;  ["-s namelist:key=val" "set value of key in namelist to val" :parse-fn parse-set :assoc-fn assoc-set]
+;;  ["-h"                  "help"]])
+(def cli-options
+  [["-i"]])
+  
 (defn -main [& args]
   (alter-var-root #'*read-eval* (constantly false))
-  (let [commands (butlast args)
-        filename (last args)
-        tree (nmltree filename)]
-    (println (nmlstr (exe tree commands)))))
+;; (let [commands (butlast args)
+;;       filename (last args)
+;;       tree (nmltree filename)]
+;;   (exe tree commands)))
+;; (let [{:keys [opts args errs summ]} (cli/parse-opts args cli-options)]
+;;   (println (str "### opts " opts))
+;;   (println (str "### args " args))
+;;   (println (str "### errs " errs))
+;;   (println (str "### summ " summ))))
+  (println (cli/parse-opts args cli-options)))
