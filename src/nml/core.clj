@@ -14,16 +14,6 @@
 
 ;; defns
 
-;;(defn exe [tree commands]
-;; (if (empty? commands)
-;;   tree
-;;   (let [cmd (first  commands)
-;;         arg (second commands)
-;;         rst (drop 2 commands)]
-;;     (case cmd
-;;       "--get" (let [[nml key    ] (parse-get arg)] (exe (nmlget tree nml key)     rst))
-;;       "--set" (let [[nml key val] (parse-set arg)] (exe (nmlset tree nml key val) rst))))))
-
 (defn fail [& msg]
   (if msg (println (apply str msg)))
   (System/exit 1))
@@ -121,13 +111,19 @@
   
 ;; main
 
+(defn transform [tree sets]
+  (if (empty? sets)
+    tree
+    (let [[nml key val] (first sets)]
+      (transform (nmlset tree nml key val) (rest sets)))))
+
 (defn -main [& args]
   (alter-var-root #'*read-eval* (constantly false))
   (let [{:keys [options arguments summary]} (cli/parse-opts args cliopts)
-        filename (first arguments)
-        tree (nmltree filename)]
-    (if (and (:get options) (:set options))(fail "Separate invocations required for read and write operations"))
-    (println (str "### options " options))
-    (println (str "### arguments " arguments))
-    (println (str "### summary " summary))
-    (println (nmlstr tree))))
+        gets (:get options)
+        sets (:set options)
+        tree (nmltree (first arguments))]
+    (if (and gets sets) (fail "Separate invocations required for read and write operations"))
+    (cond gets (doseq [[nml key] gets] (nmlget tree nml key))
+          sets (println (nmlstr (transform tree sets)))
+          :else (println (nmlstr tree)))))
