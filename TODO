@@ -1,4 +1,3 @@
-- deal with get/set split on stdout
 - allow addition of new items via -s/--set
 - deal with duplicates (last wins)
 - help
