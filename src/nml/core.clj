@@ -33,18 +33,26 @@
 (defn nml-name [x]
   (nml-str (second x)))
 
-(defn nml-add [tree parent child match]
+(defn nml-add [tree parent child match proxy]
+;; (println tree)
+;; (println parent child match proxy)
   (let [missing? (fn [children] (not-any? #(= (nml-name %) match) children))
-        f (fn [& children] (into [parent (if (missing? children) (parse (str match "=0") :start child))] children))]
+        f (fn [& children] (if (missing? children)
+                             (into [parent (parse proxy :start child)] children)
+                             (into [parent] children)))]
+;;   (println (insta/transform {parent f} tree))
+;;   (println "###")
     (insta/transform {parent f} tree)))
 
 (defn nml-set [tree nml key val & sub]
   (let [child  (if sub :nvsubseq :stmt)
         match  (if sub key nml)
         parent (if sub :nvseq :s)
+        proxy  (if sub (str match "=0") (str "&" match " /"))
         vnew   (if sub (fn [tree] (parse val :start :values)) #(nml-set % nml key val true))
-        f      (fn [k v] [child k (if (= (nml-str k) match) (vnew v) v)])]
-    (insta/transform {child f} (if sub (nml-add tree parent child match) tree))))
+;;       f      (fn ([k v] (println (str "### k " k)) (println (str "### v " v)) [child k (if (= (nml-str k) match) (vnew v) v)]))]
+        f      (fn ([k v] [child k (if (= (nml-str k) match) (vnew v) v)]))]
+    (insta/transform {child f} (nml-add tree parent child match proxy))))
 
 (defn nml-sets [tree sets]
   (loop [t tree s sets]
@@ -135,7 +143,7 @@
         sets (:set options)
         tree (nml-tree (first arguments))]
     (if (and gets sets) (fail "Do not mix get and set operations."))
-;;(println tree)
+;;   (println tree)
     (cond gets (nml-gets tree gets)
           sets (println (nml-str (nml-sets tree sets)))
           :else (println (nml-str tree)))))
