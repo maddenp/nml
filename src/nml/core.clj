@@ -34,17 +34,17 @@
   (nml-str (second x)))
 
 (defn nml-add [tree parent child match]
-  (insta/transform {parent (fn [& children] (into [parent (if (not-any? #(= (nml-str (second %)) match) children) (parse (str match "=0") :start child))] children))} tree))
-  
+  (let [missing? (fn [children] (not-any? #(= (nml-name %) match) children))
+        f (fn [& children] (into [parent (if (missing? children) (parse (str match "=0") :start child))] children))]
+    (insta/transform {parent f} tree)))
+
 (defn nml-set [tree nml key val & sub]
   (let [child  (if sub :nvsubseq :stmt)
         match  (if sub key nml)
         parent (if sub :nvseq :s)
         vnew   (if sub (fn [tree] (parse val :start :values)) #(nml-set % nml key val true))
         f      (fn [k v] [child k (if (= (nml-str k) match) (vnew v) v)])]
-    (let [t2 (if sub (nml-add tree parent child match) tree)]
-      (if sub (println t2))
-      (insta/transform {child f} t2))))
+    (insta/transform {child f} (if sub (nml-add tree parent child match) tree))))
 
 (defn nml-sets [tree sets]
   (loop [t tree s sets]
