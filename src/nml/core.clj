@@ -45,12 +45,7 @@
         parent (if sub :nvseq :s)
         vnew   (if sub (fn [tree] (parse val :start :values)) #(nml-set % nml key val true))
         f      (fn [k v] [child k (if (= (nml-str k) match) (vnew v) v)])]
-;;   (if sub (println (insta/transform {parent (fn [& children] [parent (if (some #(= (nml-str (second %)) match) children) children (conj children (parse (str key "=0") :start child)))])} tree)))
-    (println tree)
-    (println "###")
-    (let [t2 (if sub (insta/transform {parent (fn [& children] [parent (if (some #(= (nml-str (second %)) match) children) children (conj children (parse (str key "=0") :start child)))])} tree) tree)]
-      (println t2)
-      (println "###")
+    (let [t2 (if sub (insta/transform {parent (fn [& children] (into [parent (if (not-any? #(= (nml-str (second %)) match) children) (parse (str key "=0") :start child))] children))} tree) tree)]
       (insta/transform {child f} t2))))
 
 (defn nml-sets [tree sets]
