@@ -34,14 +34,11 @@
   (nml-str (second x)))
 
 (defn nml-add [tree parent child match proxy]
-;; (println tree)
-;; (println parent child match proxy)
   (let [missing? (fn [children] (not-any? #(= (nml-name %) match) children))
-        f (fn [& children] (if (missing? children)
-                             (into [parent (parse proxy :start child)] children)
-                             (into [parent] children)))]
-;;   (println (insta/transform {parent f} tree))
-;;   (println "###")
+        f (fn [& children]
+            (if (missing? children)
+              (into [parent (parse proxy :start child)] children)
+              (into [parent] children)))]
     (insta/transform {parent f} tree)))
 
 (defn nml-set [tree nml key val & sub]
@@ -50,7 +47,6 @@
         parent (if sub :nvseq :s)
         proxy  (if sub (str match "=0") (str "&" match " /"))
         vnew   (if sub (fn [tree] (parse val :start :values)) #(nml-set % nml key val true))
-;;       f      (fn ([k v] (println (str "### k " k)) (println (str "### v " v)) [child k (if (= (nml-str k) match) (vnew v) v)]))]
         f      (fn ([k v] [child k (if (= (nml-str k) match) (vnew v) v)]))]
     (insta/transform {child f} (nml-add tree parent child match proxy))))
 
