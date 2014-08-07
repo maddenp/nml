@@ -31,8 +31,7 @@
         nvsubseq (last (filter #(= (nml-name %) key) (rest (last stmt))))
         values   (last nvsubseq)
         value    (if (nil? values) "" (nml-str values))]
-    (println (str nml ":" key "=" value))
-    tree))
+    (println (str nml ":" key "=" value))))
 
 (defn nml-gets [tree gets]
   (doseq [[nml key] gets]
@@ -141,7 +140,6 @@
         sets (:set options)
         tree (nml-tree (first arguments))]
     (if (and gets sets) (fail "Do not mix get and set operations."))
-;;   (println tree)
     (cond gets (nml-gets tree gets)
           sets (println (nml-str (nml-sets tree sets)))
           :else (println (nml-str tree)))))

@@ -1,4 +1,3 @@
-- allow addition of new items via -s/--set
 - deal with duplicates (last wins)
 - help
 - error checking (e.g. bad args, namelist/key not found)
