@@ -11,7 +11,7 @@ Install [Leiningen](http://leiningen.org/) if you don't have it, then:
 
 ###Run
 
-The _nml_ wrapper script invokes _java -jar_ with the path to the Leiningen-generated _target/nml.jar_.
+The _nml_ wrapper script invokes _java -jar_ with the path to the Leiningen-generated _target/nml.jar_. It may be convenient to edit this script for your own use.
 
 ````
 Usage: nml [options] file
@@ -57,7 +57,9 @@ Invoked with no options, _nml_ prints a simplified, sorted version of the input:
 /
 ````
 
-Note that _nml_ normalizes many formatting options: Whitespace and comments are removed, non-string text is converted to lower-case, key-value pairs are printed one-per-line without comma separators, etc.
+Note that _nml_ normalizes many formatting options: Whitespace and comments are removed, non-string text is converted to lower-case, key-value pairs are printed one-per-line without comma separators, logical values are represented in their simplest form, etc.
+
+####Querying
 
 To query values:
 
@@ -87,6 +89,8 @@ echo "The value of i is $(nml -n -g b:i nl)"
 % ./say.sh 
 The value of i is 88
 ````
+
+####Modifying
 
 To modify (or add) values:
 
