@@ -166,5 +166,5 @@
     (if (:help options) (usage summary))
     (let [tree (nml-tree (first arguments))]
       (cond gets  (nml-gets tree gets (:values options))
-            sets  (println (nml-str (nml-sets tree sets)))
-            :else (println (nml-str tree))))))
+            sets  (println (string/trim (nml-str (nml-sets tree sets))))
+            :else (println (string/trim (nml-str tree)))))))
