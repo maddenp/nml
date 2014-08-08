@@ -17,7 +17,8 @@
 ;; defns
 
 (defn fail [& msg]
-  (if msg (println (apply str msg)))
+  (doseq [line msg]
+    (println line))
   (System/exit 1))
 
 (defn nml-add [tree parent child match proxy]
@@ -108,11 +109,16 @@
                  :wsopt    ""))))
 
 (defn nml-tree [fname]
-  (let [errmsg (str "Could not open namelist file '" fname "'.")
-        tree   (try (parse (slurp fname)) (catch Exception e (fail errmsg)))
+  (let [ioerr  (str "Could not open namelist file '" fname "'.")
+        result (try (parse (slurp fname)) (catch Exception e (fail ioerr)))
         child  :nvseq
         f      (fn [& v] (into [child] (nml-uniq v)))]
-    (insta/transform {child f} tree)))
+    (if (insta/failure? result)
+      (let [{t :text l :line c :column} result]
+        (fail (str "Error parsing '" fname "' at line " l " column " c ":")
+              t
+              (str (apply str (repeat (- c 1) " ")) "^")))
+      (insta/transform {child f} result))))
 
 (defn nml-uniq [values]
   (loop [head (first values) tail (rest values) tree []]
