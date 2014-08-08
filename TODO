@@ -4,4 +4,3 @@
 - tests
 - trim (declare ...) ?
 - store generated parser vs regerating each time?
-- switch for values-only output

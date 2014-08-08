@@ -26,16 +26,16 @@
                                     (into [parent       ] children)))]
     (if (nil? tree) [parent (vnew)] (insta/transform {parent f} tree))))
 
-(defn nml-get [tree nml key]
+(defn nml-get [tree nml key values]
   (let [stmt     (last (filter #(= (nml-name %) nml) (rest tree)))
         nvsubseq (last (filter #(= (nml-name %) key) (rest (last stmt))))
-        values   (last nvsubseq)
-        value    (if (nil? values) "" (nml-str values))]
-    (println (str nml ":" key "=" value))))
+        values   (last nvsubseq)]
+    (if (nil? values) "" (nml-str values))))
 
-(defn nml-gets [tree gets]
+(defn nml-gets [tree gets values]
   (doseq [[nml key] gets]
-    (nml-get tree nml key)))
+    (let [val (nml-get tree nml key values)]
+      (println (if values val (str nml ":" key "=" val))))))
 
 (defn nml-name [x]
   (nml-str (second x)))
@@ -139,8 +139,9 @@
     [nml key val]))
 
 (def cliopts
-  [["-g" "--get n:k"   "get value of key 'k' in namelist 'n'"        :assoc-fn assoc-get :parse-fn parse-get ]
-   ["-s" "--set n:k=v" "set value of key 'k' in namelist 'n' to 'v'" :assoc-fn assoc-set :parse-fn parse-set]])
+  [["-g" "--get n:k"   "get value of key 'k' in namelist 'n'"         :assoc-fn assoc-get :parse-fn parse-get]
+   ["-s" "--set n:k=v" "set value of key 'k' in namelist 'n' to 'v'"  :assoc-fn assoc-set :parse-fn parse-set]
+   ["-v" "--values"    "report values without 'namelist:key=' prefix"                                        ]])
   
 ;; main
 
@@ -151,6 +152,6 @@
         sets (:set options)
         tree (nml-tree (first arguments))]
     (if (and gets sets) (fail "Do not mix get and set operations."))
-    (cond gets  (nml-gets tree gets)
+    (cond gets  (nml-gets tree gets (:values options))
           sets  (println (nml-str (nml-sets tree sets)))
           :else (println (nml-str tree)))))
