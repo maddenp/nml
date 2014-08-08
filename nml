@@ -1,0 +1,5 @@
+#!/bin/sh
+
+NMLJAR=target/nml-0.0-standalone.jar
+
+java -jar $NMLJAR "$@"
