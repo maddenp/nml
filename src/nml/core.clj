@@ -30,8 +30,8 @@
     (if (nil? tree) [parent (vnew)] (insta/transform {parent f} tree))))
 
 (defn nml-get [tree nml key]
-  (let [stmt     (last (filter #(= (nml-name %) nml) (rest tree)))
-        nvsubseq (last (filter #(= (nml-name %) key) (rest (last stmt))))
+  (let [stmt     (last (filter #(= (nml-name %) (string/lower-case nml)) (rest tree)))
+        nvsubseq (last (filter #(= (nml-name %) (string/lower-case key)) (rest (last stmt))))
         values   (last nvsubseq)]
     (if (nil? values) "" (nml-str values))))
 
