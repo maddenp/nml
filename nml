@@ -1,5 +1,9 @@
 #!/bin/sh
 
-NMLJAR=target/nml-0.0-standalone.jar
+p=$(readlink -e $0)
+d=$(dirname     $p)
+b=$(basename    $p)
+
+NMLJAR=$d/target/nml-0.0-standalone.jar
 
 java -jar $NMLJAR "$@"

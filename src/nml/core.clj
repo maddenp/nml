@@ -12,6 +12,8 @@
 
 (def parse (insta/parser (clojure.java.io/resource "grammar")))
 
+(def version "0.1")
+
 ;; defns
 
 (defn fail [& msg]
@@ -26,16 +28,16 @@
                                     (into [parent       ] children)))]
     (if (nil? tree) [parent (vnew)] (insta/transform {parent f} tree))))
 
-(defn nml-get [tree nml key values]
+(defn nml-get [tree nml key]
   (let [stmt     (last (filter #(= (nml-name %) nml) (rest tree)))
         nvsubseq (last (filter #(= (nml-name %) key) (rest (last stmt))))
         values   (last nvsubseq)]
     (if (nil? values) "" (nml-str values))))
 
-(defn nml-gets [tree gets values]
+(defn nml-gets [tree gets no-prefix]
   (doseq [[nml key] gets]
-    (let [val (nml-get tree nml key values)]
-      (println (if values val (str nml ":" key "=" val))))))
+    (let [val (nml-get tree nml key)]
+      (println (if no-prefix val (str nml ":" key "=" val))))))
 
 (defn nml-name [x]
   (nml-str (second x)))
@@ -140,9 +142,10 @@
 
 (def cliopts
   [["-g" "--get n:k"   "Get value of key 'k' in namelist 'n'"         :assoc-fn assoc-get :parse-fn parse-get]
+   ["-h" "--help"      "Show usage information"                                                              ]
+   ["-n" "--no-prefix" "Report values without 'namelist:key=' prefix"                                        ]
    ["-s" "--set n:k=v" "Set value of key 'k' in namelist 'n' to 'v'"  :assoc-fn assoc-set :parse-fn parse-set]
-   ["-v" "--values"    "Report values without 'namelist:key=' prefix"                                        ]
-   ["-h" "--help"      "Show usage information"                                                              ]])
+   ["-v" "--version"   "Show version information"                                                            ]])
   
 ;; main
 
@@ -162,9 +165,10 @@
   (let [{:keys [options arguments summary]} (cli/parse-opts args cliopts)
         gets (:get options)
         sets (:set options)]
-    (if (and gets sets) (fail "Do not mix get and set operations."))
     (if (:help options) (usage summary))
+    (if (:version options) (do (println version) (System/exit 0)))
+    (if (and gets sets) (fail "Do not mix get and set operations."))
     (let [tree (nml-tree (first arguments))]
-      (cond gets  (nml-gets tree gets (:values options))
+      (cond gets  (nml-gets tree gets (:no-prefix options))
             sets  (println (string/trim (nml-str (nml-sets tree sets))))
             :else (println (string/trim (nml-str tree)))))))
