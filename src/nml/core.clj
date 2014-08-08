@@ -4,7 +4,7 @@
   (:require [clojure.tools.cli :as cli   ])
   (:gen-class))
 
-(declare nml-get nml-name nml-set nml-str nml-uniq)
+(declare nml-name nml-str nml-uniq)
 
 ; defs
 
@@ -139,19 +139,32 @@
     [nml key val]))
 
 (def cliopts
-  [["-g" "--get n:k"   "get value of key 'k' in namelist 'n'"         :assoc-fn assoc-get :parse-fn parse-get]
-   ["-s" "--set n:k=v" "set value of key 'k' in namelist 'n' to 'v'"  :assoc-fn assoc-set :parse-fn parse-set]
-   ["-v" "--values"    "report values without 'namelist:key=' prefix"                                        ]])
+  [["-g" "--get n:k"   "Get value of key 'k' in namelist 'n'"         :assoc-fn assoc-get :parse-fn parse-get]
+   ["-s" "--set n:k=v" "Set value of key 'k' in namelist 'n' to 'v'"  :assoc-fn assoc-set :parse-fn parse-set]
+   ["-v" "--values"    "Report values without 'namelist:key=' prefix"                                        ]
+   ["-h" "--help"      "Show usage information"                                                              ]])
   
 ;; main
+
+(defn usage [summary]
+  (doseq [x [""
+             "Usage: nml [options] file"
+             ""
+             "Options:"
+             ""
+             summary
+             ""]]
+    (println x))
+  (System/exit 0))
 
 (defn -main [& args]
   (alter-var-root #'*read-eval* (constantly false))
   (let [{:keys [options arguments summary]} (cli/parse-opts args cliopts)
         gets (:get options)
-        sets (:set options)
-        tree (nml-tree (first arguments))]
+        sets (:set options)]
     (if (and gets sets) (fail "Do not mix get and set operations."))
-    (cond gets  (nml-gets tree gets (:values options))
-          sets  (println (nml-str (nml-sets tree sets)))
-          :else (println (nml-str tree)))))
+    (if (:help options) (usage summary))
+    (let [tree (nml-tree (first arguments))]
+      (cond gets  (nml-gets tree gets (:values options))
+            sets  (println (nml-str (nml-sets tree sets)))
+            :else (println (nml-str tree))))))

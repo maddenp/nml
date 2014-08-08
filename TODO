@@ -1,6 +1,6 @@
-- help
 - error checking (e.g. bad args, namelist/key not found)
 - programmatic interface
 - tests
-- trim (declare ...) ?
 - store generated parser vs regerating each time?
+- wrapper script
+- error on parse failure
