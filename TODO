@@ -1,8 +1,7 @@
-- deal with duplicates (last wins)
 - help
 - error checking (e.g. bad args, namelist/key not found)
 - programmatic interface
 - tests
-- trim declares?
+- trim (declare ...) ?
 - store generated parser vs regerating each time?
 - switch for values-only output

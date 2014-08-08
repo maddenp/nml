@@ -4,7 +4,7 @@
   (:require [clojure.tools.cli :as cli   ])
   (:gen-class))
 
-(declare nml-get nml-name nml-set nml-str)
+(declare nml-get nml-name nml-set nml-str nml-uniq)
 
 ; defs
 
@@ -19,11 +19,11 @@
   (System/exit 1))
 
 (defn nml-add [tree parent child match proxy]
-  (let [missing?  (fn [children] (not-any? #(= (nml-name %) match) children))
-        vnew     #(parse proxy :start child)
-        f         (fn [& children] (if (missing? children)
-                                     (into [parent (vnew)] children)
-                                     (into [parent       ] children)))]
+  (let [missing  (fn [children] (not-any? #(= (nml-name %) match) children))
+        vnew    #(parse proxy :start child)
+        f        (fn [& children] (if (missing children)
+                                    (into [parent (vnew)] children)
+                                    (into [parent       ] children)))]
     (if (nil? tree) [parent (vnew)] (insta/transform {parent f} tree))))
 
 (defn nml-get [tree nml key]
@@ -59,11 +59,11 @@
         (recur (nml-set t nml key val) (rest s))))))
 
 (defn nml-str [x]
-  (let [k (first x)
-        v (rest  x)
+  (let [k         (first x)
+        v         (rest  x)
         cjoin    #(string/join "," %)
         delegate #(map nml-str %)
-        ds       (fn [v] (delegate (sort-by #(nml-name %) v)))
+        ds        (fn [v] (delegate (sort-by #(nml-name %) v)))
         list2str #(apply str (map nml-str %))
         sf       #(nml-str (first %))
         sl       #(nml-str (last %))]
@@ -106,8 +106,19 @@
                  :wsopt    ""))))
 
 (defn nml-tree [fname]
-  (try (parse (slurp fname))
-       (catch Exception e (fail "Could not open namelist file '" fname "'."))))
+  (let [errmsg (str "Could not open namelist file '" fname "'.")
+        tree   (try (parse (slurp fname)) (catch Exception e (fail errmsg)))
+        child  :nvseq
+        f      (fn [& v] (into [child] (nml-uniq v)))]
+    (insta/transform {child f} tree)))
+
+(defn nml-uniq [values]
+  (loop [head (first values) tail (rest values) tree []]
+    (if (nil? head)
+      tree
+      (let [name #(nml-name (second %))
+            copy  (some #(= (name head) (name %)) tail)]
+        (recur (first tail) (rest tail) (into tree (if copy [] [head])))))))
 
 ;; cli
 
@@ -140,6 +151,6 @@
         sets (:set options)
         tree (nml-tree (first arguments))]
     (if (and gets sets) (fail "Do not mix get and set operations."))
-    (cond gets (nml-gets tree gets)
-          sets (println (nml-str (nml-sets tree sets)))
+    (cond gets  (nml-gets tree gets)
+          sets  (println (nml-str (nml-sets tree sets)))
           :else (println (nml-str tree)))))
