@@ -66,7 +66,7 @@ Note that _nml_ normalizes many formatting options: Whitespace and comments are 
 To get values:
 
 ````
-% nml -g a:r --get b:i nl
+% nml --get a:r --get b:i nl
 a:r=2.2e8
 b:i=88
 ````
@@ -74,7 +74,7 @@ b:i=88
 To print only values, without namelist:key= prefixes:
 
 ````
-% nml --no-prefix --get b:i -g a:r nl
+% nml --no-prefix --get b:i --get a:r nl
 88
 2.2e8
 ````
@@ -86,7 +86,7 @@ An obvious application to use _nml_ to insert namelist settings in scripts:
 ```
 % cat say.sh
 #!/bin/sh
-echo "The value of i is $(nml -n -g b:i nl)"
+echo "The value of i is $(nml --no-prefix --get b:i nl)"
 
 % ./say.sh 
 The value of i is 88
@@ -97,7 +97,7 @@ The value of i is 88
 To set (or add) values:
 
 ````
-% nml --set a:s="'Hello Yourself'" -s b:f=.false. -s c:x=99 nl
+% nml --set a:s="'Hello Yourself'" --set b:f=.false. --set c:x=99 nl
 &a
   r=2.2e8
   s='Hello Yourself'
@@ -118,12 +118,12 @@ Note that get and set commands may not be mixed in a single _nml_ invovation.
 To edit a namelist file in-place:
 
 ````
-% nml -n -g b:l nl
+% nml --no-prefix --get b:l nl
 t
 
-% nml -i -s b:l=f nl
+% nml --in-place --set b:l=f nl
 
-% nml -n -g b:l nl
+% nml --no-prefix --get b:l nl
 f
 ````
 
@@ -132,7 +132,7 @@ To create a new namelist file (without redirecting stdout):
 ````
 % rm -f new
 
-% nml -i -s a:x=77 -s a:y=88 new
+% nml --in-place --set a:x=77 --set a:y=88 new
 
 % cat new
 &a
