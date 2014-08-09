@@ -10,16 +10,30 @@
 
 (def debug false)
 
+(def msgs
+  {0 "-i/--in-place has no effect when no input file is specified."
+   1 "Input file required for get operations."
+   2 "-n/--no-prefix has no effect on set operations."
+   3 "Do not mix get and set operations."})
+
 (def parse (insta/parser (clojure.java.io/resource "grammar")))
 
 (def version "0.1")
 
-;; defns
 
-(defn fail [& msg]
-  (doseq [line msg]
+;; utility defns
+
+(defn fail [& lines]
+  (doseq [line lines]
     (println line))
   (System/exit 1))
+
+(defn warn [& lines]
+  (binding [*out* *err*]
+    (doseq [line lines]
+      (println (str "WARNING: " line)))))
+
+;; nml defns
 
 (defn nml-add [tree parent child match proxy]
   (let [missing  (fn [children] (not-any? #(= (nml-name %) match) children))
@@ -149,6 +163,7 @@
 (def cliopts
   [["-g" "--get n:k"   "Get value of key 'k' in namelist 'n'"         :assoc-fn assoc-get :parse-fn parse-get]
    ["-h" "--help"      "Show usage information"                                                              ]
+   ["-i" "--in-place"  "Edit namelist file in place"                                                         ]
    ["-n" "--no-prefix" "Report values without 'namelist:key=' prefix"                                        ]
    ["-s" "--set n:k=v" "Set value of key 'k' in namelist 'n' to 'v'"  :assoc-fn assoc-set :parse-fn parse-set]
    ["-v" "--version"   "Show version information"                                                            ]])
@@ -173,10 +188,12 @@
         sets (:set options)]
     (if (:help options) (usage summary))
     (if (:version options) (do (println version) (System/exit 0)))
-    (if (and gets sets) (fail "Do not mix get and set operations."))
+    (if (and gets sets) (fail (msgs 3)))
+    (if (and sets (:no-prefix options)) (warn (msgs 2)))
     (let [file (first arguments)
           tree (if file (nml-tree file) [:s])]
-      (if (and gets (not file)) (fail "Input file required for get operations."))
+      (if (and gets (not file)) (fail (msgs 1)))
+      (if (and (:in-place options) (not file)) (warn (msgs 0)))
       (if debug (println tree))
       (cond gets  (nml-gets tree gets (:no-prefix options))
             sets  (println (string/trim (nml-str (nml-sets tree sets))))
