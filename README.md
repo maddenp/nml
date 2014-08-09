@@ -69,7 +69,7 @@ a:r=2.2e8
 b:i=88
 ````
 
-To print only values, without namelist:key prefixes:
+To print only values, without namelist:key= prefixes:
 
 ````
 % nml --no-prefix --get b:i -g a:r nl
@@ -79,7 +79,7 @@ To print only values, without namelist:key prefixes:
 
 Note that values are printed in the order they were requested on the command line.
 
-An obvious use case is to use _nml_ to insert namelist settings in scripts:
+An obvious application to use _nml_ to insert namelist settings in scripts:
 
 ```
 % cat say.sh
