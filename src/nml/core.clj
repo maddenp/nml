@@ -4,7 +4,7 @@
   (:require [clojure.tools.cli :as cli   ])
   (:gen-class))
 
-(declare nml-name nml-str nml-uniq)
+(declare nml-get nml-name nml-set nml-str)
 
 ; defs
 
@@ -21,23 +21,33 @@
 
 (def version "0.1")
 
-
 ;; utility defns
 
-(defn fail [& lines]
+(defn- fail [& lines]
   (binding [*out* *err*]
     (doseq [line lines]
       (println line))
     (System/exit 1)))
 
-(defn warn [& lines]
+(defn- warn [& lines]
   (binding [*out* *err*]
     (doseq [line lines]
       (println (str "WARNING: " line)))))
 
-;; nml defns
+(defn- usage [summary]
+  (doseq [x [""
+             "Usage: nml [options] file"
+             ""
+             "Options:"
+             ""
+             summary
+             ""]]
+    (println x))
+  (System/exit 0))
 
-(defn nml-add [tree parent child match proxy]
+;; nml private defns
+
+(defn- nml-add [tree parent child match proxy]
   (let [missing  (fn [children] (not-any? #(= (nml-name %) match) children))
         vnew    #(parse proxy :start child)
         f        (fn [& children] (if (missing children)
@@ -45,39 +55,22 @@
                                     (into [parent       ] children)))]
     (if (nil? tree) [parent (vnew)] (insta/transform {parent f} tree))))
 
-(defn nml-get [tree nml key]
-  (let [stmt     (last (filter #(= (nml-name %) (string/lower-case nml)) (rest tree)))
-        nvsubseq (last (filter #(= (nml-name %) (string/lower-case key)) (rest (last stmt))))
-        values   (last nvsubseq)]
-    (if (nil? values) "" (nml-str values))))
-
-(defn nml-gets [tree gets no-prefix]
+(defn- nml-gets [tree gets no-prefix]
   (doseq [[nml key] gets]
     (let [val (nml-get tree nml key)]
       (println (if no-prefix val (str nml ":" key "=" val))))))
 
-(defn nml-name [x]
+(defn- nml-name [x]
   (nml-str (second x)))
 
-(defn nml-set [tree nml key val & sub]
-  (let [child  (if sub :nvsubseq :stmt)
-        match  (if sub (string/lower-case key) (string/lower-case nml))
-        parent (if sub :nvseq :s)
-        proxy  (if sub (str match "=0") (str "&" match " /"))
-        vnew   (if sub (fn [tree] (parse val :start :values)) #(nml-set % nml key val true))
-        f      (fn
-                 ([k v] (if (= (nml-str k) match) [child k (vnew v  )] [child k v]))
-                 ([k  ] (if (= (nml-str k) match) [child k (vnew nil)] [child k  ])))]
-    (insta/transform {child f} (nml-add tree parent child match proxy))))
-
-(defn nml-sets [tree sets]
+(defn- nml-sets [tree sets]
   (loop [t tree s sets]
     (if (empty? s)
       t
       (let [[nml key val] (first s)]
         (recur (nml-set t nml key val) (rest s))))))
 
-(defn nml-str [x]
+(defn- nml-str [x]
   (let [k         (first x)
         v         (rest  x)
         cjoin    #(string/join "," %)
@@ -124,18 +117,7 @@
                  :ws       ""
                  :wsopt    ""))))
 
-(defn nml-tree [s]
-  (let [result (parse s)
-        child  :nvseq
-        f      (fn [& v] (into [child] (nml-uniq v)))]
-    (if (insta/failure? result)
-      (let [{t :text l :line c :column} result]
-        (fail (str "Parse error at line " l " column " c ":")
-              t
-              (str (apply str (repeat (- c 1) " ")) "^")))
-      (insta/transform {child f} result))))
-
-(defn nml-uniq [values]
+(defn- nml-uniq [values]
   (loop [head (first values) tail (rest values) tree []]
     (if (nil? head)
       tree
@@ -145,18 +127,18 @@
 
 ;; cli
 
-(defn assoc-get [m k v]
+(defn- assoc-get [m k v]
   (let [gets (:get m [])]
     (assoc m :get (into gets [v]))))
 
-(defn assoc-set [m k v]
+(defn- assoc-set [m k v]
   (let [sets (:set m [])]
     (assoc m :set (into sets [v]))))
 
-(defn parse-get [x]
+(defn- parse-get [x]
   (string/split x #":" 2))
 
-(defn parse-set [x]
+(defn- parse-set [x]
   (let [[nml+key val] (string/split x #"=" 2)
         [nml key] (parse-get nml+key)]
     [nml key val]))
@@ -169,18 +151,37 @@
    ["-s" "--set n:k=v" "Set value of key 'k' in namelist 'n' to 'v'"  :assoc-fn assoc-set :parse-fn parse-set]
    ["-v" "--version"   "Show version information"                                                            ]])
   
-;; main
+;; nml public defns
 
-(defn usage [summary]
-  (doseq [x [""
-             "Usage: nml [options] file"
-             ""
-             "Options:"
-             ""
-             summary
-             ""]]
-    (println x))
-  (System/exit 0))
+(defn nml-get [tree nml key]
+  (let [stmt     (last (filter #(= (nml-name %) (string/lower-case nml)) (rest tree)))
+        nvsubseq (last (filter #(= (nml-name %) (string/lower-case key)) (rest (last stmt))))
+        values   (last nvsubseq)]
+    (if (nil? values) "" (nml-str values))))
+
+(defn nml-set [tree nml key val & sub]
+  (let [child  (if sub :nvsubseq :stmt)
+        match  (if sub (string/lower-case key) (string/lower-case nml))
+        parent (if sub :nvseq :s)
+        proxy  (if sub (str match "=0") (str "&" match " /"))
+        vnew   (if sub (fn [tree] (parse val :start :values)) #(nml-set % nml key val true))
+        f      (fn
+                 ([k v] (if (= (nml-str k) match) [child k (vnew v  )] [child k v]))
+                 ([k  ] (if (= (nml-str k) match) [child k (vnew nil)] [child k  ])))]
+    (insta/transform {child f} (nml-add tree parent child match proxy))))
+
+(defn nml-tree [s]
+  (let [result (parse s)
+        child  :nvseq
+        f      (fn [& v] (into [child] (nml-uniq v)))]
+    (if (insta/failure? result)
+      (let [{t :text l :line c :column} result]
+        (fail (str "Parse error at line " l " column " c ":")
+              t
+              (str (apply str (repeat (- c 1) " ")) "^")))
+      (insta/transform {child f} result))))
+
+;; main
 
 (defn -main [& args]
   (alter-var-root #'*read-eval* (constantly false))
