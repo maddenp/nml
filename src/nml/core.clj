@@ -45,7 +45,7 @@
 
 (defn nml-set [tree nml key val & sub]
   (let [child  (if sub :nvsubseq :stmt)
-        match  (if sub key nml)
+        match  (if sub (string/lower-case key) (string/lower-case nml))
         parent (if sub :nvseq :s)
         proxy  (if sub (str match "=0") (str "&" match " /"))
         vnew   (if sub (fn [tree] (parse val :start :values)) #(nml-set % nml key val true))
