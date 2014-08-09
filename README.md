@@ -57,6 +57,7 @@ Invoked with no options, _nml_ prints a simplified, sorted version of the input:
 /
 ````
 
+
 Note that _nml_ normalizes many formatting options: Whitespace and comments are removed, non-string text is converted to lower-case, key-value pairs are printed one-per-line without comma separators, logical values are represented in their simplest form, etc.
 
 #####Querying
