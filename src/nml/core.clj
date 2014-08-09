@@ -174,7 +174,10 @@
     (if (:help options) (usage summary))
     (if (:version options) (do (println version) (System/exit 0)))
     (if (and gets sets) (fail "Do not mix get and set operations."))
-    (let [tree (nml-tree (first arguments))]
+    (let [file (first arguments)
+          tree (if file (nml-tree file) [:s])]
+      (if (and gets (not file)) (fail "Input file required for get operations."))
+      (if debug (println tree))
       (cond gets  (nml-gets tree gets (:no-prefix options))
             sets  (println (string/trim (nml-str (nml-sets tree sets))))
             :else (println (string/trim (nml-str tree)))))))
