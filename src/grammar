@@ -20,7 +20,7 @@ nvsubseq = <comment>* dataref <wsopt> <'='> <wsopt> values <comment>*
 partref  = array | name
 percent  = '%'
 r        = uint
-real     = int dec? exp?
+real     = int dec? exp? | sign? dec int exp?
 sect     = <'('> ( int? colon int? | int ) ( colon int )? <')'>
 sep      = <wsopt> comma <wsopt>
 sign     = '-' | '+'
