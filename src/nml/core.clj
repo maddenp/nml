@@ -24,9 +24,10 @@
 ;; utility defns
 
 (defn fail [& lines]
-  (doseq [line lines]
-    (println line))
-  (System/exit 1))
+  (binding [*out* *err*]
+    (doseq [line lines]
+      (println line))
+    (System/exit 1)))
 
 (defn warn [& lines]
   (binding [*out* *err*]
@@ -122,14 +123,15 @@
                  :ws       ""
                  :wsopt    ""))))
 
-(defn nml-tree [fname]
-  (let [ioerr  (str "Could not open namelist file '" fname "'.")
-        result (try (parse (slurp fname)) (catch Exception e (fail ioerr)))
-        child  :nvseq
-        f      (fn [& v] (into [child] (nml-uniq v)))]
+(defn nml-tree [file]
+  (let [child  :nvseq
+        f      (fn [& v] (into [child] (nml-uniq v)))
+        result (try (parse (slurp file))
+                    (catch Exception e
+                      (fail (str "Could not read from file '" file "'."))))]
     (if (insta/failure? result)
       (let [{t :text l :line c :column} result]
-        (fail (str "Error parsing '" fname "' at line " l " column " c ":")
+        (fail (str "Error parsing '" file "' at line " l " column " c ":")
               t
               (str (apply str (repeat (- c 1) " ")) "^")))
       (insta/transform {child f} result))))
@@ -196,5 +198,10 @@
       (if (and (:in-place options) (not file)) (warn (msgs 0)))
       (if debug (println tree))
       (cond gets  (nml-gets tree gets (:no-prefix options))
-            sets  (println (string/trim (nml-str (nml-sets tree sets))))
+            sets  (let [out (string/trim (nml-str (nml-sets tree sets)))]
+                    (if (and file (:in-place options))
+                      (try (spit file out)
+                           (catch Exception e
+                             (fail (str "Could not write to file '" file "'."))))
+                      (println out)))
             :else (println (string/trim (nml-str tree)))))))
