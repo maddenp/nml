@@ -20,6 +20,7 @@ Options:
 
   -g, --get n:k    Get value of key 'k' in namelist 'n'
   -h, --help       Show usage information
+  -i, --in-place   Edit namelist file in place
   -n, --no-prefix  Report values without 'namelist:key=' prefix
   -s, --set n:k=v  Set value of key 'k' in namelist 'n' to 'v'
   -v, --version    Show version information
