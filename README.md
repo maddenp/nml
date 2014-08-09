@@ -115,6 +115,32 @@ To set (or add) values:
 
 Note that get and set commands may not be mixed in a single _nml_ invovation.
 
+To edit a namelist file in-place:
+
+````
+% nml -n -g b:l nl
+t
+
+% nml -i -s b:l=f nl
+
+% nml -n -g b:l nl
+f
+````
+
+To create a new namelist file:
+
+````
+% rm -f new
+
+% nml -i -s a:x=77 -s a:y=88 new
+
+% cat new
+&a
+  x=77
+  y=88
+/
+````
+
 ###Thanks
 
 Thanks to Mark Engelberg for the wonderful [Instaparse](https://github.com/Engelberg/instaparse), on which _nml_ is based.
