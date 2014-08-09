@@ -7,8 +7,9 @@
 
   (deftest character
     (is (= (nml-get tree "na" "C0") "'foo'"   ))
-    (is (= (nml-get tree "NA" "c1") "'bar'"   ))
-    (is (= (nml-get tree "nA" "c2") "\"baz\"" )))
+    (is (= (nml-get tree "NA" "c1") "'BAR'"   ))
+    (is (= (nml-get tree "nA" "c2") "\"baz\"" ))
+    (is (= (nml-get tree "Na" "C3") "'qu\nx'" )))
 
   (deftest integer
     (is (= (nml-get tree "nb" "I0") "88"      ))
@@ -29,4 +30,9 @@
     (is (= (nml-get tree "nc" "f3") "f"       ))
     (is (= (nml-get tree "nc" "f4") "f"       ))
     (is (= (nml-get tree "nc" "f5") "f"       )))
+
+  (deftest complex
+    (is (= (nml-get tree "nd" "C0") "(1.,2.)" ))
+    (is (= (nml-get tree "nd" "C1") "(1.1,2.2)" )))
+
   )
