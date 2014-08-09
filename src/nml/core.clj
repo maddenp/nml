@@ -14,7 +14,8 @@
   {0 "-i/--in-place has no effect when no input file is specified."
    1 "Input file required for get operations."
    2 "-n/--no-prefix has no effect on set operations."
-   3 "Do not mix get and set operations."})
+   3 "Do not mix get and set operations."
+   4 "-i/--in-place has no effect on get operations."})
 
 (def parse (insta/parser (clojure.java.io/resource "grammar")))
 
@@ -191,6 +192,7 @@
     (if (:help options) (usage summary))
     (if (:version options) (do (println version) (System/exit 0)))
     (if (and gets sets) (fail (msgs 3)))
+    (if (and gets (:in-place options)) (warn (msgs 4)))
     (if (and sets (:no-prefix options)) (warn (msgs 2)))
     (let [file (first arguments)
           tree (if file (nml-tree file) [:s])]
