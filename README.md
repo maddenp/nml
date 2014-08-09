@@ -127,7 +127,7 @@ t
 f
 ````
 
-To create a new namelist file:
+To create a new namelist file (without redirecting stdout):
 
 ````
 % rm -f new
