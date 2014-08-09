@@ -206,10 +206,10 @@
       (if (and (:in-place options) (not file)) (warn (msgs 0)))
       (if debug (println tree))
       (cond gets  (nml-gets tree gets (:no-prefix options))
-            sets  (let [out (string/trim (nml-str (nml-sets tree sets)))]
+            sets  (let [out (nml-str (nml-sets tree sets))]
                     (if (and file (:in-place options))
                       (try (spit file out)
                            (catch Exception e
                              (fail (str "Could not write to file '" file "'."))))
-                      (println out)))
+                      (println (string/trim out))))
             :else (println (string/trim (nml-str tree)))))))
