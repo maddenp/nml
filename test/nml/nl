@@ -1,0 +1,23 @@
+
+! comment
+
+junk text
+
+&na
+  c0='foo', c1 = 'bar' c2 =
+     "baz", c3 = "hello
+world"
+/
+
+&NB i0 = 88,i1 = +88 I2 = -88 / i3 = 88 /
+
+&Nc
+  t0=t, t1=T, t2=.true.,  T3=.TRUE.,  T4=.t12345, T5=.Tzzz ! comment
+! comment
+  F0=f, F1=F, F2=.false., f3=.FALSE., f4=.f12345, F5=.Fzzz ! comment
+! comment
+/
+
+! comment
+
+junk text
