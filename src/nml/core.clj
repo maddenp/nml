@@ -124,15 +124,13 @@
                  :ws       ""
                  :wsopt    ""))))
 
-(defn nml-tree [file]
-  (let [child  :nvseq
-        f      (fn [& v] (into [child] (nml-uniq v)))
-        result (try (parse (slurp file))
-                    (catch Exception e
-                      (fail (str "Could not read from file '" file "'."))))]
+(defn nml-tree [s]
+  (let [result (parse s)
+        child  :nvseq
+        f      (fn [& v] (into [child] (nml-uniq v)))]
     (if (insta/failure? result)
       (let [{t :text l :line c :column} result]
-        (fail (str "Error parsing '" file "' at line " l " column " c ":")
+        (fail (str "Parse error at line " l " column " c ":")
               t
               (str (apply str (repeat (- c 1) " ")) "^")))
       (insta/transform {child f} result))))
@@ -195,7 +193,14 @@
     (if (and gets (:in-place options)) (warn (msgs 4)))
     (if (and sets (:no-prefix options)) (warn (msgs 2)))
     (let [file (first arguments)
-          tree (if file (nml-tree file) [:s])]
+          s    (if file
+                 (try (slurp file)
+                      (catch Exception e
+                        (if (:in-place options)
+                          ""
+                          (fail (str "Could not read from file '" file "'.")))))
+                 "")
+          tree (nml-tree s)]
       (if (and gets (not file)) (fail (msgs 1)))
       (if (and (:in-place options) (not file)) (warn (msgs 0)))
       (if debug (println tree))
