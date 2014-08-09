@@ -3,7 +3,7 @@
             [nml.core :refer :all]))
 
 
-(let [tree (nml-tree "test/nml/nl")]
+(let [tree (nml-tree (slurp "test/nml/nl"))]
 
   (deftest get-string
     (is (= (nml-get tree "na" "C0") "'foo'"                                         ))
