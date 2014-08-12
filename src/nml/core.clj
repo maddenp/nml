@@ -68,6 +68,7 @@
     (if (empty? s)
       t
       (let [[nml key val] (first s)]
+        (if (nil? val) (fail (str "No value supplied for key '" key "'.")))
         (recur (nml-set t nml key val) (rest s))))))
 
 (defn- nml-str [x]
