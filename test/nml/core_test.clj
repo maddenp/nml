@@ -11,7 +11,8 @@
     (is (= (nml-get tree "nA" "c2") "\"baz\""                                       ))
     (is (= (nml-get tree "Na" "C3") "'qu\nx'"                                       ))
     (is (= (nml-get tree "Na" "c4") "'a','b'"                                       ))
-    (is (= (nml-get tree "Na" "c5") "'c','d'"                                       )))
+    (is (= (nml-get tree "Na" "c5") "'c','d'"                                       ))
+    (is (= (nml-get tree "Na" "x0") ""                                              )))
 
   (deftest get-integer
     (is (= (nml-get tree "nb" "I0") "88"                                            ))
@@ -41,6 +42,10 @@
     (is (= (nml-get tree "ne" "r0") "1.,1.0,-1.0,+1.0"                              ))
     (is (= (nml-get tree "ne" "r1") "1.1e2,1.1d2,1.1e-2,1.1d+2"                     ))
     (is (= (nml-get tree "ne" "r2") "-1.1e2,+1.1e2,-1.1d-2,+1.1d+2"                 )))
+
+  (deftest get-empty
+    (is (= (nml-get tree "nf" "x0") ""                                              ))
+    (is (= (nml-get tree "zz" "x0") ""                                              )))
 
   (deftest set-string
     (is (= (nml-get (nml-set tree "na" "c0" "'FOO'") "na" "c0") "'FOO'"             ))

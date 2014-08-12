@@ -14,7 +14,7 @@ false    = 'f' | 'F'
 int      = sign? uint
 junk     = #'[^&]+'
 logical  = <'.'?> ( true | false ) <#'[^/,\s]*'>
-name     = #'[a-zA-Z]' #'[a-zA-Z0-9_]{0,30}'
+name     = #'[a-zA-Z]' #'[a-zA-Z0-9_]{0,30}'?
 nvseq    = nvsubseq ( ( <sep> | <ws> ) nvsubseq )* <sep>?
 nvsubseq = <comment>* dataref <wsopt> <'='> <wsopt> values <comment>*
 partref  = array | name
@@ -26,7 +26,7 @@ sep      = <wsopt> comma <wsopt>
 sign     = '-' | '+'
 slash    = '/'
 star     = '*'
-stmt     = <wsopt> <'&'> name <ws> nvseq? <wsopt> <slash> <wsopt>
+stmt     = <wsopt> <'&'> name < ws | comment* > nvseq? <wsopt> <slash> <wsopt>
 string   = "'" ( #'[^\']' | "''" )* "'" | '"' ( #'[^\"]' | '""' )* '"'
 true     = 't' | 'T'
 uint     = #'[0-9]+'

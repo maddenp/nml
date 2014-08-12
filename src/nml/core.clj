@@ -155,7 +155,8 @@
 
 (defn nml-get [tree nml key]
   (let [stmt     (last (filter #(= (nml-name %) (string/lower-case nml)) (rest tree)))
-        nvsubseq (last (filter #(= (nml-name %) (string/lower-case key)) (rest (last stmt))))
+        nvseq    (let [x (last stmt)] (if (= (first x) :nvseq) x []))
+        nvsubseq (last (filter #(= (nml-name %) (string/lower-case key)) (rest nvseq)))
         values   (last nvsubseq)]
     (if (nil? values) "" (nml-str values))))
 
