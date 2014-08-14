@@ -72,49 +72,49 @@
         (recur (nml-set t nml key val) (rest s))))))
 
 (defn- nml-str [x]
-  (let [k         (first x)
-        v         (rest  x)
+  (let [key       (first x)
+        val       (rest  x)
         cjoin    #(string/join "," %)
         delegate #(map nml-str %)
-        ds        (fn [v] (delegate (sort-by #(nml-name %) v)))
+        delesort  (fn [val] (delegate (sort-by #(nml-name %) val)))
         list2str #(apply str (map nml-str %))
-        sf       #(nml-str (first %))
-        sl       #(nml-str (last %))]
-    (if debug (println (str "k=" k " v=" v)))
-    (apply str (case k
-                 :s        (ds v)
-                 :array    [(sf v) (sl v)]
-                 :c        (sf v)
+        strfirst #(nml-str (first %))
+        strlast  #(nml-str (last %))]
+    (if debug (println (str "key=" key " val=" val)))
+    (apply str (case key
+                 :s        (delesort val)
+                 :array    [(strfirst val) (strlast val)]
+                 :c        (strfirst val)
                  :colon    ":"
                  :comma    ","
                  :comment  ""
-                 :complex  ["(" (cjoin (delegate v)) ")"]
-                 :dataref  (delegate v)
-                 :dec      (delegate v)
+                 :complex  ["(" (cjoin (delegate val)) ")"]
+                 :dataref  (delegate val)
+                 :dec      (delegate val)
                  :dot      "."
-                 :exp      [(first v) (sl v)]
+                 :exp      [(first val) (strlast val)]
                  :false    "f"
-                 :int      (delegate v)
+                 :int      (delegate val)
                  :junk     ""
-                 :logical  (sf v)
-                 :name     (map string/lower-case v)
-                 :nvseq    (ds v)
-                 :nvsubseq ["  " (sf v) "=" (sl v) "\n"]
-                 :partref  (sf v)
+                 :logical  (strfirst val)
+                 :name     (map string/lower-case val)
+                 :nvseq    (delesort val)
+                 :nvsubseq ["  " (strfirst val) "=" (strlast val) "\n"]
+                 :partref  (strfirst val)
                  :percent  "%"
-                 :r        (sf v)
-                 :real     (delegate v)
-                 :sect     ["(" (list2str v) ")"]
-                 :sep      v
-                 :sign     v
-                 :slash    v
+                 :r        (strfirst val)
+                 :real     (delegate val)
+                 :sect     ["(" (list2str val) ")"]
+                 :sep      val
+                 :sign     val
+                 :slash    val
                  :star     "*"
-                 :stmt     ["&" (sf v) "\n" (list2str (rest v)) "/\n"]
-                 :string   v
+                 :stmt     ["&" (strfirst val) "\n" (list2str (rest val)) "/\n"]
+                 :string   val
                  :true     "t"
-                 :uint     v
-                 :value    (delegate v)
-                 :values   (cjoin (delegate v))
+                 :uint     val
+                 :value    (delegate val)
+                 :values   (cjoin (delegate val))
                  :ws       ""
                  :wsopt    ""))))
 
