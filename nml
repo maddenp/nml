@@ -6,4 +6,4 @@ b=$(basename    $p)
 
 NMLJAR=$d/target/nml.jar
 
-java -jar $NMLJAR "$@"
+java -Xms50M -Xmx50M -jar $NMLJAR "$@"
