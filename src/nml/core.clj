@@ -4,18 +4,19 @@
   (:require [clojure.tools.cli :as cli   ])
   (:gen-class))
 
-(declare nml-get nml-name nml-set nml-str)
+(declare nml-get nml-name nml-parse nml-set nml-str)
 
-; defs
+;; defs
 
 (def debug false)
 
 (def msgs
-  {0 "-i/--in-place has no effect when no input file is specified."
-   1 "Input file required for get operations."
-   2 "-n/--no-prefix has no effect on set operations."
-   3 "Do not mix get and set operations."
-   4 "-i/--in-place has no effect on get operations."})
+  {
+   :create+in     "-i/--in not valid with -c/--create."
+   :get+out       "-o/--out may not be used with -g/--get."
+   :get+set       "-g/--get and -s/--set may not be mixed."
+   :set+no-prefix "-n/--no-prefix not valid with -s/--set."
+   })
 
 (def parse (insta/parser (clojure.java.io/resource "grammar")))
 
@@ -26,13 +27,8 @@
 (defn- fail [& lines]
   (binding [*out* *err*]
     (doseq [line lines]
-      (println line))
+      (println (str "nml: " line)))
     (System/exit 1)))
-
-(defn- warn [& lines]
-  (binding [*out* *err*]
-    (doseq [line lines]
-      (println (str "WARNING: " line)))))
 
 (defn- usage [summary]
   (doseq [x [""
@@ -49,7 +45,7 @@
 
 (defn- nml-add [tree parent child match proxy]
   (let [missing  (fn [children] (not-any? #(= (nml-name %) match) children))
-        vnew    #(parse proxy :start child)
+        vnew    #(nml-parse proxy child)
         f        (fn [& children] (if (missing children)
                                     (into [parent (vnew)] children)
                                     (into [parent       ] children)))]
@@ -60,9 +56,22 @@
     (let [val (nml-get tree nml key)]
       (println (if no-prefix val (str nml ":" key "=" val))))))
 
+;;(defn- nml-map [tree]
+;; (let [f (fn [& children] nil)]
+;;       (insta/transform ))
+
 (defn- nml-name [x]
   (nml-str (second x)))
 
+(defn- nml-parse [s start]
+  (let [result (parse s :start start)]
+    (if (insta/failure? result)
+      (let [{t :text l :line c :column} result]
+        (fail (str "Parse error at line " l " column " c ":")
+              t
+              (str (apply str (repeat (- c 1) " ")) "^")))
+      result)))
+  
 (defn- nml-sets [tree sets]
   (loop [t tree s sets]
     (if (empty? s)
@@ -145,13 +154,17 @@
     [nml key val]))
 
 (def cliopts
-  [["-g" "--get n:k"   "Get value of key 'k' in namelist 'n'"         :assoc-fn assoc-get :parse-fn parse-get]
+  [
+   ["-c" "--create"    "Create new namelist file"                                                            ]
+   ["-g" "--get n:k"   "Get value of key 'k' in namelist 'n'"         :assoc-fn assoc-get :parse-fn parse-get]
    ["-h" "--help"      "Show usage information"                                                              ]
-   ["-i" "--in-place"  "Edit namelist file in place"                                                         ]
+   ["-i" "--in file"   "Input filename"                                                                      ]
    ["-n" "--no-prefix" "Report values without 'namelist:key=' prefix"                                        ]
+   ["-o" "--out file"  "Output filename                             "                                        ]
    ["-s" "--set n:k=v" "Set value of key 'k' in namelist 'n' to 'v'"  :assoc-fn assoc-set :parse-fn parse-set]
-   ["-v" "--version"   "Show version information"                                                            ]])
-  
+   ["-v" "--version"   "Show version information"                                                            ]
+   ])
+
 ;; nml public defns
 
 (defn nml-get [tree nml key]
@@ -166,22 +179,17 @@
         match  (if sub (string/lower-case key) (string/lower-case nml))
         parent (if sub :nvseq :s)
         proxy  (if sub (str match "=0") (str "&" match " /"))
-        vnew   (if sub (fn [tree] (parse val :start :values)) #(nml-set % nml key val true))
+        vnew   (if sub (fn [tree] (nml-parse val :values)) #(nml-set % nml key val true))
         f      (fn
                  ([k v] (if (= (nml-str k) match) [child k (vnew v  )] [child k v]))
                  ([k  ] (if (= (nml-str k) match) [child k (vnew nil)] [child k  ])))]
     (insta/transform {child f} (nml-add tree parent child match proxy))))
 
 (defn nml-tree [s]
-  (let [result (parse s)
-        child  :nvseq
-        f      (fn [& v] (into [child] (nml-uniq v)))]
-    (if (insta/failure? result)
-      (let [{t :text l :line c :column} result]
-        (fail (str "Parse error at line " l " column " c ":")
-              t
-              (str (apply str (repeat (- c 1) " ")) "^")))
-      (insta/transform {child f} result))))
+  (let [tree  (nml-parse s :s)
+        child :nvseq
+        f     (fn [& v] (into [child] (nml-uniq v)))]
+      (insta/transform {child f} tree)))
 
 ;; main
 
@@ -189,29 +197,30 @@
   (alter-var-root #'*read-eval* (constantly false))
   (let [{:keys [options arguments summary]} (cli/parse-opts args cliopts)
         gets (:get options)
-        sets (:set options)]
+        sets (:set options)
+        in   (or (:in  options) *in* )
+        out  (or (:out options) *out*)]
     (if (:help options) (usage summary))
     (if (:version options) (do (println version) (System/exit 0)))
-    (if (and gets sets) (fail (msgs 3)))
-    (if (and gets (:in-place options)) (warn (msgs 4)))
-    (if (and sets (:no-prefix options)) (warn (msgs 2)))
-    (let [file (first arguments)
-          s    (if file
-                 (try (slurp file)
-                      (catch Exception e
-                        (if (:in-place options)
-                          ""
-                          (fail (str "Could not read from file '" file "'.")))))
-                 "")
-          tree (nml-tree s)]
-      (if (and gets (not file)) (fail (msgs 1)))
-      (if (and (:in-place options) (not file)) (warn (msgs 0)))
+    (if (and gets (:out options)) (fail (msgs :get+out)))
+    (if (and gets sets) (fail (msgs :get+set)))
+    (if (and sets (:no-prefix options)) (fail (msgs :set+no-prefix)))
+    (if (and (:create options) (:in options)) (fail (msgs :create+in)))
+    (let [tree (nml-tree
+                (if (:create options)
+                  ""
+                  (try (slurp in)
+                       (catch Exception e
+                         (fail (str "Could not read from '" in "'."))))))]
       (if debug (println tree))
       (cond gets  (nml-gets tree gets (:no-prefix options))
-            sets  (let [out (nml-str (nml-sets tree sets))]
-                    (if (and file (:in-place options))
-                      (try (spit file out)
+            sets  (let [s (nml-str (nml-sets tree sets))]
+                    (if (= out *out*)
+                      (println (string/trim s))
+                      (try (spit out s)
                            (catch Exception e
-                             (fail (str "Could not write to file '" file "'."))))
-                      (println (string/trim out))))
+                             (fail (str "Could not write to '" out "'."))))))
             :else (println (string/trim (nml-str tree)))))))
+
+;; TODO add assoc fn for -i and -i preventing multiple specifications
+;; TODO update README.md with new options
