@@ -4,7 +4,7 @@
   (:require [clojure.tools.cli :as cli   ])
   (:gen-class))
 
-(declare nml-get nml-name nml-parse nml-set nml-str)
+(declare nml-get nml-name nml-parse nml-set nml-str nml-uniq)
 
 ;; defs
 
@@ -30,6 +30,11 @@
       (println (str "nml: " line)))
     (System/exit 1)))
 
+(defn- read-file [in]
+  (try (slurp in)
+       (catch Exception e
+         (fail (str "Could not read from '" in "'.")))))
+
 (defn- usage [summary]
   (doseq [x [""
              "Usage: nml [options]"
@@ -51,17 +56,10 @@
                                     (into [parent       ] children)))]
     (if (nil? tree) [parent (vnew)] (insta/transform {parent f} tree))))
 
-(defn- nml-gets [tree gets no-prefix]
+(defn- nml-gets [m gets no-prefix]
   (doseq [[nml key] gets]
-    (let [val (nml-get tree nml key)]
+    (let [val (nml-get m nml key)]
       (println (if no-prefix val (str nml ":" key "=" val))))))
-
-(defn- nml-map [tree]
-  (let [f0 (fn [& nvsubseqs   ] (into {} nvsubseqs))
-        f1 (fn [dataref values] { (nml-str dataref) (nml-str values) })
-        f2 (fn [& stmts       ] (into {} stmts))
-        f3 (fn [name nvseq    ] { (nml-str name) nvseq })]
-    (insta/transform {:nvseq f0 :nvsubseq f1 :s f2 :stmt f3 } tree)))
 
 (defn- nml-out [out s]
   (if (= out *out*)
@@ -82,13 +80,13 @@
               (str (apply str (repeat (- c 1) " ")) "^")))
       result)))
   
-(defn- nml-sets [tree sets]
-  (loop [t tree s sets]
+(defn- nml-sets [m sets]
+  (loop [m m s sets]
     (if (empty? s)
-      t
+      m
       (let [[nml key val] (first s)]
         (if (nil? val) (fail (str "No value supplied for key '" key "'.")))
-        (recur (nml-set t nml key val) (rest s))))))
+        (recur (nml-set m nml key val) (rest s))))))
 
 (defn- nml-str [x]
   (let [key       (first x)
@@ -136,6 +134,12 @@
                  :ws       ""
                  :wsopt    ""))))
 
+(defn- nml-tree [s]
+  (let [tree  (nml-parse s :s)
+        child :nvseq
+        f     (fn [& v] (into [child] (nml-uniq v)))]
+      (insta/transform {child f} tree)))
+
 (defn- nml-uniq [values]
   (loop [head (first values) tail (rest values) tree []]
     (if (nil? head)
@@ -146,29 +150,20 @@
 
 ;; nml public defns
 
-(defn nml-get [tree nml key]
-  (let [stmt     (last (filter #(= (nml-name %) (string/lower-case nml)) (rest tree)))
-        nvseq    (let [x (last stmt)] (if (= (first x) :nvseq) x []))
-        nvsubseq (last (filter #(= (nml-name %) (string/lower-case key)) (rest nvseq)))
-        values   (last nvsubseq)]
-    (if (nil? values) "" (nml-str values))))
+(defn nml-get [m nml key]
+  (get (get m (string/lower-case nml) {}) (string/lower-case key) ""))
 
-(defn nml-set [tree nml key val & sub]
-  (let [child  (if sub :nvsubseq :stmt)
-        match  (if sub (string/lower-case key) (string/lower-case nml))
-        parent (if sub :nvseq :s)
-        proxy  (if sub (str match "=0") (str "&" match " /"))
-        vnew   (if sub (fn [tree] (nml-parse val :values)) #(nml-set % nml key val true))
-        f      (fn
-                 ([k v] (if (= (nml-str k) match) [child k (vnew v  )] [child k v]))
-                 ([k  ] (if (= (nml-str k) match) [child k (vnew nil)] [child k  ])))]
-    (insta/transform {child f} (nml-add tree parent child match proxy))))
+(defn nml-map [s]
+  (let [f0   (fn [& nvsubseqs   ] (into {} nvsubseqs))
+        f1   (fn [dataref values] { (nml-str dataref) (nml-str values) })
+        f2   (fn [& stmts       ] (into {} stmts))
+        f3   (fn [name & nvseq  ] { (nml-str name) (first nvseq) })
+        tree (nml-tree s)]
+    (insta/transform {:nvseq f0 :nvsubseq f1 :s f2 :stmt f3 } tree)))
 
-(defn nml-tree [s]
-  (let [tree  (nml-parse s :s)
-        child :nvseq
-        f     (fn [& v] (into [child] (nml-uniq v)))]
-      (insta/transform {child f} tree)))
+(defn nml-set [m nml key val]
+  (let [val (nml-str (nml-parse val :values))]
+    (assoc-in m [(string/lower-case nml) (string/lower-case key)] val)))
 
 ;; cli
 
@@ -210,16 +205,17 @@
 
 ;; formatting
 
-(defn- fmt-namelist [nls-map]
+(defn- fmt-namelist [m]
   (let [f0 #(str "  " (first %) "=" (last %) "\n")
         f1 (fn [x] (str "&" (first x) "\n" (apply str (map f0 (sort (last x)))) "/\n"))]
-    (apply str (map f1 (sort nls-map)))))
+    (apply str (map f1 (sort m)))))
 
 ;; main
 
 (defn -main [& args]
   (alter-var-root #'*read-eval* (constantly false))
   (let [{:keys [options arguments summary]} (cli/parse-opts args cliopts)
+        fmt  fmt-namelist
         gets (:get options)
         sets (:set options)
         in   (or (:in  options) *in* )
@@ -231,13 +227,7 @@
     (if (and gets sets) (fail (msgs :get+set)))
     (if (and sets (:no-prefix options)) (fail (msgs :set+no-prefix)))
     (if (and (:create options) (:in options)) (fail (msgs :create+in)))
-    (let [tree (nml-tree
-                (if (:create options)
-                  ""
-                  (try (slurp in)
-                       (catch Exception e
-                         (fail (str "Could not read from '" in "'."))))))
-          nls-map (nml-map tree)]
-      (cond gets  (nml-gets tree gets (:no-prefix options))
-            sets  (nml-out out (nml-str (nml-sets tree sets)))
-            :else (nml-out out (fmt-namelist nls-map))))))
+    (let [m (nml-map (if (:create options) "" (read-file in)))]
+      (cond gets  (nml-gets m gets (:no-prefix options))
+            sets  (nml-out out (fmt (nml-sets m sets)))
+            :else (nml-out out (fmt m))))))
