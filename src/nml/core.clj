@@ -63,6 +63,13 @@
         f3 (fn [name nvseq    ] { (nml-str name) nvseq })]
     (insta/transform {:nvseq f0 :nvsubseq f1 :s f2 :stmt f3 } tree)))
 
+(defn- nml-out [out s]
+  (if (= out *out*)
+    (println (string/trim s))
+    (try (spit out s)
+         (catch Exception e
+           (fail (str "Could not write to '" out "'."))))))
+  
 (defn- nml-name [x]
   (nml-str (second x)))
 
@@ -137,6 +144,32 @@
             copy  (some #(= (name head) (name %)) tail)]
         (recur (first tail) (rest tail) (into tree (if copy [] [head])))))))
 
+;; nml public defns
+
+(defn nml-get [tree nml key]
+  (let [stmt     (last (filter #(= (nml-name %) (string/lower-case nml)) (rest tree)))
+        nvseq    (let [x (last stmt)] (if (= (first x) :nvseq) x []))
+        nvsubseq (last (filter #(= (nml-name %) (string/lower-case key)) (rest nvseq)))
+        values   (last nvsubseq)]
+    (if (nil? values) "" (nml-str values))))
+
+(defn nml-set [tree nml key val & sub]
+  (let [child  (if sub :nvsubseq :stmt)
+        match  (if sub (string/lower-case key) (string/lower-case nml))
+        parent (if sub :nvseq :s)
+        proxy  (if sub (str match "=0") (str "&" match " /"))
+        vnew   (if sub (fn [tree] (nml-parse val :values)) #(nml-set % nml key val true))
+        f      (fn
+                 ([k v] (if (= (nml-str k) match) [child k (vnew v  )] [child k v]))
+                 ([k  ] (if (= (nml-str k) match) [child k (vnew nil)] [child k  ])))]
+    (insta/transform {child f} (nml-add tree parent child match proxy))))
+
+(defn nml-tree [s]
+  (let [tree  (nml-parse s :s)
+        child :nvseq
+        f     (fn [& v] (into [child] (nml-uniq v)))]
+      (insta/transform {child f} tree)))
+
 ;; cli
 
 (defn- assoc-g [m k v]
@@ -175,38 +208,12 @@
    ["-v" "--version"   "Show version information"                                                           ]
    ])
 
-;; nml public defns
-
-(defn nml-get [tree nml key]
-  (let [stmt     (last (filter #(= (nml-name %) (string/lower-case nml)) (rest tree)))
-        nvseq    (let [x (last stmt)] (if (= (first x) :nvseq) x []))
-        nvsubseq (last (filter #(= (nml-name %) (string/lower-case key)) (rest nvseq)))
-        values   (last nvsubseq)]
-    (if (nil? values) "" (nml-str values))))
-
-(defn nml-set [tree nml key val & sub]
-  (let [child  (if sub :nvsubseq :stmt)
-        match  (if sub (string/lower-case key) (string/lower-case nml))
-        parent (if sub :nvseq :s)
-        proxy  (if sub (str match "=0") (str "&" match " /"))
-        vnew   (if sub (fn [tree] (nml-parse val :values)) #(nml-set % nml key val true))
-        f      (fn
-                 ([k v] (if (= (nml-str k) match) [child k (vnew v  )] [child k v]))
-                 ([k  ] (if (= (nml-str k) match) [child k (vnew nil)] [child k  ])))]
-    (insta/transform {child f} (nml-add tree parent child match proxy))))
-
-(defn nml-tree [s]
-  (let [tree  (nml-parse s :s)
-        child :nvseq
-        f     (fn [& v] (into [child] (nml-uniq v)))]
-      (insta/transform {child f} tree)))
-
 ;; formatting
 
 (defn- fmt-namelist [nls-map]
   (let [f0 #(str "  " (first %) "=" (last %) "\n")
         f1 (fn [x] (str "&" (first x) "\n" (apply str (map f0 (sort (last x)))) "/\n"))]
-    (string/trim (apply str (map f1 (sort nls-map))))))
+    (apply str (map f1 (sort nls-map)))))
 
 ;; main
 
@@ -232,10 +239,5 @@
                          (fail (str "Could not read from '" in "'."))))))
           nls-map (nml-map tree)]
       (cond gets  (nml-gets tree gets (:no-prefix options))
-            sets  (let [s (nml-str (nml-sets tree sets))]
-                    (if (= out *out*)
-                      (println (string/trim s))
-                      (try (spit out s)
-                           (catch Exception e
-                             (fail (str "Could not write to '" out "'."))))))
-            :else (println (fmt-namelist nls-map))))))
+            sets  (nml-out out (nml-str (nml-sets tree sets)))
+            :else (nml-out out (fmt-namelist nls-map))))))
