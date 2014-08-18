@@ -4,6 +4,6 @@ p=$(readlink -e $0)
 d=$(dirname     $p)
 b=$(basename    $p)
 
-NMLJAR=$d/nml.jar
+NMLJAR=$d/target/nml.jar
 
 java -Xms50M -Xmx50M -jar $NMLJAR "$@"
