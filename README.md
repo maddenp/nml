@@ -14,14 +14,16 @@ Install [Leiningen](http://leiningen.org/) if you don't have it, then:
 The _nml_ wrapper script invokes _java -jar_ with the path to the Leiningen-generated _target/nml.jar_. It may be convenient to edit this script for your own use.
 
 ````
-Usage: nml [options] file
+Usage: nml [options]
 
 Options:
 
+  -c, --create     Create new namelist
   -g, --get n:k    Get value of key 'k' in namelist 'n'
   -h, --help       Show usage information
-  -i, --in-place   Edit namelist file in place
+  -i, --in file    Input file (default: stdin)
   -n, --no-prefix  Report values without 'namelist:key=' prefix
+  -o, --out file   Output file (default: stdout)
   -s, --set n:k=v  Set value of key 'k' in namelist 'n' to 'v'
   -v, --version    Show version information
 ````
@@ -43,10 +45,10 @@ Assume that the file _nl_ contains the Fortran namelists:
 This junk isn't in a namelist.
 ```
 
-Invoked with no options, _nml_ prints a simplified, sorted version of the input:
+By default, _nml_ reads from stdin and writes to stdout and, with no command-line options specified, prints a simplified, sorted version of the input:
 
 ```
-% nml nl
+% cat nl | nml
 &a
   r=2.2e8
   s='Hello World'
@@ -58,23 +60,24 @@ Invoked with no options, _nml_ prints a simplified, sorted version of the input:
 /
 ````
 
-
 Note that _nml_ normalizes many formatting options: Whitespace and comments are removed, non-string text is converted to lower-case, key-value pairs are printed one-per-line without comma separators, logical values are represented in their simplest form, etc.
+
+The _--in_ and _--out_ options can be used to specify input and output files, respectively.
 
 #####Querying
 
 To get values:
 
 ````
-% nml --get a:r --get b:i nl
+% nml --in nl --get a:r --get b:i
 a:r=2.2e8
 b:i=88
 ````
 
-To print only values, without namelist:key= prefixes:
+To print only values, without _namelist:key=_ prefixes:
 
 ````
-% nml --no-prefix --get b:i --get a:r nl
+% nml --in nl --no-prefix --get b:i --get a:r
 88
 2.2e8
 ````
@@ -86,9 +89,9 @@ An obvious application to use _nml_ to insert namelist settings in scripts:
 ```
 % cat say.sh
 #!/bin/sh
-echo "The value of i is $(nml --no-prefix --get b:i nl)"
+echo "The value of i is $(nml --in nl --no-prefix --get b:i)"
 
-% ./say.sh 
+% ./say.sh
 The value of i is 88
 ````
 
@@ -97,42 +100,30 @@ The value of i is 88
 To set (or add) values:
 
 ````
-% nml --set a:s="'Hello Yourself'" --set b:f=.false. --set c:x=99 nl
+% nml --in nl --set a:s="'Hi'" --set b:x=.false. --set c:z=99
 &a
   r=2.2e8
-  s='Hello Yourself'
+  s='Hi'
 /
 &b
   c=(3.142,2.718)
-  f=f
   i=88
   l=t
+  x=f
 /
 &c
-  x=99
+  z=99
 /
 ````
 
 Note that get and set commands may not be mixed in a single _nml_ invovation.
-
-To edit a namelist file in-place:
-
-````
-% nml --no-prefix --get b:l nl
-t
-
-% nml --in-place --set b:l=f nl
-
-% nml --no-prefix --get b:l nl
-f
-````
 
 To create a new namelist file (without redirecting stdout):
 
 ````
 % rm -f new
 
-% nml --in-place --set a:x=77 --set a:y=88 new
+% nml --create --out new --set a:x=77 --set a:y=88
 
 % cat new
 &a

@@ -34,7 +34,7 @@
 
 (defn- usage [summary]
   (doseq [x [""
-             "Usage: nml [options] file"
+             "Usage: nml [options]"
              ""
              "Options:"
              ""
@@ -165,12 +165,12 @@
 
 (def cliopts
   [
-   ["-c" "--create"    "Create new namelist file"                                                           ]
+   ["-c" "--create"    "Create new namelist"                                                                ]
    ["-g" "--get n:k"   "Get value of key 'k' in namelist 'n'"         :assoc-fn assoc-g :parse-fn parse-get ]
    ["-h" "--help"      "Show usage information"                                                             ]
-   ["-i" "--in file"   "Input filename"                               :assoc-fn assoc-i                     ]
+   ["-i" "--in file"   "Input file (default: stdin)"                  :assoc-fn assoc-i                     ]
    ["-n" "--no-prefix" "Report values without 'namelist:key=' prefix"                                       ]
-   ["-o" "--out file"  "Output filename                             " :assoc-fn assoc-o                     ]
+   ["-o" "--out file"  "Output file (default: stdout)"                :assoc-fn assoc-o                     ]
    ["-s" "--set n:k=v" "Set value of key 'k' in namelist 'n' to 'v'"  :assoc-fn assoc-s :parse-fn parse-set ]
    ["-v" "--version"   "Show version information"                                                           ]
    ])
@@ -232,5 +232,3 @@
                            (catch Exception e
                              (fail (str "Could not write to '" out "'."))))))
             :else (println (string/trim (nml-str tree)))))))
-
-;; TODO update README.md with new options
