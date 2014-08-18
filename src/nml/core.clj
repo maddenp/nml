@@ -8,8 +8,6 @@
 
 ;; defs
 
-(def debug false)
-
 (def msgs
   {
    :create+in     "-i/--in not valid with -c/--create."
@@ -58,12 +56,19 @@
     (let [val (nml-get tree nml key)]
       (println (if no-prefix val (str nml ":" key "=" val))))))
 
+;;(defn- nml-map [tree]
+;; (let [q  #(str "\"" % "\"")
+;;       f0 (fn [& nvsubseqs   ] (into {} nvsubseqs))
+;;       f1 (fn [dataref values] { (q (nml-str dataref)) (q (nml-str values)) })
+;;       f2 (fn [& stmts       ] (into {} stmts))
+;;       f3 (fn [name nvseq    ] { (q (nml-str name)) nvseq })]
+;;   (insta/transform {:nvseq f0 :nvsubseq f1 :s f2 :stmt f3 } tree)))
+
 (defn- nml-map [tree]
-  (let [q  #(str "\"" % "\"")
-        f0 (fn [& nvsubseqs   ] (into {} nvsubseqs))
-        f1 (fn [dataref values] { (q (nml-str dataref)) (q (nml-str values)) })
+  (let [f0 (fn [& nvsubseqs   ] (into {} nvsubseqs))
+        f1 (fn [dataref values] { (nml-str dataref) (nml-str values) })
         f2 (fn [& stmts       ] (into {} stmts))
-        f3 (fn [name nvseq    ] { (q (nml-str name)) nvseq })]
+        f3 (fn [name nvseq    ] { (nml-str name) nvseq })]
     (insta/transform {:nvseq f0 :nvsubseq f1 :s f2 :stmt f3 } tree)))
 
 (defn- nml-name [x]
@@ -95,9 +100,8 @@
         list2str #(apply str (map nml-str %))
         strfirst #(nml-str (first %))
         strlast  #(nml-str (last %))]
-    (if debug (println (str "key=" key " val=" val)))
     (apply str (case key
-                 :s        (delesort val)
+                 :s        (string/join "\n" (delesort val))
                  :array    [(strfirst val) (strlast val)]
                  :c        (strfirst val)
                  :colon    ":"
@@ -113,8 +117,8 @@
                  :junk     ""
                  :logical  (strfirst val)
                  :name     (map string/lower-case val)
-                 :nvseq    (delesort val)
-                 :nvsubseq ["  " (strfirst val) "=" (strlast val) "\n"]
+                 :nvseq    (string/join " " (delesort val))
+                 :nvsubseq [(strfirst val) "=" (strlast val)]
                  :partref  (strfirst val)
                  :percent  "%"
                  :r        (strfirst val)
@@ -124,7 +128,7 @@
                  :sign     val
                  :slash    val
                  :star     "*"
-                 :stmt     ["&" (strfirst val) "\n" (list2str (rest val)) "/\n"]
+                 :stmt     ["&" (strfirst val) " " (list2str (rest val)) " /"]
                  :string   val
                  :true     "t"
                  :uint     val
@@ -205,6 +209,13 @@
         f     (fn [& v] (into [child] (nml-uniq v)))]
       (insta/transform {child f} tree)))
 
+;; formatting
+
+(defn- fmt-namelist [nls-map]
+  (let [f0 #(str "  " (first %) "=" (last %) "\n")
+        f1 (fn [x] (str "&" (first x) "\n" (apply str (map f0 (sort (last x)))) "/\n"))]
+    (string/trim (apply str (map f1 (sort nls-map))))))
+
 ;; main
 
 (defn -main [& args]
@@ -226,8 +237,8 @@
                   ""
                   (try (slurp in)
                        (catch Exception e
-                         (fail (str "Could not read from '" in "'."))))))]
-      (if debug (println tree))
+                         (fail (str "Could not read from '" in "'."))))))
+          nls-map (nml-map tree)]
       (cond gets  (nml-gets tree gets (:no-prefix options))
             sets  (let [s (nml-str (nml-sets tree sets))]
                     (if (= out *out*)
@@ -235,4 +246,4 @@
                       (try (spit out s)
                            (catch Exception e
                              (fail (str "Could not write to '" out "'."))))))
-            :else (println (string/trim (nml-str tree)))))))
+            :else (println (fmt-namelist nls-map))))))
