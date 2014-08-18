@@ -56,14 +56,6 @@
     (let [val (nml-get tree nml key)]
       (println (if no-prefix val (str nml ":" key "=" val))))))
 
-;;(defn- nml-map [tree]
-;; (let [q  #(str "\"" % "\"")
-;;       f0 (fn [& nvsubseqs   ] (into {} nvsubseqs))
-;;       f1 (fn [dataref values] { (q (nml-str dataref)) (q (nml-str values)) })
-;;       f2 (fn [& stmts       ] (into {} stmts))
-;;       f3 (fn [name nvseq    ] { (q (nml-str name)) nvseq })]
-;;   (insta/transform {:nvseq f0 :nvsubseq f1 :s f2 :stmt f3 } tree)))
-
 (defn- nml-map [tree]
   (let [f0 (fn [& nvsubseqs   ] (into {} nvsubseqs))
         f1 (fn [dataref values] { (nml-str dataref) (nml-str values) })
