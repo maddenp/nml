@@ -15,6 +15,8 @@
    :create+in     "-i/--in not valid with -c/--create."
    :get+out       "-o/--out may not be used with -g/--get."
    :get+set       "-g/--get and -s/--set may not be mixed."
+   :multi-in      "-i/--in may be specified only once."
+   :multi-out     "-o/--out may be specified only once."
    :set+no-prefix "-n/--no-prefix not valid with -s/--set."
    })
 
@@ -137,11 +139,19 @@
 
 ;; cli
 
-(defn- assoc-get [m k v]
+(defn- assoc-g [m k v]
   (let [gets (:get m [])]
     (assoc m :get (into gets [v]))))
 
-(defn- assoc-set [m k v]
+(defn- assoc-i [m k v]
+  (if (k m) (fail (msgs :multi-in)))
+  (assoc m k v))
+
+(defn- assoc-o [m k v]
+  (if (k m) (fail (msgs :multi-out)))
+  (assoc m k v))
+
+(defn- assoc-s [m k v]
   (let [sets (:set m [])]
     (assoc m :set (into sets [v]))))
 
@@ -155,14 +165,14 @@
 
 (def cliopts
   [
-   ["-c" "--create"    "Create new namelist file"                                                            ]
-   ["-g" "--get n:k"   "Get value of key 'k' in namelist 'n'"         :assoc-fn assoc-get :parse-fn parse-get]
-   ["-h" "--help"      "Show usage information"                                                              ]
-   ["-i" "--in file"   "Input filename"                                                                      ]
-   ["-n" "--no-prefix" "Report values without 'namelist:key=' prefix"                                        ]
-   ["-o" "--out file"  "Output filename                             "                                        ]
-   ["-s" "--set n:k=v" "Set value of key 'k' in namelist 'n' to 'v'"  :assoc-fn assoc-set :parse-fn parse-set]
-   ["-v" "--version"   "Show version information"                                                            ]
+   ["-c" "--create"    "Create new namelist file"                                                           ]
+   ["-g" "--get n:k"   "Get value of key 'k' in namelist 'n'"         :assoc-fn assoc-g :parse-fn parse-get ]
+   ["-h" "--help"      "Show usage information"                                                             ]
+   ["-i" "--in file"   "Input filename"                               :assoc-fn assoc-i                     ]
+   ["-n" "--no-prefix" "Report values without 'namelist:key=' prefix"                                       ]
+   ["-o" "--out file"  "Output filename                             " :assoc-fn assoc-o                     ]
+   ["-s" "--set n:k=v" "Set value of key 'k' in namelist 'n' to 'v'"  :assoc-fn assoc-s :parse-fn parse-set ]
+   ["-v" "--version"   "Show version information"                                                           ]
    ])
 
 ;; nml public defns
@@ -200,6 +210,7 @@
         sets (:set options)
         in   (or (:in  options) *in* )
         out  (or (:out options) *out*)]
+    (if (not-empty arguments) (fail (str "Unexpected argument '" (first arguments) "'.")))
     (if (:help options) (usage summary))
     (if (:version options) (do (println version) (System/exit 0)))
     (if (and gets (:out options)) (fail (msgs :get+out)))
@@ -222,5 +233,4 @@
                              (fail (str "Could not write to '" out "'."))))))
             :else (println (string/trim (nml-str tree)))))))
 
-;; TODO add assoc fn for -i and -i preventing multiple specifications
 ;; TODO update README.md with new options
