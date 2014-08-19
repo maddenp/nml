@@ -47,14 +47,6 @@
 
 ;; nml private defns
 
-(defn- nml-add [tree parent child match proxy]
-  (let [missing  (fn [children] (not-any? #(= (nml-name %) match) children))
-        vnew    #(nml-parse proxy child)
-        f        (fn [& children] (if (missing children)
-                                    (into [parent (vnew)] children)
-                                    (into [parent       ] children)))]
-    (if (nil? tree) [parent (vnew)] (insta/transform {parent f} tree))))
-
 (defn- nml-gets [m gets no-prefix]
   (let [f (fn [[nml key]]
             (let [val (nml-get m nml key)]
