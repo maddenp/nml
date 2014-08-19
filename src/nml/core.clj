@@ -206,8 +206,10 @@
 ;; formatting
 
 (defn- fmt-namelist [m]
-  (let [f0 #(str "  " (first %) "=" (last %) "\n")
-        f1 (fn [x] (str "&" (first x) "\n" (apply str (map f0 (sort (last x)))) "/\n"))]
+  (let [f0 (fn [[dataref values]]
+             (str "  " dataref "=" values "\n"))
+        f1 (fn [[name nvseq]]
+             (str "&" name "\n" (apply str (map f0 (sort nvseq))) "/\n"))]
     (apply str (map f1 (sort m)))))
 
 ;; main
