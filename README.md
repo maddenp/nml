@@ -118,7 +118,7 @@ To set (or add) values:
 
 Note that get and set commands may not be mixed in a single _nml_ invovation.
 
-To create a new namelist file (without redirecting stdout):
+To create a new namelist file from scratch (i.e. without starting with an input file):
 
 ````
 % rm -f new
