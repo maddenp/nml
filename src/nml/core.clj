@@ -53,15 +53,15 @@
               (if no-prefix val (str nml ":" key "=" val))))]
     (str (string/join "\n" (map f gets)) "\n")))
 
+(defn- nml-name [x]
+  (nml-str (second x)))
+
 (defn- nml-out [out s]
   (if (= out *out*)
     (println (string/trim s))
     (try (spit out s)
          (catch Exception e
            (fail (str "Could not write to '" out "'."))))))
-  
-(defn- nml-name [x]
-  (nml-str (second x)))
 
 (defn- nml-parse [s start]
   (let [result (parse s :start start)]
@@ -71,7 +71,7 @@
               t
               (str (apply str (repeat (- c 1) " ")) "^")))
       result)))
-  
+
 (defn- nml-sets [m sets]
   (loop [m m s sets]
     (if (empty? s)
