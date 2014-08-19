@@ -204,6 +204,11 @@
              (str "&" name "\n" (apply str (map f0 (sort nvseq))) "/\n"))]
     (apply str (map f1 (sort m)))))
 
+;;(defn- fmt-bash [m]
+;; (let [f (fn [[name nvseq]]
+;;            (str "declare -A nml[" name "]\n" (apply str (map (fn [[dataref values]] (str "nml[" name "][" dataref "]=" values "\n")) (sort nvseq)))))]
+;;   (str "declare -A nml\n" (apply str (map f (sort m))))))
+
 ;; main
 
 (defn -main [& args]
@@ -224,3 +229,4 @@
       (cond gets  (nml-out out (nml-gets m gets (:no-prefix options)))
             sets  (nml-out out (fmt (nml-sets m sets)))
             :else (nml-out out (fmt m))))))
+;;           :else (nml-out out (fmt-bash m))))))
