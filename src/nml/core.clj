@@ -11,7 +11,6 @@
 (def msgs
   {
    :create+in     "-i/--in not valid with -c/--create."
-   :get+out       "-o/--out may not be used with -g/--get."
    :get+set       "-g/--get and -s/--set may not be mixed."
    :multi-in      "-i/--in may be specified only once."
    :multi-out     "-o/--out may be specified only once."
@@ -57,9 +56,10 @@
     (if (nil? tree) [parent (vnew)] (insta/transform {parent f} tree))))
 
 (defn- nml-gets [m gets no-prefix]
-  (doseq [[nml key] gets]
-    (let [val (nml-get m nml key)]
-      (println (if no-prefix val (str nml ":" key "=" val))))))
+  (let [f (fn [[nml key]]
+            (let [val (nml-get m nml key)]
+              (if no-prefix val (str nml ":" key "=" val))))]
+    (str (string/join "\n" (map f gets)) "\n")))
 
 (defn- nml-out [out s]
   (if (= out *out*)
@@ -223,11 +223,10 @@
     (if (not-empty arguments) (fail (str "Unexpected argument '" (first arguments) "'.")))
     (if (:help options) (usage summary))
     (if (:version options) (do (println version) (System/exit 0)))
-    (if (and gets (:out options)) (fail (msgs :get+out)))
     (if (and gets sets) (fail (msgs :get+set)))
     (if (and sets (:no-prefix options)) (fail (msgs :set+no-prefix)))
     (if (and (:create options) (:in options)) (fail (msgs :create+in)))
     (let [m (nml-map (if (:create options) "" (read-file in)))]
-      (cond gets  (nml-gets m gets (:no-prefix options))
+      (cond gets  (nml-out out (nml-gets m gets (:no-prefix options)))
             sets  (nml-out out (fmt (nml-sets m sets)))
             :else (nml-out out (fmt m))))))
