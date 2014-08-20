@@ -204,10 +204,17 @@
              (str "&" name "\n" (apply str (map f0 (sort nvseq))) "/\n"))]
     (apply str (map f1 (sort m)))))
 
-;;(defn- fmt-bash [m]
-;; (let [f (fn [[name nvseq]]
-;;            (str "declare -A nml[" name "]\n" (apply str (map (fn [[dataref values]] (str "nml[" name "][" dataref "]=" values "\n")) (sort nvseq)))))]
-;;   (str "declare -A nml\n" (apply str (map f (sort m))))))
+(defn- fmt-bash [m]
+  (let [ms (sort m)
+        f0 (fn [[name nvseq]] (str "declare -A nml_" name "\n"))
+        f1 (fn [[name nvseq]]
+             (apply str
+                    (map (fn [[dataref values]]
+                           (let [v (string/replace values "\"" "\\\"")]
+                             (str "nml_" name "[" dataref "]=\"" v "\"\n")))
+                           (sort nvseq))))]
+    (str (apply str (map f0 ms))
+         (apply str (map f1 ms)))))
 
 ;; main
 
