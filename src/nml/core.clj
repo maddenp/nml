@@ -221,7 +221,7 @@
 
 (def cliopts
   [["-c" "--create"     "Create new namelist"                                                              ]
-   ["-f" "--format fmt" "Output in the specified format (see below)"   :assoc-fn assoc-f :parse-fn parse-f ]
+   ["-f" "--format fmt" "Output in format 'fmt' (default: namelist)"   :assoc-fn assoc-f :parse-fn parse-f ]
    ["-g" "--get n:k"    "Get value of key 'k' in namelist 'n'"         :assoc-fn assoc-g :parse-fn parse-g ]
    ["-h" "--help"       "Show usage information"                                                           ]
    ["-i" "--in file"    "Input file (default: stdin)"                  :assoc-fn assoc-i                   ]
