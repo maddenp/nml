@@ -34,6 +34,9 @@
        (catch Exception e
          (fail (str "Could not read from '" in "'.")))))
 
+(defn- strmap [f coll]
+  (apply str (map f coll)))
+
 (defn- usage [summary]
   (doseq [x [""
              "Usage: nml [options]"
@@ -86,7 +89,7 @@
         cjoin    #(string/join "," %)
         delegate #(map nml-str %)
         delesort  (fn [val] (delegate (sort-by #(nml-name %) val)))
-        list2str #(apply str (map nml-str %))
+        list2str #(strmap nml-str %)
         strfirst #(nml-str (first %))
         strlast  #(nml-str (last %))]
     (apply str (case key
@@ -197,24 +200,23 @@
 
 ;; formatting
 
+(defn- fmt-bash [m]
+  (let [ms  (sort m)
+        eq #(string/replace % "\"" "\\\"")
+        f0  (fn [[dataref values]]
+              (let [v (eq values)]
+                (str "'" dataref "') echo \"" v "\";;")))
+        f1  (fn [[name nvseq]]
+              (let [x (strmap f0 nvseq)]
+                (str "'" name "') case \"$2\" in " x "*) echo '';;esac;;" )))]
+    (str "ooo(){ case \"$1\" in " (strmap f1 ms) "*) echo '';;esac; }\n")))
+
 (defn- fmt-namelist [m]
   (let [f0 (fn [[dataref values]]
              (str "  " dataref "=" values "\n"))
         f1 (fn [[name nvseq]]
-             (str "&" name "\n" (apply str (map f0 (sort nvseq))) "/\n"))]
-    (apply str (map f1 (sort m)))))
-
-(defn- fmt-bash [m]
-  (let [ms (sort m)
-        f0 (fn [[name nvseq]] (str "declare -A nml_" name "\n"))
-        f1 (fn [[name nvseq]]
-             (apply str
-                    (map (fn [[dataref values]]
-                           (let [v (string/replace values "\"" "\\\"")]
-                             (str "nml_" name "[" dataref "]=\"" v "\"\n")))
-                           (sort nvseq))))]
-    (str (apply str (map f0 ms))
-         (apply str (map f1 ms)))))
+             (str "&" name "\n" (strmap f0 (sort nvseq)) "/\n"))]
+    (strmap f1 (sort m))))
 
 ;; main
 
@@ -236,4 +238,3 @@
       (cond gets  (nml-out out (nml-gets m gets (:no-prefix options)))
             sets  (nml-out out (fmt (nml-sets m sets)))
             :else (nml-out out (fmt m))))))
-;;           :else (nml-out out (fmt-bash m))))))
