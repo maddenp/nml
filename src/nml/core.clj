@@ -187,16 +187,14 @@
     [nml key val]))
 
 (def cliopts
-  [
-   ["-c" "--create"    "Create new namelist"                                                                ]
+  [["-c" "--create"    "Create new namelist"                                                                ]
    ["-g" "--get n:k"   "Get value of key 'k' in namelist 'n'"         :assoc-fn assoc-g :parse-fn parse-get ]
    ["-h" "--help"      "Show usage information"                                                             ]
    ["-i" "--in file"   "Input file (default: stdin)"                  :assoc-fn assoc-i                     ]
    ["-n" "--no-prefix" "Report values without 'namelist:key=' prefix"                                       ]
    ["-o" "--out file"  "Output file (default: stdout)"                :assoc-fn assoc-o                     ]
    ["-s" "--set n:k=v" "Set value of key 'k' in namelist 'n' to 'v'"  :assoc-fn assoc-s :parse-fn parse-set ]
-   ["-v" "--version"   "Show version information"                                                           ]
-   ])
+   ["-v" "--version"   "Show version information"                                                           ]])
 
 ;; formatting
 
