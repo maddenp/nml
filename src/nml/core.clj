@@ -8,20 +8,24 @@
 
 ;; formatting
 
-(defn- fmt-bash [m & a]
-  (let [fname (or (first a) "nmlquery")
-        ms    (sort m)
-        eq   #(string/replace % "\"" "\\\"")
-        f0    (fn [[dataref values]]
-                (let [v (eq values)]
-                  (str "'" dataref "') echo \"" v "\";;")))
-        f1    (fn [[name nvseq]]
-                (let [x (strmap f0 nvseq)]
-                  (str "'" name "') case \"$2\" in " x "*) echo '';;esac;;" )))]
-    (str fname "(){ case \"$1\" in " (strmap f1 ms) "*) echo '';;esac; }\n")))
+(defn- fmt-sh [m lo]
+  (let [ms  (sort m)
+        n   (lo 1)
+        k   (lo 2)
+        eq #(string/replace % "\"" "\\\"")
+        f0  (fn [[dataref values]]
+              (let [v (eq values)]
+                (str "'" dataref "') echo \"" v "\";;")))
+        f1  (fn [[name nvseq]]
+              (let [x (strmap f0 nvseq)]
+                (str "'" name "') case " k " in " x "*) echo '';;esac;;" )))]
+    (str "nmlquery(){ case " n " in " (strmap f1 ms) "*) echo '';;esac; }\n")))
+
+(defn- fmt-bash [m]
+  (fmt-sh m #(str "\"${" % ",,}\"")))
 
 (defn- fmt-ksh [m]
-  (fmt-bash m))
+  (fmt-sh m #(str "\"$(echo $" % " | tr [:upper:] [:lower:])\"")))
 
 (defn- fmt-namelist [m]
   (let [f0 (fn [[dataref values]]
