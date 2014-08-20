@@ -132,6 +132,20 @@ To create a new namelist file from scratch (i.e. without starting with an input 
 /
 ````
 
+#####Output Format
+
+In addition to the default Fortran namelist output format, _nml_ can output namelist data as a bash/ksh function. This allows fast lookups in shell scripts with a single _nml_ invocation, via the defined _nmlquery_ shell function.
+
+````
+% eval "$(nml --in nl --format bash)"
+
+% nmlquery a s
+"Hello World"
+
+% nmlquery b c
+(3.142,2.718)
+````
+
 ###Thanks
 
 Thanks to Mark Engelberg for the wonderful [Instaparse](https://github.com/Engelberg/instaparse), on which _nml_ is based.
