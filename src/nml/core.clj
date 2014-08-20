@@ -200,7 +200,7 @@
 
 ;; formatting
 
-(defn- fmt-bash [m]
+(defn- fmt-bash [m fname]
   (let [ms  (sort m)
         eq #(string/replace % "\"" "\\\"")
         f0  (fn [[dataref values]]
@@ -209,7 +209,7 @@
         f1  (fn [[name nvseq]]
               (let [x (strmap f0 nvseq)]
                 (str "'" name "') case \"$2\" in " x "*) echo '';;esac;;" )))]
-    (str "ooo(){ case \"$1\" in " (strmap f1 ms) "*) echo '';;esac; }\n")))
+    (str fname "(){ case \"$1\" in " (strmap f1 ms) "*) echo '';;esac; }\n")))
 
 (defn- fmt-namelist [m]
   (let [f0 (fn [[dataref values]]
