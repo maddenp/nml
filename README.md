@@ -18,14 +18,17 @@ Usage: nml [options]
 
 Options:
 
-  -c, --create     Create new namelist
-  -g, --get n:k    Get value of key 'k' in namelist 'n'
-  -h, --help       Show usage information
-  -i, --in file    Input file (default: stdin)
-  -n, --no-prefix  Report values without 'namelist:key=' prefix
-  -o, --out file   Output file (default: stdout)
-  -s, --set n:k=v  Set value of key 'k' in namelist 'n' to 'v'
-  -v, --version    Show version information
+  -c, --create      Create new namelist
+  -f, --format fmt  Output in format 'fmt' (default: namelist)
+  -g, --get n:k     Get value of key 'k' in namelist 'n'
+  -h, --help        Show usage information
+  -i, --in file     Input file (default: stdin)
+  -n, --no-prefix   Report values without 'namelist:key=' prefix
+  -o, --out file    Output file (default: stdout)
+  -s, --set n:k=v   Set value of key 'k' in namelist 'n' to 'v'
+  -v, --version     Show version information
+
+Valid output formats are: bash, ksh, namelist
 ````
 
 ###Examples
@@ -134,7 +137,7 @@ To create a new namelist file from scratch (i.e. without starting with an input 
 
 #####Output Format
 
-In addition to the default Fortran namelist output format, _nml_ can output namelist data as a bash/ksh function. This allows fast lookups in shell scripts with a single _nml_ invocation, via the defined _nmlquery_ shell function.
+In addition to the default Fortran namelist output format, _nml_ can output namelist data as a bash/ksh function. This allows fast lookups in shell scripts after a single _nml_ invocation, via the defined _nmlquery_ shell function.
 
 ````
 % eval "$(nml --in nl --format bash)"
