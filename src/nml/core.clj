@@ -40,6 +40,7 @@
 (def msgs
   {:bad-format    "Bad output format."
    :create+in     "-i/--in not valid with -c/--create."
+   :get+format    "-f/--format not valid with -g/--get."
    :get+set       "-g/--get and -s/--set may not be mixed."
    :multi-format  "-f/--format may be specified only once."
    :multi-in      "-i/--in may be specified only once."
@@ -243,6 +244,7 @@
     (if (:help options) (usage summary))
     (if (:version options) (do (println version) (System/exit 0)))
     (if (and gets sets) (fail (msgs :get+set)))
+    (if (and gets (:format options)) (fail (msgs :get+format)))
     (if (and sets (:no-prefix options)) (fail (msgs :set+no-prefix)))
     (if (and (:create options) (:in options)) (fail (msgs :create+in)))
     (let [fmt (let [f (:format options)] (if f (formats f) fmt-namelist))
