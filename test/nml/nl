@@ -14,7 +14,7 @@ x' c4='a','b' c5='c',
 
 &Nc
   t0= ! c
-     t, t1=T, t2=.true. ! c
+     t,, t1=T, t2=.true. ! c
 ! c
      T3=.TRUE., ! c
      ! c
