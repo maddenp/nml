@@ -154,6 +154,7 @@
                  :string   val
                  :true     "t"
                  :uint     val
+                 :valopt   (cjoin (delegate val))
                  :value    (delegate val)
                  :values   (cjoin (delegate val))
                  :ws       ""
