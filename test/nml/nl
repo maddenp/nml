@@ -13,7 +13,8 @@ x' c4='a','b' c5='c',
 &NB i0 = 88,i1 = +88 I2 = -88 / i3 = 88 /
 
 &Nc
-  t0=t, t1=T, t2=.true. !c
+  t0= ! c
+     t, t1=T, t2=.true. ! c
 ! c
      T3=.TRUE., ! c
      ! c
