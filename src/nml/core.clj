@@ -51,7 +51,6 @@
    :multi-out     "-o/--out may be specified only once."
    :set+no-prefix "-n/--no-prefix not valid with -s/--set."})
 
-
 (def parse (insta/parser (clojure.java.io/resource "grammar")))
 
 (def version "0.2")
