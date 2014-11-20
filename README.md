@@ -33,7 +33,7 @@ Valid output formats are: bash, ksh, namelist
 
 ###Examples
 
-Assume that the file _nl_ contains the Fortran namelists:
+Assume that the contents of the file _nl_ are as follows:
 
 ```
 &b
