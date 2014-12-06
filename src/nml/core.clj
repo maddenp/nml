@@ -95,11 +95,11 @@
          (catch Exception e
            (fail (str "Could not write to '" out "'."))))))
 
-(defn- nml-parse [s start]
+(defn- nml-parse [s start src]
   (let [result (parse s :start start)]
     (if (insta/failure? result)
       (let [{t :text l :line c :column} result]
-        (fail (str "Parse error at line " l " column " c ":")
+        (fail (str "Error parsing " src " at line " l " column " c ":")
               t
               (str (apply str (repeat (- c 1) " ")) "^")))
       result)))
@@ -159,8 +159,8 @@
                  :ws       ""
                  :wsopt    ""))))
 
-(defn- nml-tree [s]
-  (let [tree  (nml-parse s :s)
+(defn- nml-tree [s src]
+  (let [tree  (nml-parse s :s src)
         child :nvseq
         f     (fn [& v] (into [child] (nml-uniq v)))]
     (insta/transform {child f} tree)))
@@ -178,16 +178,17 @@
 (defn nml-get [m nml key]
   (get (get m (string/lower-case nml) {}) (string/lower-case key) ""))
 
-(defn nml-map [s]
+(defn nml-map [s src]
   (let [f0   (fn [& nvsubseqs   ] (into {} nvsubseqs))
         f1   (fn [dataref values] { (nml-str dataref) (nml-str values) })
         f2   (fn [& stmts       ] (into {} stmts))
         f3   (fn [name & nvseq  ] { (nml-str name) (first nvseq) })
-        tree (nml-tree s)]
+        tree (nml-tree s src)]
     (insta/transform {:nvseq f0 :nvsubseq f1 :s f2 :stmt f3 } tree)))
 
 (defn nml-set [m nml key val]
-  (let [val (nml-str (nml-parse val :values))]
+  (let [src (str "user-supplied value")
+        val (nml-str (nml-parse val :values src))]
     (assoc-in m [(string/lower-case nml) (string/lower-case key)] val)))
 
 ;; cli
@@ -243,7 +244,8 @@
         gets (:get options)
         sets (:set options)
         in   (or (:in  options) *in* )
-        out  (or (:out options) *out*)]
+        out  (or (:out options) *out*)
+        src  (or (:in options) "stdin")]
     (if (not-empty arguments) (fail (str "Unexpected argument '" (first arguments) "'.")))
     (if (:help options) (usage summary))
     (if (:version options) (do (println version) (System/exit 0)))
@@ -252,7 +254,7 @@
     (if (and sets (:no-prefix options)) (fail (msgs :set+no-prefix)))
     (if (and (:create options) (:in options)) (fail (msgs :create+in)))
     (let [fmt (let [f (:format options)] (if f (formats f) fmt-namelist))
-          m   (nml-map (if (:create options) "" (read-file in)))]
+          m   (nml-map (if (:create options) "" (read-file in)) src)]
       (cond gets  (nml-out out (nml-gets m gets (:no-prefix options)))
             sets  (nml-out out (fmt (nml-sets m sets)))
             :else (nml-out out (fmt m))))))

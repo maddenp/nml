@@ -3,7 +3,7 @@
             [nml.core :refer :all]))
 
 
-(let [m (nml-map (slurp "test/nml/nl"))]
+(let [m (nml-map (slurp "test/nml/nl") "test")]
 
   (deftest gets
     (is (= (nml-get m "na" "C0") "'foo'"                                         ))
