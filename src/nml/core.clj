@@ -42,18 +42,21 @@
    "namelist" fmt-namelist})
 
 (def msgs
-  {:bad-format    "Bad output format."
-   :create+in     "-i/--in not valid with -c/--create."
-   :get+format    "-f/--format not valid with -g/--get."
-   :get+set       "-g/--get and -s/--set may not be mixed."
-   :multi-format  "-f/--format may be specified only once."
-   :multi-in      "-i/--in may be specified only once."
-   :multi-out     "-o/--out may be specified only once."
-   :set+no-prefix "-n/--no-prefix not valid with -s/--set."})
+  {:bad-format    "Bad output format"
+   :edit+in       "-i/--in not valid with -e/--edit"
+   :edit+out      "-o/--out not valid with -e/--edit"
+   :get+edit      "-e/--edit not valid with -g/--get"
+   :get+format    "-f/--format not valid with -g/--get"
+   :get+set       "-g/--get and -s/--set may not be mixed"
+   :multi-edit    "-e/--edit may be specified only once"
+   :multi-format  "-f/--format may be specified only once"
+   :multi-in      "-i/--in may be specified only once"
+   :multi-out     "-o/--out may be specified only once"
+   :set+no-prefix "-n/--no-prefix not valid with -s/--set"})
 
 (def parse (insta/parser (clojure.java.io/resource "grammar")))
 
-(def version "0.2")
+(def version "0.3")
 
 ;; utility defns
 
@@ -66,7 +69,7 @@
 (defn- read-file [in]
   (try (slurp in)
        (catch Exception e
-         (fail (str "Could not read from '" in "'.")))))
+         (fail (str "Could not read from '" in "'")))))
 
 (defn- strmap [f coll]
   (apply str (map f coll)))
@@ -93,7 +96,7 @@
     (println (string/trim s))
     (try (spit out s)
          (catch Exception e
-           (fail (str "Could not write to '" out "'."))))))
+           (fail (str "Could not write to '" out "'"))))))
 
 (defn- nml-parse [s start src]
   (let [result (parse s :start start)]
@@ -109,7 +112,7 @@
     (if (empty? s)
       m
       (let [[nml key val] (first s)]
-        (if (nil? val) (fail (str "No value supplied for key '" key "'.")))
+        (if (nil? val) (fail (str "No value supplied for key '" key "'")))
         (recur (nml-set m nml key val) (rest s))))))
 
 (defn- nml-str [x]
@@ -193,6 +196,10 @@
 
 ;; cli
 
+(defn- assoc-e [m k v]
+  (if (k m) (fail (msgs :multi-edit)))
+  (assoc m k v))
+
 (defn- assoc-f [m k v]
   (if (k m) (fail (msgs :multi-format)))
   (assoc m k v))
@@ -227,6 +234,7 @@
 
 (def cliopts
   [["-c" "--create"     "Create new namelist"                                                              ]
+   ["-e" "--edit file"  "Edit file (instead of '-i file -o file')"     :assoc-fn assoc-e                   ]
    ["-f" "--format fmt" "Output in format 'fmt' (default: namelist)"   :assoc-fn assoc-f :parse-fn parse-f ]
    ["-g" "--get n:k"    "Get value of key 'k' in namelist 'n'"         :assoc-fn assoc-g :parse-fn parse-g ]
    ["-h" "--help"       "Show usage information"                                                           ]
@@ -239,20 +247,34 @@
 ;; main
 
 (defn -main [& args]
+
   (alter-var-root #'*read-eval* (constantly false))
+
+  ;; bindings
+
   (let [{:keys [options arguments summary]} (cli/parse-opts args cliopts)
         gets (:get options)
         sets (:set options)
-        in   (or (:in  options) *in* )
-        out  (or (:out options) *out*)
-        src  (or (:in options) "stdin")]
-    (if (not-empty arguments) (fail (str "Unexpected argument '" (first arguments) "'.")))
+        edit (:edit options)
+        in   (or edit (:in options) *in*)
+        out  (or edit (:out options) *out*)
+        src  (or edit (:in options) "stdin")]
+
+    ;; error checking
+
+    (if (not-empty arguments) (fail (str "Unexpected argument '" (first arguments) "'")))
     (if (:help options) (usage summary))
     (if (:version options) (do (println version) (System/exit 0)))
     (if (and gets sets) (fail (msgs :get+set)))
+    (if (and gets edit) (fail (msgs :get+edit)))
+    (if (and edit (:in options)) (fail (msgs :edit+in)))
+    (if (and edit (:out options)) (fail (msgs :edit+out)))
     (if (and gets (:format options)) (fail (msgs :get+format)))
     (if (and sets (:no-prefix options)) (fail (msgs :set+no-prefix)))
     (if (and (:create options) (:in options)) (fail (msgs :create+in)))
+
+    ;; read -> parse -> [modify] -> output
+
     (let [fmt (let [f (:format options)] (if f (formats f) fmt-namelist))
           m   (nml-map (if (:create options) "" (read-file in)) src)]
       (cond gets  (nml-out out (nml-gets m gets (:no-prefix options)))
