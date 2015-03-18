@@ -85,6 +85,7 @@
 (defn- nml-gets [m gets no-prefix]
   (let [f (fn [[nml key]]
             (let [val (nml-get m nml key)]
+              (if (= "" val) (fail (str nml ":" key " not found")))
               (if no-prefix val (str nml ":" key "=" val))))]
     (str (string/join "\n" (map f gets)) "\n")))
 
