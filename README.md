@@ -94,8 +94,6 @@ To print only values, without _namelist:key=_ prefixes:
 2.2e8
 ````
 
-Note that values are printed in the order they were requested on the command line.
-
 An obvious application to use _nml_ to insert namelist settings in scripts:
 
 ```
@@ -106,6 +104,8 @@ echo "The value of i is $(nml --in nl --no-prefix --get b:i)"
 % ./say.sh
 The value of i is 88
 ````
+
+Note that values are printed in the order they were requested on the command line.
 
 #####Modifying
 
