@@ -19,6 +19,7 @@ Usage: nml [options]
 Options:
 
   -c, --create      Create new namelist
+  -e, --edit file   Edit file (instead of '-i file -o file')
   -f, --format fmt  Output in format 'fmt' (default: namelist)
   -g, --get n:k     Get value of key 'k' in namelist 'n'
   -h, --help        Show usage information
@@ -28,7 +29,7 @@ Options:
   -s, --set n:k=v   Set value of key 'k' in namelist 'n' to 'v'
   -v, --version     Show version information
 
-Valid output formats are: bash, ksh, namelist
+Valid output formats are: bash, csh, ksh, namelist
 ````
 
 ###Examples
@@ -77,6 +78,14 @@ a:r=2.2e8
 b:i=88
 ````
 
+If any requested namelists or keys are not found, _nml_ reports the first ungettable value and exits with error status:
+
+````
+% nml --in nl --get a:r --get b:x || echo "FAIL"
+nml: b:x not found
+FAIL
+````
+
 To print only values, without _namelist:key=_ prefixes:
 
 ````
@@ -119,6 +128,16 @@ To set (or add) values:
 /
 ````
 
+A file may be edited in place with the _--edit_ command:
+
+````
+% nml --in nl --get a:s
+a:s='Hello World'
+% nml --edit nl --set a:s="'Hi'"
+% nml --in nl --get a:s
+a:s='Hi'
+````
+
 Note that get and set commands may not be mixed in a single _nml_ invovation.
 
 To create a new namelist file from scratch (i.e. without starting with an input file):
@@ -143,10 +162,32 @@ In addition to the default Fortran namelist output format, _nml_ can output name
 % eval "$(nml --in nl --format bash)"
 
 % nmlquery a s
-"Hello World"
+"Hi"
 
 % nmlquery b c
 (3.142,2.718)
+````
+
+The _csh_ format returns a list of commands to set variables based on namelist contents. Each variable has the format _nml__namelist_key_. For example:
+
+````
+% nml --in nl --format csh
+set nml__a_r="2.2e8"
+set nml__a_s="'Hi'"
+set nml__b_c="(3.142,2.718)"
+set nml__b_i="88"
+set nml__b_l="t"
+````
+
+A recipe like the following may be useful:
+
+````
+% csh
+$ set nml__contents=`nml --in nl --format csh`
+$ test $status = 0 || echo "FAIL" && exit 1
+$ eval $nml__contents
+$ echo $nml__a_s
+'Hi'
 ````
 
 ###Thanks
