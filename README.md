@@ -94,6 +94,8 @@ To print only values, without _namelist:key=_ prefixes:
 2.2e8
 ````
 
+Note that values are printed in the order they were requested on the command line.
+
 An obvious application to use _nml_ to insert namelist settings in scripts:
 
 ```
@@ -104,8 +106,6 @@ echo "The value of i is $(nml --in nl --no-prefix --get b:i)"
 % ./say.sh
 The value of i is 88
 ````
-
-Note that values are printed in the order they were requested on the command line.
 
 #####Modifying
 
@@ -128,6 +128,8 @@ To set (or add) values:
 /
 ````
 
+Note that get and set commands may not be mixed in a single _nml_ invovation.
+
 A file may be edited in place with the _--edit_ command (equivalent, in this case, to _--in nl --out nl_):
 
 ````
@@ -137,8 +139,6 @@ a:s='Hello World'
 % nml --in nl --get a:s
 a:s='Hi'
 ````
-
-Note that get and set commands may not be mixed in a single _nml_ invovation.
 
 To create a new namelist file from scratch (i.e. without starting with an input file):
 
