@@ -24,6 +24,12 @@
 (defn- fmt-bash [m]
   (fmt-sh m #(str "\"${" % ",,}\"")))
 
+(defn- fmt-csh [m]
+  (let [f0 #(string/replace % "\n" "")
+        f1 (fn [n k v] (str "set nml__" n "_" k "=\"" (f0 v) "\"\n"))
+        f2 (fn [m [n kv]] (str m (apply str (map (fn [[k v]] (f1 n k v)) kv))))]
+    (reduce f2 "" (sort m))))
+
 (defn- fmt-ksh [m]
   (fmt-sh m #(str "\"$(echo $" % " | tr [:upper:] [:lower:])\"")))
 
@@ -38,6 +44,7 @@
 
 (def formats
   {"bash"     fmt-bash
+   "csh"      fmt-csh
    "ksh"      fmt-ksh
    "namelist" fmt-namelist})
 
