@@ -29,7 +29,7 @@ Options:
   -s, --set n:k=v   Set value of key 'k' in namelist 'n' to 'v'
   -v, --version     Show version information
 
-Valid output formats are: bash, csh, ksh, namelist
+Valid output formats are: bash, ksh, namelist
 ````
 
 ###Examples
@@ -166,28 +166,6 @@ In addition to the default Fortran namelist output format, _nml_ can output name
 
 % nmlquery b c
 (3.142,2.718)
-````
-
-The _csh_ format returns a list of commands to set variables based on namelist contents. Each variable name has the format _nml__namelist_key_. For example:
-
-````
-% nml --in nl --format csh
-set nml__a_r="2.2e8"
-set nml__a_s="'Hi'"
-set nml__b_c="(3.142,2.718)"
-set nml__b_i="88"
-set nml__b_l="t"
-````
-
-A recipe like the following may be useful:
-
-````
-% csh
-$ set nml__contents=`nml --in nl --format csh`
-$ test $status = 0 || echo "FAIL" && exit 1
-$ eval $nml__contents
-$ echo $nml__a_s
-'Hi'
 ````
 
 ###Thanks
