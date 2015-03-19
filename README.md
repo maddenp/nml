@@ -128,7 +128,7 @@ To set (or add) values:
 /
 ````
 
-A file may be edited in place with the _--edit_ command:
+A file may be edited in place with the _--edit_ command (equivalent, in this case, to _--in nl --out nl_):
 
 ````
 % nml --in nl --get a:s
