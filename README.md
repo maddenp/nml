@@ -78,14 +78,6 @@ a:r=2.2e8
 b:i=88
 ````
 
-If any requested namelists or keys are not found, _nml_ reports the first ungettable value and exits with error status:
-
-````
-% nml --in nl --get a:r --get b:x || echo "FAIL"
-nml: b:x not found
-FAIL
-````
-
 To print only values, without _namelist:key=_ prefixes:
 
 ````
@@ -105,6 +97,14 @@ echo "The value of i is $(nml --in nl --no-prefix --get b:i)"
 
 % ./say.sh
 The value of i is 88
+````
+
+If any requested namelists or keys are not found, _nml_ reports the first ungettable value and exits with error status:
+
+````
+% nml --in nl --get a:r --get b:x || echo "FAIL"
+nml: b:x not found
+FAIL
 ````
 
 #####Modifying
