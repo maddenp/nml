@@ -168,7 +168,7 @@ In addition to the default Fortran namelist output format, _nml_ can output name
 (3.142,2.718)
 ````
 
-The _csh_ format returns a list of commands to set variables based on namelist contents. Each variable has the format _nml__namelist_key_. For example:
+The _csh_ format returns a list of commands to set variables based on namelist contents. Each variable name has the format _nml__namelist_key_. For example:
 
 ````
 % nml --in nl --format csh
