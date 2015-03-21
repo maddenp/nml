@@ -274,7 +274,7 @@
     (if (and sets (:no-prefix options)) (fail (msgs :set+no-prefix)))
     (if (and (:create options) (:in options)) (fail (msgs :create+in)))
 
-    ;; read -> parse -> [modify] -> output
+    ;; read -> parse -> lookup or modify -> output
 
     (let [fmt (let [f (:format options)] (if f (formats f) fmt-namelist))
           m   (nml-map (if (:create options) "" (read-file in)) src)]
