@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/maddenp/nml.svg)](https://travis-ci.org/maddenp/nml)
+
 nml
 ===
 
