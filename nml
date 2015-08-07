@@ -2,7 +2,6 @@
 
 p=$(readlink -e $0)
 d=$(dirname     $p)
-b=$(basename    $p)
 
 NMLJAR=$d/target/nml.jar
 
