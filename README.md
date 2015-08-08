@@ -1,7 +1,6 @@
-[![Build Status](https://travis-ci.org/maddenp/nml.svg)](https://travis-ci.org/maddenp/nml)
-
 nml
 ===
+[![Build Status](https://travis-ci.org/maddenp/nml.svg)](https://travis-ci.org/maddenp/nml)
 
 A query/modify utility for Fortran namelists
 
