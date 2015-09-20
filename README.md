@@ -89,7 +89,7 @@ To print only values, without _namelist:key=_ prefixes:
 
 Note that values are printed in the order they were requested on the command line.
 
-An obvious application to use _nml_ to insert namelist settings in scripts:
+An obvious application is to use _nml_ to insert namelist settings in scripts:
 
 ```
 % cat say.sh
