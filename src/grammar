@@ -10,7 +10,7 @@ exp      = sign uint | 'e' <wsopt> int | 'd' <wsopt> int
 false    = 'f' | 'F'
 int      = sign? uint
 junk     = #'[^&]+'
-logical  = <'.'?> ( true | false ) <#'[^/,\s]*'>
+logical  = <'.'?> ( true | false ) <#'[^/,=\s]*'>
 name     = #'[a-zA-Z]' #'[a-zA-Z0-9_]{0,30}'?
 nvseq    = nvsubseq ( ( <sep> | <ws> ) nvsubseq )*
 nvsubseq = <comment>* dataref <wsopt> <'='> < wsopt | comment* > values <comment>*
