@@ -151,12 +151,8 @@
                  :r        (strfirst val)
                  :real     (delegate val)
                  :sect     ["(" (list2str val) ")"]
-                 :sep      val
-                 :sign     val
                  :stmt     ["&" (strfirst val) " " (list2str (rest val)) " /"]
-                 :string   val
                  :true     "t"
-                 :uint     val
                  :valopt   (cjoin (delegate val))
                  :value    (delegate val)
                  :values   (cjoin (delegate val))
