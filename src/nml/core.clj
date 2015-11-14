@@ -138,8 +138,7 @@
                  :comment  ""
                  :complex  ["(" (cjoin (delegate val)) ")"]
                  :dataref  (delegate val)
-                 :dec      (delegate val)
-                 :dot      "."
+                 :dec      ["." (strlast val)]
                  :exp      [(first val) (strlast val)]
                  :false    "f"
                  :int      (delegate val)
