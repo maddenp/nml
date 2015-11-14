@@ -2,7 +2,6 @@ s        = ( stmt | <comment> | <junk> )*
 
 array    = name sect
 c        = real | string | logical | complex
-comma    = ','
 comment  = <wsopt> '!' #'[^\n]*' <wsopt>
 complex  = <'('> <wsopt> real <wsopt> <','> <wsopt> real <wsopt> <')'>
 dataref  = partref ( '%' partref )*
@@ -20,7 +19,7 @@ partref  = array | name
 r        = uint
 real     = int dec? exp? | sign? dec int exp?
 sect     = <'('> ( int? ':' int? | int ) ( ':' int )? <')'>
-sep      = <wsopt> comma <wsopt>
+sep      = <wsopt> ',' <wsopt>
 sign     = '-' | '+'
 slash    = '/'
 star     = '*'
