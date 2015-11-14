@@ -10,6 +10,10 @@ Install [Leiningen](http://leiningen.org/) if you don't have it, then:
 
 `lein uberjar`
 
+###Test
+
+`lein test`
+
 ###Run
 
 The _nml_ wrapper script invokes _java -jar_ with the path to the Leiningen-generated _target/nml.jar_. It may be convenient to edit this script for your own use.
