@@ -101,12 +101,6 @@
 
 (defn- nml-parse [s start src]
   (let [result (parse s :start start :optimize :memory)]
-;;   (let [parses (insta/parses parse s)]
-;;     (binding [*out* *err*]
-;;       (doseq [parse parses]
-;;         (println parse)
-;;         (println)))
-;;       (println (str "### " (count parses))))
     (if (insta/failure? result)
       (let [{t :text l :line c :column} result]
         (fail (str "Error parsing " src " at line " l " column " c ":")
