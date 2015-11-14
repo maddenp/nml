@@ -6,7 +6,7 @@ colon    = ':'
 comma    = ','
 comment  = <wsopt> '!' #'[^\n]*' <wsopt>
 complex  = <'('> <wsopt> real <wsopt> <','> <wsopt> real <wsopt> <')'>
-dataref  = partref ( percent partref )*
+dataref  = partref ( '%' partref )*
 dec      = dot uint?
 dot      = '.'
 exp      = sign uint | 'e' <wsopt> int | 'd' <wsopt> int
@@ -18,7 +18,6 @@ name     = #'[a-zA-Z]' #'[a-zA-Z0-9_]{0,30}'?
 nvseq    = nvsubseq ( ( <sep> | <ws> ) nvsubseq )*
 nvsubseq = <comment>* dataref <wsopt> <'='> < wsopt | comment* > values <comment>*
 partref  = array | name
-percent  = '%'
 r        = uint
 real     = int dec? exp? | sign? dec int exp?
 sect     = <'('> ( int? colon int? | int ) ( colon int )? <')'>

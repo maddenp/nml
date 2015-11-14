@@ -101,12 +101,12 @@
 
 (defn- nml-parse [s start src]
   (let [result (parse s :start start :optimize :memory)]
-    (let [parses (insta/parses parse s)]
-      (binding [*out* *err*]
-        (println (count parses))
-        (doseq [parse parses]
-          (println parse)
-          (println))))
+;;   (let [parses (insta/parses parse s)]
+;;     (binding [*out* *err*]
+;;       (println (count parses))
+;;       (doseq [parse parses]
+;;         (println parse)
+;;         (println))))
     (if (insta/failure? result)
       (let [{t :text l :line c :column} result]
         (fail (str "Error parsing " src " at line " l " column " c ":")
@@ -151,7 +151,6 @@
                  :nvseq    (string/join " " (delesort val))
                  :nvsubseq [(strfirst val) "=" (strlast val)]
                  :partref  (strfirst val)
-                 :percent  "%"
                  :r        (strfirst val)
                  :real     (delegate val)
                  :sect     ["(" (list2str val) ")"]
@@ -167,7 +166,8 @@
                  :value    (delegate val)
                  :values   (cjoin (delegate val))
                  :ws       ""
-                 :wsopt    ""))))
+                 :wsopt    ""
+                 val))))
 
 (defn- nml-tree [s src]
   (let [tree  (nml-parse s :s src)
