@@ -135,7 +135,6 @@
                  :s        (string/join "\n" (delesort val))
                  :array    [(strfirst val) (strlast val)]
                  :c        (strfirst val)
-                 :colon    ":"
                  :comma    ","
                  :comment  ""
                  :complex  ["(" (cjoin (delegate val)) ")"]

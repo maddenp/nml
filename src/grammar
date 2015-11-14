@@ -2,7 +2,6 @@ s        = ( stmt | <comment> | <junk> )*
 
 array    = name sect
 c        = real | string | logical | complex
-colon    = ':'
 comma    = ','
 comment  = <wsopt> '!' #'[^\n]*' <wsopt>
 complex  = <'('> <wsopt> real <wsopt> <','> <wsopt> real <wsopt> <')'>
@@ -20,7 +19,7 @@ nvsubseq = <comment>* dataref <wsopt> <'='> < wsopt | comment* > values <comment
 partref  = array | name
 r        = uint
 real     = int dec? exp? | sign? dec int exp?
-sect     = <'('> ( int? colon int? | int ) ( colon int )? <')'>
+sect     = <'('> ( int? ':' int? | int ) ( ':' int )? <')'>
 sep      = <wsopt> comma <wsopt>
 sign     = '-' | '+'
 slash    = '/'
