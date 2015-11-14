@@ -153,7 +153,6 @@
                  :sect     ["(" (list2str val) ")"]
                  :sep      val
                  :sign     val
-                 :star     "*"
                  :stmt     ["&" (strfirst val) " " (list2str (rest val)) " /"]
                  :string   val
                  :true     "t"
