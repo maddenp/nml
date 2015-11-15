@@ -13,7 +13,7 @@ junk     = #'[^&]+'
 logical  = <'.'>? ( true | false ) <#'[^/,=\s]*'>
 name     = #'[a-zA-Z]' #'[a-zA-Z0-9_]{0,30}'?
 nvseq    = nvsubseq ( ( <sep> | <ws> ) nvsubseq )*
-nvsubseq = <comment>* dataref <wsopt> <'='> < wsopt | comment >* values <comment>*
+nvsubseq = <comment>* dataref <wsopt> <'='> <wsopt> values <comment>*
 partref  = array | name
 r        = uint
 real     = int dec? exp? | sign? dec int exp?
