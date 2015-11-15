@@ -3,3 +3,5 @@
 - Test assignment to array subsections.
 
 - Test assignment to derived-type components.
+
+- Support semicolon for comma decimal edit mode.

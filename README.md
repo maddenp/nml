@@ -175,7 +175,7 @@ In addition to the default Fortran namelist output format, _nml_ can output name
 
 ###Limitations
 
-The Fortran standard allows namelist files like this:
+- The Fortran standard allows namelist files like this:
 
 ```
 &nl v = 77 /
@@ -192,6 +192,8 @@ Currently, _nml_ does not (TODO: but should) correctly support this variant of t
 ```
 
 The correct behavior would be to merge the contents of the two same-named namelists, providing values for both _v_ and _w_.
+
+- The use of the semicolon as a value separator (in the case where commas, instead of dots, are used to separate the whole and fractional parts of real numbers), is not currently supported.
 
 ###Thanks
 
