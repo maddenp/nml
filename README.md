@@ -173,6 +173,26 @@ In addition to the default Fortran namelist output format, _nml_ can output name
 (3.142,2.718)
 ````
 
+###Limitations
+
+The Fortran standard allows namelist files like:
+
+```
+&nl v = 77 /
+&nl v = 88 /
+```
+
+With the namelist file open, the first Fortran _read_ statement would set v to 77, and the second _read_ would set it to 88. This use case is not supported by _nml_: The last of a set of same-named namelists will override previous ones, and _nml_ will output a single namelist named _nl_.
+
+Currently, _nml_ does not (TODO: but should) correctly support this variant of the above:
+
+```
+&nl v = 77 /
+&nl w = 88 /
+```
+
+The correct behaviour would be to merge the contents of the two same-named namelists.
+
 ###Thanks
 
 Thanks to Mark Engelberg for the wonderful [Instaparse](https://github.com/Engelberg/instaparse), on which _nml_ is based.
