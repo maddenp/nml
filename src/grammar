@@ -1,31 +1,32 @@
-s        = ( stmt | <comment> | <junk> )*
+s         = <prelude> ( stmt <interlude> )*
 
-array    = name sect
-c        = real | string | logical | complex
-comment  = <wsopt> '!' #'[^\n]*' <wsopt>
-complex  = <'('> <wsopt> real <wsopt> <','> <wsopt> real <wsopt> <')'>
-dataref  = partref ( '%' partref )*
-dec      = '.' uint?
-exp      = sign uint | 'e' <wsopt> int | 'd' <wsopt> int
-false    = 'f' | 'F'
-int      = sign? uint
-junk     = #'[^&]+'
-logical  = <'.'?> ( true | false ) <#'[^/,=\s]*'>
-name     = #'[a-zA-Z]' #'[a-zA-Z0-9_]{0,30}'?
-nvseq    = nvsubseq ( ( <sep> | <ws> ) nvsubseq )*
-nvsubseq = <comment>* dataref <wsopt> <'='> < wsopt | comment* > values <comment>*
-partref  = array | name
-r        = uint
-real     = int dec? exp? | sign? dec int exp?
-sect     = <'('> ( int? ':' int? | int ) ( ':' int )? <')'>
-sep      = wsopt ',' wsopt
-sign     = '-' | '+'
-stmt     = <wsopt> <'&'> name < ws | comment* > nvseq? <wsopt> <'/'> <wsopt>
-string   = "'" ( #'[^\']' | "''" )* "'" | '"' ( #'[^\"]' | '""' )* '"'
-true     = 't' | 'T'
-uint     = #'[0-9]+'
-valopt   = ( <sep> | <ws> ) <comment>* value
-value    = r '*' c | r '*' | c
-values   = value <sep>? | value valopt*
-ws       = #'\s+'
-wsopt    = #'\s*'
+array     = name sect
+c         = real | string | logical | complex
+comment   = <wsopt> '!' #'[^\n]*' <wsopt>
+complex   = <'('> <wsopt> real <wsopt> <','> <wsopt> real <wsopt> <')'>
+dataref   = partref ( '%' partref )*
+dec       = '.' uint?
+exp       = sign uint | 'e' <wsopt> int | 'd' <wsopt> int
+false     = 'f' | 'F'
+int       = sign? uint
+interlude = #'[^&]*'
+logical   = <'.'?> ( true | false ) <#'[^/,=\s]*'>
+name      = #'[a-zA-Z]' #'[a-zA-Z0-9_]{0,30}'?
+nvseq     = nvsubseq ( ( <sep> | <ws> ) nvsubseq )*
+nvsubseq  = <comment>* dataref <wsopt> <'='> < wsopt | comment >* values <comment>*
+partref   = array | name
+prelude   = #'[^&]*'
+r         = uint
+real      = int dec? exp? | sign? dec int exp?
+sect      = <'('> ( int? ':' int? | int ) ( ':' int )? <')'>
+sep       = wsopt ',' wsopt
+sign      = '-' | '+'
+stmt      = <wsopt> <'&'> name < ws | comment* > nvseq? <wsopt> <'/'> <wsopt>
+string    = "'" ( #'[^\']' | "''" )* "'" | '"' ( #'[^\"]' | '""' )* '"'
+true      = 't' | 'T'
+uint      = #'[0-9]+'
+valopt    = ( <sep> | <ws> ) <comment>* value
+value     = r '*' c | r '*' | c
+values    = value <sep>? | value valopt*
+ws        = #'\s+'
+wsopt     = #'\s*'
