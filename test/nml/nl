@@ -1,5 +1,5 @@
 
-! c
+! &c
 
 junk text
 
@@ -19,7 +19,7 @@ x' c4='a','b' c5='c',
      T3=.TRUE., ! c
      ! c
      T4=.t12345, T5=.Tzzz ! c
-! c
+! c /
   F0=f, F1=F, F2=.false., f3=.FALSE., ! c
   f4
 =.f12345, F5=
