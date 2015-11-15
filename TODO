@@ -1,0 +1,5 @@
+- Support merging of multiple same-named namelists in a single input file.
+
+- Test assignment to array subsections.
+
+- Test assignment to derived-type components.
