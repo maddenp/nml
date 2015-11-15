@@ -16,8 +16,9 @@ x' c4='a','b' c5='c',
   t0=   
      t,, t1=T, t2=.true. ! c
 ! c
-     T3=.TRUE., ! c
+     T3=.FALSE., ! c
      ! c
+     T3=.TRUE., ! c
      T4=.t12345, T5=.Tzzz ! c
 ! c /
   F0=f, F1=F, F2=.false., f3=.FALSE., ! c
