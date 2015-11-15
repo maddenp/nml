@@ -175,14 +175,14 @@ In addition to the default Fortran namelist output format, _nml_ can output name
 
 ###Limitations
 
-The Fortran standard allows namelist files like:
+The Fortran standard allows namelist files like this:
 
 ```
 &nl v = 77 /
 &nl v = 88 /
 ```
 
-With the namelist file open, the first Fortran _read_ statement would set v to 77, and the second _read_ would set it to 88. This use case is not supported by _nml_: The last of a set of same-named namelists will override previous ones, and _nml_ will output a single namelist named _nl_.
+With the namelist file open, the first Fortran _read_ statement would set v to 77, and the second would set it to 88. This use case is not supported by _nml_. Rather, the last of a set of same-named namelists will override all previous ones, and _nml_ will output a single _nl_ namelist with the final values.
 
 Currently, _nml_ does not (TODO: but should) correctly support this variant of the above:
 
@@ -191,7 +191,7 @@ Currently, _nml_ does not (TODO: but should) correctly support this variant of t
 &nl w = 88 /
 ```
 
-The correct behaviour would be to merge the contents of the two same-named namelists.
+The correct behavior would be to merge the contents of the two same-named namelists, providing values for both _v_ and _w_.
 
 ###Thanks
 
