@@ -8,7 +8,7 @@ junk text
      "baz", c3 = 'qu
 x' c4='a','b' c5='c',
 'd'
-/
+/ per F2008 10.11.3.2.5, this should be ignored
 
 &NB i0 = 88,i1 = +88 I2 = -88 / i3 = 88 /
 
@@ -27,6 +27,9 @@ x' c4='a','b' c5='c',
 .Fzzz ! c
 ! c
 /
+
+! Per F2008 10.11.3.2.4, a space is required between the namelist group name
+! and the namelist comment.
 
 &nd ! c
 M0
