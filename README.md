@@ -175,14 +175,16 @@ In addition to the default Fortran namelist output format, _nml_ can output name
 
 ###Limitations
 
-- The Fortran standard allows namelist files like this:
+##Repeated namelists
+
+The Fortran standard allows namelist files like this:
 
 ```
 &nl v = 77 /
 &nl v = 88 /
 ```
 
-With the namelist file open, the first Fortran _read_ statement would set v to 77, and the second would set it to 88. This use case is not supported by _nml_. Rather, the last of a set of same-named namelists will override all previous ones, and _nml_ will output a single _nl_ namelist with the final values.
+With the namelist file open, a first Fortran _read_ statement would set v to 77, and the second would set it to 88. This use case is not supported by _nml_. Rather, the last of a set of same-named namelists will override previous ones, and _nml_ will output a single _nl_ namelist with the final values.
 
 Currently, _nml_ does not (TODO: but should) correctly support this variant of the above:
 
@@ -193,7 +195,9 @@ Currently, _nml_ does not (TODO: but should) correctly support this variant of t
 
 The correct behavior would be to merge the contents of the two same-named namelists, providing values for both _v_ and _w_.
 
-- The use of the semicolon as a value separator (in the case where commas, instead of dots, are used to separate the whole and fractional parts of real numbers), is not currently supported.
+##Semicolon as value separator
+
+The use of the semicolon as a value separator (in COMMA decimal edit mode, rather than POINT decimal edit mode -- see Fortran 2008 standard section 10.10.2), is not currently supported.
 
 ###Thanks
 
