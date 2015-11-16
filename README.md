@@ -175,7 +175,7 @@ In addition to the default Fortran namelist output format, _nml_ can output name
 
 ###Limitations
 
-##Repeated namelists
+#####Repeated namelists
 
 The Fortran standard allows namelist files like this:
 
@@ -195,7 +195,7 @@ Currently, _nml_ does not (TODO: but should) correctly support this variant of t
 
 The correct behavior would be to merge the contents of the two same-named namelists, providing values for both _v_ and _w_.
 
-##Semicolon as value separator
+#####Semicolon as value separator
 
 The use of the semicolon as a value separator (in COMMA decimal edit mode, rather than POINT decimal edit mode -- see Fortran 2008 standard section 10.10.2), is not currently supported.
 
