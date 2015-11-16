@@ -1,6 +1,7 @@
 s        = <junk>* ( stmt <junk>* )*
 
 array    = name sect
+blank    = ""
 c        = real | string | logical | complex
 comment  = <wsopt> '!' #'[^\n]*' <wsopt>
 complex  = <'('> <wsopt> real <wsopt> <','> <wsopt> real <wsopt> <')'>
@@ -18,7 +19,7 @@ partref  = array | name
 r        = uint
 real     = int dec? exp? | sign? dec int exp?
 sect     = <'('> ( int? ':' int? | int ) ( ':' int )? <')'>
-sep      = wsopt ',' wsopt
+sep      = <wsopt> ',' <wsopt>
 sign     = '-' | '+'
 stmt     = <wsopt> <'&'> name <ws> < ws | comment >* nvseq? <wsopt> <'/'> <wsopt>
 string   = "'" ( #'[^\'\n]' | "''" | <"\n"> )* "'" | '"' ( #'[^\"\n]' | '""' | <"\n"> )* '"'
@@ -26,7 +27,7 @@ star     = '*'
 true     = 't' | 'T'
 uint     = #'[0-9]+'
 valopt   = ( <sep> | <ws> ) <comment>* value
-value    = r star c | r star | c
+value    = c / r star c / r star / c / blank
 values   = value <sep>? | value valopt*
 ws       = #'\s+'
 wsopt    = #'\s*'

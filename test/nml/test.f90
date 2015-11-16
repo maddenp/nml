@@ -9,12 +9,12 @@ program p
   logical :: t0 = .false., t1 = .false., t2 = .false., t3 = .false., t4 = .false., t5 = .false.
   logical :: f0 = .true., f1 = .true., f2 = .true., f3 = .true., f4 = .true., f5 = .true.
   complex :: m0 = (0, 0), m1 = (0, 0), m2 = (0, 0), m3 = (0, 0)
-  real :: r0(4) = 0., r1(4) = 0., r2(4) = 0.
+  real :: r0(4) = 0., r1(4) = 0., r2(4) = 0., r3(3) = (/77., 88., 99./)
   namelist /na/ c0, c1, c2, c3, c4, c5, c6, c7
   namelist /nb/ i0, i1, i2
   namelist /nc/ t0, t1, t2, t3, t4, t5, f0, f1, f2, f3, f4, f5
   namelist /nd/ m0, m1, m2, m3
-  namelist /ne/ r0, r1, r2
+  namelist /ne/ r0, r1, r2, r3
   namelist /nf/ x
   open (88, file='nl', status='old')
   read (88, na)
@@ -70,6 +70,9 @@ program p
   if (r2(2).ne.1.1e2)       stop 'FAIL r2(2)'
 ! if (r2(3).ne.-1.1d-2)     stop 'FAIL r2(3)' ! why aren't these equal?
   if (r2(4).ne.1.1d2)       stop 'FAIL r2(4)'
+  if (r3(1).ne.77.)         stop 'FAIL r3(1)'
+  if (r3(2).ne.88.)         stop 'FAIL r3(2)'
+  if (r3(3).ne.99.)         stop 'FAIL r3(3)'
   if (x.ne.'x')             stop 'FAIL x'
   print *, 'OK'
 end program p
