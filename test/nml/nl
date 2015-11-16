@@ -5,8 +5,10 @@ junk text
 
 &na
   c0='foo', c1 = 'BAR' c2 =
-     "baz", c3 = 'qu
-x' c4='a','b' c5='c',
+     "baz", c3 = '
+/
+ 
+&' c4='a','b' c5='c',
 'd'
 / per F2008 10.11.3.2.5, this should be ignored
 
@@ -43,7 +45,8 @@ M0
     ,  2.2    ),
  M2=(  1.2e3    ,
   2.3d4    ),
- M3=(  -1.   ,  +.2
+ M3=(  
+-1.   ,  +.2
     ),
  /
 

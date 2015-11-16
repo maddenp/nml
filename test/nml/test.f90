@@ -25,7 +25,7 @@ program p
   if (c0.ne.'foo')          stop 'FAIL c0'
   if (c1.ne.'BAR')          stop 'FAIL c1'
   if (c2.ne.'baz')          stop 'FAIL c2'
-  if (c3.ne.'qux')          stop 'FAIL c3'
+  if (c3.ne.'/ &')          stop 'FAIL c3'
   if (c4(1).ne.'a')         stop 'FAIL c3(1)'
   if (c4(2).ne.'b')         stop 'FAIL c3(2)'
   if (c5(1).ne.'c')         stop 'FAIL c3(1)'

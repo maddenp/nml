@@ -9,7 +9,7 @@
     (is (= (nml-get m "na" "C0") "'foo'"                                         ))
     (is (= (nml-get m "NA" "c1") "'BAR'"                                         ))
     (is (= (nml-get m "nA" "c2") "\"baz\""                                       ))
-    (is (= (nml-get m "Na" "C3") "'qux'"                                         ))
+    (is (= (nml-get m "Na" "C3") "'/ &'"                                         ))
     (is (= (nml-get m "Na" "c4") "'a','b'"                                       ))
     (is (= (nml-get m "Na" "c5") "'c','d'"                                       ))
     (is (= (nml-get m "Na" "x0") ""                                              ))
