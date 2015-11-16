@@ -3,12 +3,14 @@ program p
   character(len=3) :: c0 = '', c1 = '', c2 = '', c3 = ''
   character(len=1) :: c4(2) = '', c5(2) = ''
   character(len=1) :: x = 'x'
+  character(len=1) :: c6(3) = ''
+  character(len=1) :: c7(3) = (/'f', 'o', 'o'/)
   integer :: i0 = 0, i1 = 0, i2 = 0, i3 = 77
   logical :: t0 = .false., t1 = .false., t2 = .false., t3 = .false., t4 = .false., t5 = .false.
   logical :: f0 = .true., f1 = .true., f2 = .true., f3 = .true., f4 = .true., f5 = .true.
   complex :: m0 = (0, 0), m1 = (0, 0), m2 = (0, 0), m3 = (0, 0)
   real :: r0(4) = 0., r1(4) = 0., r2(4) = 0.
-  namelist /na/ c0, c1, c2, c3, c4, c5
+  namelist /na/ c0, c1, c2, c3, c4, c5, c6, c7
   namelist /nb/ i0, i1, i2
   namelist /nc/ t0, t1, t2, t3, t4, t5, f0, f1, f2, f3, f4, f5
   namelist /nd/ m0, m1, m2, m3
@@ -29,7 +31,13 @@ program p
   if (c4(1).ne.'a')         stop 'FAIL c3(1)'
   if (c4(2).ne.'b')         stop 'FAIL c3(2)'
   if (c5(1).ne.'c')         stop 'FAIL c3(1)'
-  if (c5(2).ne.'d')         stop 'FAIL c3(d)'
+  if (c5(2).ne.'d')         stop 'FAIL c3(2)'
+  if (c6(1).ne.'z')         stop 'FAIL c6(1)'
+  if (c6(2).ne.'z')         stop 'FAIL c6(2)'
+  if (c6(3).ne.'z')         stop 'FAIL c6(3)'
+  if (c7(1).ne.'f')         stop 'FAIL c7(1)'
+  if (c7(2).ne.'o')         stop 'FAIL c7(2)'
+  if (c7(3).ne.'o')         stop 'FAIL c7(3)'
   if (i0.ne.88)             stop 'FAIL i0'
   if (i1.ne.88)             stop 'FAIL i1'
   if (i2.ne.-88)            stop 'FAIL i2'

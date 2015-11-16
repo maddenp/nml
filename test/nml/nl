@@ -9,7 +9,9 @@ junk text
 /
  
 &' c4='a','b' c5='c',
-'d'
+ 'd'
+ c6 = 3*'z'
+c7 = 3* ! F2008 10.11.3.4 case 1
 / per F2008 10.11.3.2.5, this should be ignored
 
 &NB i0 = 88,i1 = +88 I2 = -88 / i3 = 88 /

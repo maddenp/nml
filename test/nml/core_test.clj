@@ -12,6 +12,8 @@
     (is (= (nml-get m "Na" "C3") "'/ &'"                                         ))
     (is (= (nml-get m "Na" "c4") "'a','b'"                                       ))
     (is (= (nml-get m "Na" "c5") "'c','d'"                                       ))
+    (is (= (nml-get m "Na" "c6") "'z','z','z'"                                   ))
+    (is (= (nml-get m "Na" "c7") ""                                              ))
     (is (= (nml-get m "Na" "x0") ""                                              ))
     (is (= (nml-get m "nb" "I0") "88"                                            ))
     (is (= (nml-get m "nb" "I1") "+88"                                           ))
