@@ -1,33 +1,33 @@
 s        = <junk>* ( stmt <junk>* )*
 
 array    = name sect
-blank    = ""
+blank    = ''
 c        = real | string | logical | complex
-comment  = <wsopt> '!' #'[^\n]*' <wsopt>
+comment  = <wsopt> '!' #'[^\n]*'
 complex  = <'('> <wsopt> real <wsopt> <','> <wsopt> real <wsopt> <')'>
 dataref  = partref ( '%' partref )*
 dec      = '.' uint?
 exp      = sign uint | 'e' <wsopt> int | 'd' <wsopt> int
 false    = 'f' | 'F'
 int      = sign? uint
-junk     = #'[^!&]+' | comment
+junk     = <#'[^!&]+'> | <comment>
 logical  = <'.'>? ( true | false ) <#'[^/,=\s]*'>
 name     = #'[a-zA-Z][a-zA-Z0-9_]{0,30}'
-nvseq    = nvsubseq ( ( <sep> | <ws> ) nvsubseq )*
-nvsubseq = <comment>* dataref <wsopt> <'='> <wsopt> values <comment>*
+nvsep    = ( <comment> / <ws> )* ( ',' / <ws> ) ( <comment> / <ws> )*
+nvseq    = ( nvsubseq <nvsep> )*
+nvsubseq = dataref <wsopt> <'='> values
 partref  = array | name
 r        = uint
 real     = int dec? exp? | sign? dec int exp?
 sect     = <'('> ( int? ':' int? | int ) ( ':' int )? <')'>
-sep      = <wsopt> ',' <wsopt>
 sign     = '-' | '+'
-stmt     = <wsopt> <'&'> name <ws> ( <ws> | <comment> )* nvseq? <wsopt> <'/'> <wsopt>
+stmt     = <wsopt> <'&'> name <ws> ( <comment> / <ws> )* nvseq <wsopt> <'/'>
 string   = "'" ( #'[^\'\n]' | "''" | <"\n"> )* "'" | '"' ( #'[^\"\n]' | '""' | <"\n"> )* '"'
 star     = '*'
 true     = 't' | 'T'
 uint     = #'[0-9]+'
-valopt   = ( <sep> | <ws> ) <comment>* value
-value    = r star c / r star / c / blank
-values   = value <sep>? | value valopt*
+valsep   = <wsopt> ( <','> / <'/'> ) / <ws>
+value    = r star c / r star / c
+values   = ( <wsopt> ( value / blank ) <valsep> )*
 ws       = #'\s+'
 wsopt    = #'\s*'
