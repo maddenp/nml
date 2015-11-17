@@ -27,12 +27,21 @@
 (defn- fmt-ksh [m]
   (fmt-sh m #(str "\"$(echo $" % " | tr [:upper:] [:lower:])\"")))
 
+;;(defn- fmt-namelist [m]
+;; (let [f0 (fn [[dataref values]] (str "  " dataref "=" values "\n"))
+;;       f1 (fn [[name nvseq]] (str "&" name "\n" (strmap f0 (sort nvseq)) "/\n"))]
+;;   (strmap f1 (sort m))))
+
+(defn f0 [x]
+  (println (str "#PM# 1 " x))
+  (let [[dataref values] x]
+    (println (str "#PM# 2 " dataref))
+    (println (str "#PM# 3 " values))
+    (str "  " dataref "=" values "\n")))
+(defn f1 [[name nvseq]] (str "&" name "\n" (strmap f0 (sort nvseq)) "/\n"))
 (defn- fmt-namelist [m]
-  (let [f0 (fn [[dataref values]]
-             (str "  " dataref "=" values "\n"))
-        f1 (fn [[name nvseq]]
-             (str "&" name "\n" (strmap f0 (sort nvseq)) "/\n"))]
-    (strmap f1 (sort m))))
+  (println (str "#PM# 0 " m))
+  (strmap f1 (sort m)))
 
 ;; defs
 
@@ -101,11 +110,11 @@
 
 (defn- nml-parse [s start src]
   (let [result (parse s :start start)]
-    (println result)
     (let [parses (insta/parses parse s :start start :unhide :all :trace true)]
       (binding [*out* *err*]
         (doseq [parse parses] (println (str "----\n" parse)))
         (println (str "### " (count parses)))))
+    (println (str "@@@ " result))
     (if (insta/failure? result)
       (let [{t :text l :line c :column} result]
         (fail (str "Error parsing " src " at line " l " column " c ":")
@@ -122,42 +131,51 @@
         (recur (nml-set m nml key val) (rest s))))))
 
 (defn- nml-str [x]
-  (let [key       (first x)
-        val       (rest  x)
-        cjoin    #(string/join "," %)
+  (let [key (first x)
+        val (rest x)
+        cjoin #(string/join "," %)
         delegate #(map nml-str %)
-        delesort  (fn [val] (delegate (sort-by #(nml-name %) val)))
+        delegate_sorted (fn [val] (delegate (sort-by #(nml-name %) val)))
         list2str #(strmap nml-str %)
         strfirst #(nml-str (first %))
-        strlast  #(nml-str (last %))]
+        strlast #(nml-str (last %))]
     (apply str (case key
-                 :s        (string/join "\n" (delesort val))
-                 :array    [(strfirst val) (strlast val)]
-                 :c        (strfirst val)
-                 :comment  ""
-                 :complex  ["(" (cjoin (delegate val)) ")"]
-                 :dataref  (delegate val)
-                 :dec      ["." (strlast val)]
-                 :exp      [(first val) (strlast val)]
-                 :false    "f"
-                 :int      (delegate val)
-                 :junk     ""
-                 :logical  (strfirst val)
-                 :name     (map string/lower-case val)
-                 :nvseq    (string/join " " (delesort val))
-                 :nvsubseq [(strfirst val) "=" (strlast val)]
-                 :partref  (strfirst val)
-                 :r        (strfirst val)
-                 :real     (delegate val)
-                 :sect     ["(" (list2str val) ")"]
-                 :stmt     ["&" (strfirst val) " " (list2str (rest val)) " /"]
-                 :true     "t"
-                 :valopt   (cjoin (delegate val))
-                 :value    (delegate val)
-                 :values   (cjoin (delegate val))
-                 :ws       ""
-                 :wsopt    ""
-                 val))))
+                     :s                     (string/join "\n" (delegate_sorted val))
+                     :array                 [(strfirst val) (strlast val)]
+                     :c                     (strfirst val)
+                     :comment               ""
+                     :complex               ["(" (cjoin (delegate val)) ")"]
+                     :dataref               (delegate val)
+                     :dec                   ["." (strlast val)]
+                     :exp                   [(first val) (strlast val)]
+                     :false                 "f"
+                     :filler                ""
+                     :int                   (delegate val)
+                     :junk                  ""
+                     :logical               (strfirst val)
+                     :name                  (map string/lower-case val)
+                     :nv_sequence           val ;;(string/join " " (delegate_sorted val))
+                     :nv_subsequence        val ;;[(strfirst val) "=" (strlast val)]
+                     :nv_subsequence_begin  val
+                     :nv_subsequence_end    val
+                     :nv_subsequence_sep    val
+                     :partref               (strfirst val)
+                     :r                     (strfirst val)
+                     :real                  (delegate val)
+                     :sect                  ["(" (list2str val) ")"]
+                     :sign                  val
+                     :star                  val
+                     :stmt                  ["&" (strfirst val) " " (list2str (rest val)) " /"]
+                     :stmt_end              val
+                     :string                val
+                     :true                  "t"
+                     :uint                  val
+                     :value                 (delegate val)
+                     :values                (cjoin (delegate val))
+                     :values_sep            val
+                     :ws                    ""
+                     :wsopt                 ""
+                     val))))
 
 (defn- nml-tree [s src]
   (let [tree  (nml-parse s :s src)
