@@ -189,9 +189,7 @@
          :value identity
          :values (fn [& values] (into [] values))
          }]
-    (println (str "#PM# 0 " tree))
     (let [newtree (insta/transform transformers tree)]
-      (println (str "#PM# 1 " newtree))
       newtree)))
 
 ;;(defn nml-set [m nml key val]
