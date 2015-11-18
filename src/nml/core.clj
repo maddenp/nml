@@ -177,13 +177,16 @@
    {
     :c identity
     :dataref #(apply string/lower-case %)
+    :int identity
     :name #(apply string/lower-case %)
     :nv_sequence (fn [& nv_subsequences] (into {} nv_subsequences))
     :nv_subsequence (fn [name values] {name values})
     :nv_subsequence_begin #(apply string/lower-case %)
     :partref #(apply string/lower-case %)
+    :real (fn [& stuff] (println (str "#PM# " stuff)) "asdf")
     :s (fn [& nv_sequences] (into {} nv_sequences))
     :stmt (fn [name nv_sequence _] (into {} {name nv_sequence}))
+    :uint identity
     :string (fn [& letters] (apply str letters))
     :value identity
     :values (fn [& values] (into [] values))
