@@ -29,7 +29,7 @@
   (fmt-sh m #(str "\"$(echo $" % " | tr [:upper:] [:lower:])\"")))
 
 (defn- fmt-namelist [m]
-  (let [f0 (fn [[dataref values]] (str "  " dataref "=" values "\n"))
+  (let [f0 (fn [[dataref values]] (str "  " dataref "=" (string/join "," values) "\n"))
         f1 (fn [[name nv_sequence]] (str "&" name "\n" (strmap f0 (sort nv_sequence)) "/\n"))]
     (strmap f1 (sort m))))
 
