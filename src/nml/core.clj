@@ -16,8 +16,8 @@
         f0  (fn [[dataref values]]
               (let [v (eq values)]
                 (str "'" dataref "') echo \"" v "\";;")))
-        f1  (fn [[name nvseq]]
-              (let [x (strmap f0 nvseq)]
+        f1  (fn [[name nv_sequence]]
+              (let [x (strmap f0 nv_sequence)]
                 (str "'" name "') case " k " in " x "*) echo '';;esac;;" )))]
     (str "nmlquery(){ case " n " in " (strmap f1 ms) "*) echo '';;esac; }\n")))
 
@@ -27,21 +27,10 @@
 (defn- fmt-ksh [m]
   (fmt-sh m #(str "\"$(echo $" % " | tr [:upper:] [:lower:])\"")))
 
-;;(defn- fmt-namelist [m]
-;; (let [f0 (fn [[dataref values]] (str "  " dataref "=" values "\n"))
-;;       f1 (fn [[name nvseq]] (str "&" name "\n" (strmap f0 (sort nvseq)) "/\n"))]
-;;   (strmap f1 (sort m))))
-
-(defn f0 [x]
-  (println (str "#PM# 1 " x))
-  (let [[dataref values] x]
-    (println (str "#PM# 2 " dataref))
-    (println (str "#PM# 3 " values))
-    (str "  " dataref "=" values "\n")))
-(defn f1 [[name nvseq]] (str "&" name "\n" (strmap f0 (sort nvseq)) "/\n"))
 (defn- fmt-namelist [m]
-  (println (str "#PM# 0 " m))
-  (strmap f1 (sort m)))
+  (let [f0 (fn [[dataref values]] (str "  " dataref "=" values "\n"))
+        f1 (fn [[name nv_sequence]] (str "&" name "\n" (strmap f0 (sort nv_sequence)) "/\n"))]
+    (strmap f1 (sort m))))
 
 ;; defs
 
@@ -110,11 +99,11 @@
 
 (defn- nml-parse [s start src]
   (let [result (parse s :start start)]
-    (let [parses (insta/parses parse s :start start :unhide :all :trace true)]
-      (binding [*out* *err*]
-        (doseq [parse parses] (println (str "----\n" parse)))
-        (println (str "### " (count parses)))))
-    (println (str "@@@ " result))
+;;   (let [parses (insta/parses parse s :start start :unhide :all :trace true)]
+;;     (binding [*out* *err*]
+;;       (doseq [parse parses] (println (str "----\n" parse)))
+;;       (println (str "### " (count parses)))))
+;;   (println (str "@@@ " result))
     (if (insta/failure? result)
       (let [{t :text l :line c :column} result]
         (fail (str "Error parsing " src " at line " l " column " c ":")
@@ -177,12 +166,6 @@
                      :wsopt                 ""
                      val))))
 
-(defn- nml-tree [s src]
-  (let [tree  (nml-parse s :s src)
-        child :nvseq
-        f     (fn [& v] (into [child] (nml-uniq v)))]
-    (insta/transform {child f} tree)))
-
 (defn- nml-uniq [values]
   (loop [head (first values) tail (rest values) tree []]
     (if (nil? head)
@@ -197,12 +180,26 @@
   (get (get m (string/lower-case nml) {}) (string/lower-case key) ""))
 
 (defn nml-map [s src]
-  (let [f0   (fn [& nvsubseqs   ] (into {} nvsubseqs))
-        f1   (fn [dataref values] { (nml-str dataref) (nml-str values) })
-        f2   (fn [& stmts       ] (into {} stmts))
-        f3   (fn [name & nvseq  ] { (nml-str name) (first nvseq) })
-        tree (nml-tree s src)]
-    (insta/transform {:nvseq f0 :nvsubseq f1 :s f2 :stmt f3 } tree)))
+  (let [tree (nml-parse s :s src)
+        transformers
+        {
+         :c identity
+         :dataref #(apply string/lower-case %)
+         :name #(apply string/lower-case %)
+         :nv_sequence (fn [& nv_subsequences] (into {} nv_subsequences))
+         :nv_subsequence (fn [name values] {name values})
+         :nv_subsequence_begin #(apply string/lower-case %)
+         :partref #(apply string/lower-case %)
+         :s (fn [& nv_sequences] (into {} nv_sequences))
+         :stmt (fn [name nv_sequence _] (into {} {name nv_sequence}))
+         :string (fn [& letters] (apply str letters))
+         :value identity
+         :values (fn [& values] (into [] values))
+         }]
+    (println (str "#PM# 0 " tree))
+    (let [newtree (insta/transform transformers tree)]
+      (println (str "#PM# 1 " newtree))
+      newtree)))
 
 (defn nml-set [m nml key val]
   (let [src (str "user-supplied value")
