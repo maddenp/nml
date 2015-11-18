@@ -4,7 +4,7 @@
   (:require [clojure.tools.cli :as cli   ])
   (:gen-class))
 
-(declare nml-get nml-name nml-parse nml-set nml-str nml-uniq strmap)
+(declare nml-get nml-name nml-parse nml-set nml-str strmap)
 
 ;; formatting
 
@@ -165,14 +165,6 @@
                      :ws                    ""
                      :wsopt                 ""
                      val))))
-
-(defn- nml-uniq [values]
-  (loop [head (first values) tail (rest values) tree []]
-    (if (nil? head)
-      tree
-      (let [name #(nml-name (second %))
-            copy  (some #(= (name head) (name %)) tail)]
-        (recur (first tail) (rest tail) (into tree (if copy [] [head])))))))
 
 ;; nml public defns
 
