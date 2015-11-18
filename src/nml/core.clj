@@ -173,24 +173,22 @@
   (get (get m (string/lower-case nml) {}) (string/lower-case key) ""))
 
 (defn nml-map [s src]
-  (let [tree (nml-parse s :s src)
-        transformers
-        {
-         :c identity
-         :dataref #(apply string/lower-case %)
-         :name #(apply string/lower-case %)
-         :nv_sequence (fn [& nv_subsequences] (into {} nv_subsequences))
-         :nv_subsequence (fn [name values] {name values})
-         :nv_subsequence_begin #(apply string/lower-case %)
-         :partref #(apply string/lower-case %)
-         :s (fn [& nv_sequences] (into {} nv_sequences))
-         :stmt (fn [name nv_sequence _] (into {} {name nv_sequence}))
-         :string (fn [& letters] (apply str letters))
-         :value identity
-         :values (fn [& values] (into [] values))
-         }]
-    (let [newtree (insta/transform transformers tree)]
-      newtree)))
+  (insta/transform
+   {
+    :c identity
+    :dataref #(apply string/lower-case %)
+    :name #(apply string/lower-case %)
+    :nv_sequence (fn [& nv_subsequences] (into {} nv_subsequences))
+    :nv_subsequence (fn [name values] {name values})
+    :nv_subsequence_begin #(apply string/lower-case %)
+    :partref #(apply string/lower-case %)
+    :s (fn [& nv_sequences] (into {} nv_sequences))
+    :stmt (fn [name nv_sequence _] (into {} {name nv_sequence}))
+    :string (fn [& letters] (apply str letters))
+    :value identity
+    :values (fn [& values] (into [] values))
+    }
+   (nml-parse s :s src)))
 
 ;;(defn nml-set [m nml key val]
 ;; (let [src (str "user-supplied value")
