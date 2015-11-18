@@ -173,25 +173,32 @@
   (get (get m (string/lower-case nml) {}) (string/lower-case key) ""))
 
 (defn nml-map [s src]
-  (insta/transform
-   {
-    :c identity
-    :dataref #(apply string/lower-case %)
-    :int identity
-    :name #(apply string/lower-case %)
-    :nv_sequence (fn [& nv_subsequences] (into {} nv_subsequences))
-    :nv_subsequence (fn [name values] {name values})
-    :nv_subsequence_begin #(apply string/lower-case %)
-    :partref #(apply string/lower-case %)
-    :real (fn [& stuff] (println (str "#PM# " stuff)) "asdf")
-    :s (fn [& nv_sequences] (into {} nv_sequences))
-    :stmt (fn [name nv_sequence _] (into {} {name nv_sequence}))
-    :uint identity
-    :string (fn [& letters] (apply str letters))
-    :value identity
-    :values (fn [& values] (into [] values))
-    }
-   (nml-parse s :s src)))
+  (let [tree (nml-parse s :s src)
+        strcat (fn [& components] (apply str components))]
+    (println (str "### before " tree))
+    (let [new (insta/transform
+               {
+                :c identity
+                :dataref #(apply string/lower-case %)
+                :dec (fn [point int] (str point int))
+                :exp strcat
+                :int strcat
+                :name #(apply string/lower-case %)
+                :nv_sequence (fn [& nv_subsequences] (into {} nv_subsequences))
+                :nv_subsequence (fn [name values] {name values})
+                :nv_subsequence_begin #(apply string/lower-case %)
+                :partref #(apply string/lower-case %)
+                :real strcat
+                :s (fn [& nv_sequences] (into {} nv_sequences))
+                :sign identity
+                :stmt (fn [name nv_sequence _] (into {} {name nv_sequence}))
+                :uint identity
+                :string (fn [& letters] (apply str letters))
+                :value identity
+                :values (fn [& values] (into [] values))
+                } tree)]
+      (println (str "### after " new))
+      new)))
 
 ;;(defn nml-set [m nml key val]
 ;; (let [src (str "user-supplied value")
