@@ -1,7 +1,13 @@
-language: clojure
+branches:
+  only:
+    - master
+
 jdk:
   - openjdk6
   - openjdk7
   - oraclejdk7
   - oraclejdk8
+
+language: clojure
+
 sudo: false
