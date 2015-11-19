@@ -183,7 +183,7 @@
                 :c identity
                 :complex string_id
                 :dataref string_id
-                :dec (fn [point & int] (str point int))
+                :dec (fn [point & int] (str point (apply str int)))
                 :exp string_lc
                 :false string_lc
                 :int string_id
