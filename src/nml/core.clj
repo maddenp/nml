@@ -192,14 +192,16 @@
                 :nv_subsequence (fn [name values] {name values})
                 :nv_subsequence_begin identity
                 :partref identity
+                :r identity
                 :real string_id
                 :s (fn [& nv_sequences] (into {} nv_sequences))
                 :sign identity
                 :stmt (fn [name nv_sequence _] (into {} {name nv_sequence}))
                 :true string_lc
                 :uint identity
+                :star identity
                 :string string_id
-                :value identity
+                :value string_id
                 :values (fn [& values] (into [] values))
                 } tree)]
       (println (str "### after " new))
