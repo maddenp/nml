@@ -13,6 +13,7 @@ filler               = ( ws / comment )*
 int                  = sign? uint
 junk                 = ( #'[^!&]+' / comment )*
 logical              = <'.'>? ( true | false ) <#'[^/,=\s]*'>
+minus                = '-'
 name                 = #'[a-zA-Z][a-zA-Z0-9_]{0,30}'
 nv_sequence          = ( <filler> nv_subsequence ( <nv_subsequence_sep> / <nv_subsequence_end> ) )*
 nv_subsequence       = nv_subsequence_begin values
@@ -20,10 +21,11 @@ nv_subsequence_begin = <filler> dataref <filler> <'='>
 nv_subsequence_end   = &( filler ( nv_subsequence_begin / stmt_end ) )
 nv_subsequence_sep   = filler ( ',' / ws )
 partref              = array | name
+plus                 = '+'
 r                    = uint
 real                 = int dec? exp? | sign? dec int exp?
 sect                 = <'('> ( int? ':' int? | int ) ( ':' int )? <')'>
-sign                 = '-' | '+'
+sign                 = plus | minus
 star                 = '*'
 stmt                 = <filler> <'&'> name <ws> nv_sequence stmt_end
 stmt_end             = <filler> <'/'>

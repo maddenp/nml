@@ -174,12 +174,13 @@
 
 (defn nml-map [s src]
   (let [tree (nml-parse s :s src)
+        blank (fn [& _] "")
         string_id (fn [& components] (apply str components))
         string_lc (fn [& components] (string/lower-case (apply string_id components)))]
     (println (str "### before " tree))
     (let [new (insta/transform
                {
-                :blank (fn [] "")
+                :blank blank
                 :c identity
                 :complex string_id
                 :dataref string_id
@@ -188,11 +189,13 @@
                 :false string_lc
                 :int string_id
                 :logical identity
+                :minus identity
                 :name string_lc
                 :nv_sequence (fn [& nv_subsequences] (into {} nv_subsequences))
                 :nv_subsequence (fn [name values] {name values})
                 :nv_subsequence_begin identity
                 :partref identity
+                :plus blank
                 :r identity
                 :real string_id
                 :s (fn [& nv_sequences] (into {} nv_sequences))
