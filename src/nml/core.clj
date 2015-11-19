@@ -179,6 +179,7 @@
     (println (str "### before " tree))
     (let [new (insta/transform
                {
+                :blank (fn [] "")
                 :c identity
                 :dataref string_id
                 :dec (fn [point int] (str point int))

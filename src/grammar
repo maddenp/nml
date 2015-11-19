@@ -1,6 +1,7 @@
 s                    = <junk> ( stmt <junk> )*
 
 array                = name sect
+blank                = ''
 c                    = real | string | logical | complex
 comment              = '!' #'[^\n]*'
 complex              = <'('> <wsopt> real <wsopt> <','> <wsopt> real <wsopt> <')'>
@@ -29,9 +30,9 @@ stmt_end             = <filler> <'/'>
 string               = "'" ( #'[^\'\n]' | "''" | <"\n"> )* "'" | '"' ( #'[^\"\n]' | '""' | <"\n"> )* '"'
 true                 = 't' | 'T'
 uint                 = #'[0-9]+'
-value                = r star c / r star / c
+value                = r star c / r star / c / blank
 values               = ( <filler> value <values_sep> )*
-values_end           = 
-values_sep           = wsopt ',' / ws / <values_end>
+values_end           = &( nv_subsequence_begin / stmt_end )
+values_sep           = wsopt ',' / filler / <values_end>
 ws                   = #'\s+'
 wsopt                = #'\s*'
