@@ -14,7 +14,7 @@ junk                 = ( #'[^!&]+' / comment )*
 logical              = <'.'>? ( true | false ) <#'[^/,=\s]*'>
 name                 = #'[a-zA-Z][a-zA-Z0-9_]{0,30}'
 nv_sequence          = ( <filler> nv_subsequence ( <nv_subsequence_sep> / <nv_subsequence_end> ) )*
-nv_subsequence       = nv_subsequence_begin values
+nv_subsequence       = nv_subsequence_begin <filler> values
 nv_subsequence_begin = <filler> dataref <filler> <'='>
 nv_subsequence_end   = &( filler ( nv_subsequence_begin / stmt_end ) )
 nv_subsequence_sep   = filler ( ',' / ws )
@@ -30,7 +30,8 @@ string               = "'" ( #'[^\'\n]' | "''" | <"\n"> )* "'" | '"' ( #'[^\"\n]
 true                 = 't' | 'T'
 uint                 = #'[0-9]+'
 value                = r star c / r star / c
-values               = <filler> ( <filler> value <values_sep> )*
-values_sep           = wsopt ',' / ws
+values               = ( <filler> value <values_sep> )*
+values_end           = 
+values_sep           = wsopt ',' / ws / <values_end>
 ws                   = #'\s+'
 wsopt                = #'\s*'
