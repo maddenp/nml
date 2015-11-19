@@ -172,6 +172,8 @@
 (defn nml-get [m nml key]
   (get (get m (string/lower-case nml) {}) (string/lower-case key) ""))
 
+;; TODO remove trailing ','s from value lists
+
 (defn nml-map [s src]
   (let [tree (nml-parse s :s src)
         blank (fn [& _] "")
