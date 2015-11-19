@@ -181,6 +181,7 @@
                {
                 :blank (fn [] "")
                 :c identity
+                :complex (fn [& components] (println (str "### " components)) [])
                 :dataref string_id
                 :dec (fn [point int] (str point int))
                 :exp string_lc
