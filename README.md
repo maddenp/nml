@@ -69,7 +69,13 @@ By default, _nml_ reads from stdin and writes to stdout and, with no command-lin
 /
 ````
 
-Note that _nml_ normalizes many formatting options: Whitespace and comments are removed, non-string text is converted to lower-case, key-value pairs are printed one-per-line without comma separators, logical values are represented in their simplest form, etc.
+Note that _nml_ normalizes many formatting options:
+
+- Whitespace and comments are removed.
+- Non-string text is presented in lower-case.
+- Key-value pairs are printed one-per-line without comma separators.
+- Logical values are represented in their simplest form.
+- Plus signs preceding positive numbers are dropped.
 
 The _--in_ and _--out_ options can be used to specify input and output files, respectively.
 
