@@ -75,7 +75,6 @@ Note that _nml_ normalizes many formatting options:
 - Non-string text is presented in lower-case.
 - Key-value pairs are printed one-per-line without comma separators.
 - Logical values are represented in their simplest form.
-- Plus signs preceding positive numbers are dropped.
 
 The _--in_ and _--out_ options can be used to specify input and output files, respectively.
 

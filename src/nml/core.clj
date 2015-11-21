@@ -4,8 +4,7 @@
   (:require [clojure.tools.cli :as cli   ])
   (:gen-class))
 
-;;(declare nml-get nml-name nml-parse nml-set nml-str strmap)
-(declare nml-get nml-parse nml-set strmap)
+(declare nml-get nml-parse nml-set strmap valstr)
 
 ;; formatting
 
@@ -29,7 +28,7 @@
   (fmt-sh m #(str "\"$(echo $" % " | tr [:upper:] [:lower:])\"")))
 
 (defn- fmt-namelist [m]
-  (let [f0 (fn [[dataref values]] (str "  " dataref "=" (string/join "," values) "\n"))
+  (let [f0 (fn [[dataref values]] (str "  " dataref "=" (valstr values) "\n"))
         f1 (fn [[name nv_sequence]] (str "&" name "\n" (strmap f0 (sort nv_sequence)) "/\n"))]
     (strmap f1 (sort m))))
 
@@ -79,6 +78,9 @@
       (println x))
     (System/exit 0)))
 
+(defn- valstr [values]
+  (string/join "," values))
+
 ;; nml private defns
 
 (defn- nml-gets [m gets no-prefix]
@@ -87,9 +89,6 @@
               (if (= "" val) (fail (str nml ":" key " not found")))
               (if no-prefix val (str nml ":" key "=" val))))]
     (str (string/join "\n" (map f gets)) "\n")))
-
-;;(defn- nml-name [x]
-;; (nml-str (second x)))
 
 (defn- nml-out [out s]
   (if (= out *out*)
@@ -172,16 +171,13 @@
 ;; nml public defns
 
 (defn nml-get [m nml key]
-  (get (get m (string/lower-case nml) {}) (string/lower-case key) ""))
-
-;; TODO remove trailing ','s from value lists
+  (valstr (get (get m (string/lower-case nml) {}) (string/lower-case key) "")))
 
 (defn nml-map [s src]
   (let [tree (nml-parse s :s src)
         blank (fn [& _] "")
         string_id (fn [& components] (apply str components))
         string_lc (fn [& components] (string/lower-case (apply string_id components)))]
-;;   (println (str "### before " tree))
     (let [new (insta/transform
                {
                 :blank blank
@@ -199,7 +195,7 @@
                 :nv_subsequence (fn [name values] {name values})
                 :nv_subsequence_begin identity
                 :partref identity
-                :plus blank
+                :plus identity
                 :r identity
                 :real string_id
                 :s (fn [& nv_sequences] (into {} nv_sequences))
@@ -212,7 +208,6 @@
                 :value string_id
                 :values (fn [& values] (into [] values))
                 } tree)]
-;;     (println (str "### after " new))
       new)))
 
 ;;(defn nml-set [m nml key val]
