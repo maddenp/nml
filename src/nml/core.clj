@@ -132,6 +132,7 @@
                {
                 :blank blank
                 :c identity
+                :comma identity
                 :complex string_id
                 :dataref string_id
                 :dec (fn [point & int] (str point (apply str int)))
@@ -161,6 +162,10 @@
       new)))
 
 (defn nml-set [m nml key val]
+;; (let [parses (insta/parses parse val :start :values :unhide :all)]
+;;   (binding [*out* *err*]
+;;     (doseq [parse parses] (println (str "----\n" parse)))
+;;     (println (str "### " (count parses)))))
   (let [val (nml-map val :values "user-supplied value")]
     (assoc-in m [(string/lower-case nml) (string/lower-case key)] val)))
 
