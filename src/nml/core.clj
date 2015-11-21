@@ -121,53 +121,6 @@
         (if (nil? val) (fail (str "No value supplied for key '" key "'")))
         (recur (nml-set m nml key val) (rest s))))))
 
-;;(defn- nml-str [x]
-;; (let [key (first x)
-;;       val (rest x)
-;;       cjoin #(string/join "," %)
-;;       delegate #(map nml-str %)
-;;       delegate_sorted (fn [val] (delegate (sort-by #(nml-name %) val)))
-;;       list2str #(strmap nml-str %)
-;;       strfirst #(nml-str (first %))
-;;       strlast #(nml-str (last %))]
-;;   (apply str (case key
-;;                    :s                     (string/join "\n" (delegate_sorted val))
-;;                    :array                 [(strfirst val) (strlast val)]
-;;                    :c                     (strfirst val)
-;;                    :comment               ""
-;;                    :complex               ["(" (cjoin (delegate val)) ")"]
-;;                    :dataref               (delegate val)
-;;                    :dec                   ["." (strlast val)]
-;;                    :exp                   [(first val) (strlast val)]
-;;                    :false                 "f"
-;;                    :filler                ""
-;;                    :int                   (delegate val)
-;;                    :junk                  ""
-;;                    :logical               (strfirst val)
-;;                    :name                  (map string/lower-case val)
-;;                    :nv_sequence           val ;;(string/join " " (delegate_sorted val))
-;;                    :nv_subsequence        val ;;[(strfirst val) "=" (strlast val)]
-;;                    :nv_subsequence_begin  val
-;;                    :nv_subsequence_end    val
-;;                    :nv_subsequence_sep    val
-;;                    :partref               (strfirst val)
-;;                    :r                     (strfirst val)
-;;                    :real                  (delegate val)
-;;                    :sect                  ["(" (list2str val) ")"]
-;;                    :sign                  val
-;;                    :star                  val
-;;                    :stmt                  ["&" (strfirst val) " " (list2str (rest val)) " /"]
-;;                    :stmt_end              val
-;;                    :string                val
-;;                    :true                  "t"
-;;                    :uint                  val
-;;                    :value                 (delegate val)
-;;                    :values                (cjoin (delegate val))
-;;                    :values_sep            val
-;;                    :ws                    ""
-;;                    :wsopt                 ""
-;;                    val))))
-
 ;; nml public defns
 
 (defn nml-get [m nml key]
