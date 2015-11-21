@@ -20,7 +20,7 @@ nv_sequence          = ( <filler> nv_subsequence ( <nv_subsequence_sep> / &<nv_s
 nv_subsequence       = nv_subsequence_begin values
 nv_subsequence_begin = <filler> dataref <filler> <'='>
 nv_subsequence_end   = <filler> ( nv_subsequence_begin / stmt_end )
-nv_subsequence_sep   = <filler> ( comma / <ws> ) !<stmt_end>
+nv_subsequence_sep   = <filler> ( comma <wsopt> / <ws> ) !<stmt_end>
 partref              = array / name
 plus                 = '+'
 r                    = uint
