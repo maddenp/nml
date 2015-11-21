@@ -99,13 +99,10 @@
 
 (defn- nml-parse [text start-symbol provenance]
   (let [result (parse text :start start-symbol)]
-;;   (let [x (parse text :start start-symbol :unhide :all)]
-;;     (println (str "### " x)))
-;;   (let [parses (insta/parses parse text :start start-symbol :unhide :all :trace true)]
+;;   (let [parses (insta/parses parse text :start start-symbol :unhide :all)]
 ;;     (binding [*out* *err*]
 ;;       (doseq [parse parses] (println (str "----\n" parse)))
 ;;       (println (str "### " (count parses)))))
-;;   (println (str "@@@ " result))
     (if (insta/failure? result)
       (let [{t :text l :line c :column} result]
         (fail (str "Error parsing " provenance " at line " l " column " c ":")

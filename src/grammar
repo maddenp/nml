@@ -35,6 +35,6 @@ uint                 = #'[0-9]+'
 value                = r star c / r star / c
 values               = ( <filler>? !<values_end> ( value <values_sep>? / blank ) )*
 values_end           = nv_subsequence_begin / stmt_end
-values_sep           = <filler>? ',' / <ws>
+values_sep           = !<values_end> ( <filler>? ',' / <ws> )
 ws                   = #'\s+'
 wsopt                = #'\s*'
