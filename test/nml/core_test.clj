@@ -3,7 +3,7 @@
             [nml.core :refer :all]))
 
 
-(let [m (nml-map (slurp "test/nml/nl") "test")]
+(let [m (nml-map (slurp "test/nml/nl") :s "test")]
 
   (deftest gets
     (is (= (nml-get m "na" "C0") "'foo'"                                         ))
@@ -40,17 +40,16 @@
     (is (= (nml-get m "nf" "x0") ""                                              ))
     (is (= (nml-get m "zz" "x0") ""                                              )))
 
-;; (deftest sets
-;;   (is (= (nml-get (nml-set m "na" "c0" "'FOO'") "na" "c0") "'FOO'"             ))
-;;   (is (= (nml-get (nml-set m "na" "x0" "'FOO'") "na" "x0") "'FOO'"             ))
-;;   (is (= (nml-get (nml-set m "zz" "x0" "'FOO'") "zz" "x0") "'FOO'"             ))
-;;   (is (= (nml-get (nml-set m "nb" "i0" "99") "nb" "i0") "99"                   ))
-;;   (is (= (nml-get (nml-set m "nb" "x0" "1, +2 -3") "nb" "x0") "1,+2,-3"        ))
-;;   (is (= (nml-get (nml-set m "nb" "x0" "1\n2") "nb" "x0") "1,2"                ))
-;;   (is (= (nml-get (nml-set m "nc" "f0" "T,F") "nc" "f0") "t,f"                 ))
-;;   (is (= (nml-get (nml-set m "nc" "f0" ".false.,.true.") "nc" "f0") "f,t"      ))
-;;   (is (= (nml-get (nml-set m "nc" "x0" ".t1234") "nc" "x0") "t"                ))
-;;   (is (= (nml-get (nml-set m "ZZ" "F0" ".fasdf") "zz" "f0") "f"                ))
-;;   (is (= (nml-get (nml-set m "ND" "M0" "(3.14,2.18)") "nd" "m0") "(3.14,2.18)" ))
-;;   (is (= (nml-get (nml-set m "NE" "R0" "+314.e-2") "ne" "r0") "+314.e-2"       ))))
-)
+  (deftest sets
+    (is (= (nml-get (nml-set m "na" "c0" "'FOO'") "na" "c0") "'FOO'"             ))
+    (is (= (nml-get (nml-set m "na" "x0" "'FOO'") "na" "x0") "'FOO'"             ))
+    (is (= (nml-get (nml-set m "zz" "x0" "'FOO'") "zz" "x0") "'FOO'"             ))
+    (is (= (nml-get (nml-set m "nb" "i0" "99") "nb" "i0") "99"                   ))
+    (is (= (nml-get (nml-set m "nb" "x0" "1, +2 -3") "nb" "x0") "1,+2,-3"        ))
+    (is (= (nml-get (nml-set m "nb" "x0" "1\n2") "nb" "x0") "1,2"                ))
+    (is (= (nml-get (nml-set m "nc" "f0" "T,F") "nc" "f0") "t,f"                 ))
+    (is (= (nml-get (nml-set m "nc" "f0" ".false.,.true.") "nc" "f0") "f,t"      ))
+    (is (= (nml-get (nml-set m "nc" "x0" ".t1234") "nc" "x0") "t"                ))
+    (is (= (nml-get (nml-set m "ZZ" "F0" ".fasdf") "zz" "f0") "f"                ))
+    (is (= (nml-get (nml-set m "ND" "M0" "(3.14,2.18)") "nd" "m0") "(3.14,2.18)" ))
+    (is (= (nml-get (nml-set m "NE" "R0" "+314.e-2") "ne" "r0") "+314.e-2"       ))))

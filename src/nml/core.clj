@@ -97,18 +97,18 @@
          (catch Exception e
            (fail (str "Could not write to '" out "'"))))))
 
-(defn- nml-parse [s start src]
-  (let [result (parse s :start start)]
-;;   (let [x (parse s :start start :unhide :all)]
+(defn- nml-parse [text start-symbol provenance]
+  (let [result (parse text :start start-symbol)]
+;;   (let [x (parse text :start start-symbol :unhide :all)]
 ;;     (println (str "### " x)))
-;;   (let [parses (insta/parses parse s :start start :unhide :all :trace true)]
+;;   (let [parses (insta/parses parse text :start start-symbol :unhide :all :trace true)]
 ;;     (binding [*out* *err*]
 ;;       (doseq [parse parses] (println (str "----\n" parse)))
 ;;       (println (str "### " (count parses)))))
 ;;   (println (str "@@@ " result))
     (if (insta/failure? result)
       (let [{t :text l :line c :column} result]
-        (fail (str "Error parsing " src " at line " l " column " c ":")
+        (fail (str "Error parsing " provenance " at line " l " column " c ":")
               t
               (str (apply str (repeat (- c 1) " ")) "^")))
       result)))
@@ -173,8 +173,8 @@
 (defn nml-get [m nml key]
   (valstr (get (get m (string/lower-case nml) {}) (string/lower-case key) "")))
 
-(defn nml-map [s src]
-  (let [tree (nml-parse s :s src)
+(defn nml-map [text start-symbol provenance]
+  (let [tree (nml-parse text start-symbol provenance)
         blank (fn [& _] "")
         string_id (fn [& components] (apply str components))
         string_lc (fn [& components] (string/lower-case (apply string_id components)))]
@@ -210,12 +210,9 @@
                 } tree)]
       new)))
 
-;;(defn nml-set [m nml key val]
-;; (let [src (str "user-supplied value")
-;;       val (nml-str (nml-parse val :values src))]
-;;   (assoc-in m [(string/lower-case nml) (string/lower-case key)] val)))
 (defn nml-set [m nml key val]
-  (assoc-in m {"FIX" "ME"})) ;; #PM# FIX THIS
+  (let [val (nml-map val :values "user-supplied value")]
+    (assoc-in m [(string/lower-case nml) (string/lower-case key)] val)))
 
 ;; cli
 
@@ -276,12 +273,12 @@
   ;; bindings
 
   (let [{:keys [options arguments summary]} (cli/parse-opts args cliopts)
-        gets (:get options)
-        sets (:set options)
-        edit (:edit options)
-        in   (or edit (:in options) *in*)
-        out  (or edit (:out options) *out*)
-        src  (or edit (:in options) "stdin")]
+        gets       (:get options)
+        sets       (:set options)
+        edit       (:edit options)
+        in         (or edit (:in options) *in*)
+        out        (or edit (:out options) *out*)
+        provenance (or edit (:in options) "stdin")]
 
     ;; error checking
 
@@ -299,7 +296,7 @@
     ;; read -> parse -> lookup or modify -> output
 
     (let [fmt (let [f (:format options)] (if f (formats f) fmt-namelist))
-          m   (nml-map (if (:create options) "" (read-file in)) src)]
+          m   (nml-map (if (:create options) "" (read-file in)) :s provenance)]
       (cond gets  (nml-out out (nml-gets m gets (:no-prefix options)))
             sets  (nml-out out (fmt (nml-sets m sets)))
             :else (nml-out out (fmt m))))))
