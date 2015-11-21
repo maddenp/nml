@@ -100,6 +100,8 @@
 
 (defn- nml-parse [s start src]
   (let [result (parse s :start start)]
+;;   (let [x (parse s :start start :unhide :all)]
+;;     (println (str "### " x)))
 ;;   (let [parses (insta/parses parse s :start start :unhide :all :trace true)]
 ;;     (binding [*out* *err*]
 ;;       (doseq [parse parses] (println (str "----\n" parse)))
@@ -179,7 +181,7 @@
         blank (fn [& _] "")
         string_id (fn [& components] (apply str components))
         string_lc (fn [& components] (string/lower-case (apply string_id components)))]
-    (println (str "### before " tree))
+;;   (println (str "### before " tree))
     (let [new (insta/transform
                {
                 :blank blank
@@ -210,7 +212,7 @@
                 :value string_id
                 :values (fn [& values] (into [] values))
                 } tree)]
-      (println (str "### after " new))
+;;     (println (str "### after " new))
       new)))
 
 ;;(defn nml-set [m nml key val]
