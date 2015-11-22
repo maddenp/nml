@@ -144,7 +144,7 @@
                 :name string_lc
                 :nv_sequence (fn [& nv_subsequences] (into {} nv_subsequences))
                 :nv_subsequence (fn [name values] {name values})
-                :nv_subsequence_begin identity
+                :nv_subsequence_start identity
                 :partref identity
                 :plus identity
                 :r identity
