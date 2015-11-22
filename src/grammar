@@ -1,7 +1,7 @@
 s                    = <junk> ( stmt <junk> )*
 
 array                = name sect
-blank                = '' <comma> !<nv_subsequence_start>
+blank                = '' <comma> !( <nv_subsequence_start> / <stmt_end> )
 c                    = real / string / logical / complex
 comma                = ','
 comment              = '!' #'[^\n]*'

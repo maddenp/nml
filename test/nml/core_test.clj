@@ -36,7 +36,7 @@
     (is (= (nml-get m "ne" "r0") "1.,1.0,-1.0,+1.0"                              ))
     (is (= (nml-get m "ne" "r1") "1.1e2,1.1d2,1.1e-2,1.1d+2"                     ))
     (is (= (nml-get m "ne" "r2") "-1.1e2,+1.1e2,-1.1d-2,+1.1d+2"                 ))
-    (is (= (nml-get m "ne" "r3") ",,"                                            ))
+    (is (= (nml-get m "ne" "r3") ","                                             ))
     (is (= (nml-get m "nf" "x0") ""                                              ))
     (is (= (nml-get m "zz" "x0") ""                                              )))
 
