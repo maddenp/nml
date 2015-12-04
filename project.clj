@@ -1,4 +1,4 @@
-(defproject nml "0.1"
+(defproject nml "0.4"
   :aot [nml.core]
   :dependencies [[instaparse "1.4.1"] [org.clojure/clojure "1.7.0"] [org.clojure/tools.cli "0.3.3"]]
   :description "A query/modify utility for Fortran namelists"
