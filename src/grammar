@@ -6,8 +6,7 @@ namelist_group_name = #'[a-zA-Z][a-zA-Z0-9_]{0,30}'
 
 namelist_input_stmt = < #'\s' / ('!' #'[^\n]*') >* <'&'> namelist_group_name <#'\s+'> name_value_subsequences <slash_terminator>
 
-(* name_value_subsequences = name_value_subsequence* *)
-name_value_subsequences = ( name_value_subsequence / <comment> )*
+name_value_subsequences = <comment+> / name_value_subsequence*
 
 slash_terminator = #'\s*/\s*'
 
