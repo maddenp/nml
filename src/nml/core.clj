@@ -126,7 +126,6 @@
         string_lc (fn [& components] (string/lower-case (apply string_id components)))]
     (let [new (insta/transform
                {
-                :blank blank
                 :c identity
                 :comma identity
                 :complex string_id
@@ -138,22 +137,22 @@
                 :logical identity
                 :minus identity
                 :name string_lc
-                :nv_sequence (fn [& nv_subsequences] (into {} nv_subsequences))
-                :nv_subsequence (fn [name values] {name values})
-                :nv_subsequence_start identity
+                :name_value_subsequence (fn [dataref & values] {dataref values})
+                :name_value_subsequences (fn [& name_value_subsequences] (into {} name_value_subsequences))
+                :namelist_group_name string_lc
+                :namelist_input_stmt (fn [namelist_group_name name_value_subsequences] (into {} {namelist_group_name name_value_subsequences}))
                 :partref identity
                 :plus identity
                 :r identity
                 :real string_id
-                :s (fn [& nv_sequences] (into {} nv_sequences))
+                :s (fn [& namelist_input_stmts] (into {} namelist_input_stmts))
                 :sign identity
-                :stmt (fn [name nv_sequence _] (into {} {name nv_sequence}))
-                :true string_lc
-                :uint identity
                 :star identity
                 :string string_id
+                :true string_lc
+                :uint identity
                 :value string_id
-                :values (fn [& values] (into [] values))
+                :value_and_separator identity
                 } tree)]
       new)))
 

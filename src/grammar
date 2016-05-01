@@ -1,25 +1,44 @@
-s                    = <junk> ( stmt <junk> )*
+s = <inter_stmt_junk>? ( namelist_input_stmt <inter_stmt_junk>? )*
+
+inter_stmt_junk = ( #'[^!&]+' / ('!' #'[^\n]*') )+ (* should allow &s preceding e.g. &nl *)
+
+namelist_group_name = #'[a-zA-Z][a-zA-Z0-9_]{0,30}'
+
+namelist_input_stmt = < #'\s' / ('!' #'[^\n]*') >* <'&'> namelist_group_name <#'\s+'> name_value_subsequences <slash_terminator>
+
+(* name_value_subsequences = name_value_subsequence* *)
+name_value_subsequences = ( name_value_subsequence / <comment> )*
+
+slash_terminator = #'\s*/\s*'
+
+name_value_subsequence = dataref <#'\s*=\s*'> value_and_separator ( <comment> / value_and_separator )*
+
+value = r star c / r star / c / <null>
+
+value_and_separator = value <separator>
+
+separator = separator_comma / separator_blank / &slash_terminator
+
+separator_comma = #'\s*,\s*'
+
+separator_blank = #'\s+' &( value / dataref / comment )
+
+comment = '!' #'[^\n]*' #'\s+'
+
+null = #'\s*' &separator_comma
 
 array                = name sect
-blank                = '' <comma> !( <nv_subsequence_start> / <stmt_end> )
 c                    = real / string / logical / complex
 comma                = ','
-comment              = '!' #'[^\n]*'
-complex              = '(' <ws>? real <ws>? comma <ws>? real <ws>? ')'
+complex              = '(' <#'\s*'> real <#'\s*'> comma <#'\s*'> real <#'\s*'> ')'
 dataref              = partref ( '%' partref )*
 dec                  = '.' uint?
-exp                  = sign uint / #'[eE]' <ws>? int / #'[dD]' <ws>? int
+exp                  = sign uint / #'[eE]' <#'\s*'> int / #'[dD]' <#'\s*'> int
 false                = 'f' / 'F'
-filler               = ( <ws> / <comment> )+
 int                  = sign? uint
-junk                 = ( #'[^!&]+' / <comment> )*
 logical              = <'.'>? ( true / false ) <#'[^/,=\s]*'>
 minus                = '-'
 name                 = #'[a-zA-Z][a-zA-Z0-9_]{0,30}'
-nv_sequence          = nv_subsequence*
-nv_subsequence       = nv_subsequence_start values <nv_subsequence_end>
-nv_subsequence_start = <filler>? dataref <filler>? <'='>
-nv_subsequence_end   = <filler>? comma &<nv_subsequence_start> / <filler>? comma &<stmt_end> / <ws> <filler>? &<nv_subsequence_start> / &<stmt_end>
 partref              = array / name
 plus                 = '+'
 r                    = uint
@@ -27,13 +46,6 @@ real                 = int dec? exp? / sign? dec int exp?
 sect                 = <'('> ( int? ':' int? / int ) ( ':' int )? <')'>
 sign                 = minus / plus
 star                 = '*'
-stmt                 = <filler>? <'&'> name <ws> nv_sequence stmt_end
-stmt_end             = <filler>? <'/'>
 string               = "'" ( #'[^\'\n]' / "''" / <"\n"> )* "'" / '"' ( #'[^\"\n]' / '""' / <"\n"> )* '"'
 true                 = 't' / 'T'
 uint                 = #'[0-9]+'
-value                = r star c / r star / c
-values               = ( <filler>? !<values_end> ( value <values_sep>? / blank ) )*
-values_end           = nv_subsequence_start / stmt_end
-values_sep           = !<values_end> ( <filler>? comma !<nv_subsequence_start> / <ws> ) !<values_end>
-ws                   = #'\s+'

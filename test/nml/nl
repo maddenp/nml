@@ -32,10 +32,7 @@ c7 = 3* ! F2008 10.11.3.4 case 1
 ! c
 /
 
-! Per F2008 10.11.3.2.4, a space is required between the namelist group name
-! and the namelist comment.
-
-&nd ! c
+&nd
 M0
 =
 (  
@@ -63,13 +60,13 @@ r3 = , ,, ! F2008 10.11.3.4 cases 2, 3 and 4
 
 ! c
 
-&nf !c
+&nf
 
 ! c
 
 /
 
-%ng ! c
+%ng
 ! c
 a=88
 !c /
