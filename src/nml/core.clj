@@ -138,6 +138,7 @@
                 :dec (fn [point & int] (str point (apply str int)))
                 :exp string_lc
                 :false string_lc
+                :input_stmt_prefix string_id
                 :int string_id
                 :logical identity
                 :minus identity
