@@ -249,7 +249,7 @@
     ;; read -> parse -> lookup or modify -> output
 
     (let [fmt (let [f (:format options)] (if f (formats f) fmt-namelist))
-          m   (nml-map (if (:create options) "" (read-file in)) :s provenance)]
+          m   (if (:create options) {} (nml-map (read-file in) :s provenance))]
       (cond gets  (nml-out out (nml-gets m gets (:no-prefix options)))
             sets  (nml-out out (fmt (nml-sets m sets)))
             :else (nml-out out (fmt m))))))
