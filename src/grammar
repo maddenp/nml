@@ -1,8 +1,10 @@
 s = ( <pre_stmt_junk>? namelist_input_stmt )+ <post_input_junk>?
 
-pre_stmt_junk = #'.|\n'+ &input_stmt_prefix (* must allow e.g. '&nl = a' in comment *)
+(* pre_stmt_junk = #'.|\n'+ &input_stmt_prefix (* must allow e.g. '&nl = a' in comment *) *)
+(* pre_stmt_junk = ( ( #'\s*![^\n]*' ) / ( #'.|\n' !input_stmt_prefix ) )+ *)
 
-post_input_junk = #'.|\n'+
+pre_stmt_junk   = ( !input_stmt_prefix ( #'\s*![^\n]*' / #'.|\n' ) )+
+post_input_junk = ( !input_stmt_prefix ( #'\s*![^\n]*' / #'.|\n' ) )+
 
 namelist_group_name = #'[a-zA-Z][a-zA-Z0-9_]{0,30}'
 
