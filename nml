@@ -1,8 +1,3 @@
 #!/bin/sh
 
-p=$(readlink -e $0)
-d=$(dirname     $p)
-
-NMLJAR=$d/target/nml.jar
-
-java -jar $NMLJAR "$@"
+java -jar $(dirname $0)/target/nml.jar "$@"
