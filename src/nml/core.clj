@@ -14,7 +14,7 @@
         k   (lo 2)
         eq #(string/replace % "\"" "\\\"")
         f0  (fn [[dataref vals]]
-              (let [v (eq vals)]
+              (let [v (eq (apply str vals))]
                 (str "'" dataref "') echo \"" v "\";;")))
         f1  (fn [[name nv_sequence]]
               (let [x (strmap f0 nv_sequence)]
@@ -22,7 +22,7 @@
     (str "nmlquery(){ case " n " in " (strmap f1 ms) "*) echo '';;esac; }\n")))
 
 (defn- fmt-bash [m]
-  (fmt-sh m #(str "\"${" % ",,}\"")))
+  (fmt-sh m #(str "\"$(echo $" % " | tr [:upper:] [:lower:])\"")))
 
 (defn- fmt-ksh [m]
   (fmt-sh m #(str "\"$(echo $" % " | tr [:upper:] [:lower:])\"")))

@@ -176,7 +176,7 @@ In addition to the default Fortran namelist output format, _nml_ can output name
 % eval "$(nml --in nl --format bash)"
 
 % nmlquery a s
-"Hi"
+'Hi'
 
 % nmlquery b c
 (3.142,2.718)
