@@ -1,10 +1,12 @@
-s = <inter_stmt_junk>? ( namelist_input_stmt <inter_stmt_junk>? )*
+s = ( <pre_stmt_junk>? namelist_input_stmt )+ <post_input_junk>?
 
-inter_stmt_junk = ( #'[^!&]+' / ('!' #'[^\n]*') )+ (* should allow &s preceding e.g. &nl *)
+pre_stmt_junk = #'.|\n'+ &( '&' namelist_group_name #'\s+' ) (* must allow e.g. '&nl = a' in comment *)
+
+post_input_junk = #'.|\n'+
 
 namelist_group_name = #'[a-zA-Z][a-zA-Z0-9_]{0,30}'
 
-namelist_input_stmt = < #'\s' / ('!' #'[^\n]*') >* <'&'> namelist_group_name <#'\s+'> name_value_subsequences <slash_terminator>
+namelist_input_stmt = <'&'> namelist_group_name <#'\s+'> name_value_subsequences <slash_terminator>
 
 name_value_subsequences = <comment+> / name_value_subsequence*
 
