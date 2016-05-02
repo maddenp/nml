@@ -12,7 +12,9 @@ name_value_subsequences = <comment+> / name_value_subsequence*
 
 slash_terminator = #'\s*/\s*'
 
-name_value_subsequence = dataref <#'\s*=\s*'> value_and_separator ( <comment> / value_and_separator )*
+name_value_subsequence = dataref <#'\s*=\s*'> values
+
+values = value_and_separator ( <comment> / value_and_separator )*
 
 value = r star c / r star / c / <null>
 
