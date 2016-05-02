@@ -147,7 +147,9 @@ A file may be edited in place with the _--edit_ command (equivalent, in this cas
 ````
 % nml --in nl --get a:s
 a:s='Hello World'
+
 % nml --edit nl --set a:s="'Hi'"
+
 % nml --in nl --get a:s
 a:s='Hi'
 ````
