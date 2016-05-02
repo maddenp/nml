@@ -184,6 +184,10 @@ In addition to the default Fortran namelist output format, _nml_ can output name
 
 ###Limitations
 
+#####Standards support
+
+_nml_ tries to conform to Fortran 2008 section 10.11 "Namelist formatting", though no explicit attempt has been made to support object-oriented constructs. The standard permits all sorts of nonsense that ought, for sanity's sake, to be prohibited; compilers make matters worse by apparently allowing further, non-conformant nonsense. I would be grateful for bug reports describing non-conformant _nml_ behavior, but please confirm that your namelist is conformant before filing a ticket or PR.
+
 #####Repeated namelists
 
 The Fortran standard allows namelist files like this:
