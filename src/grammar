@@ -1,12 +1,12 @@
 s = ( <detritus> namelist_input_stmt )+ <detritus>
 
-detritus = ( #'![^\n]*' / ( !input_stmt_prefix #'[^!]|\n' )+ )*
+detritus = ( !input_stmt_prefix #'[^\n]*' '\n' )*
 
 namelist_group_name = #'[a-zA-Z][a-zA-Z0-9_]{0,30}'
 
 namelist_input_stmt = input_stmt_prefix name_value_subsequences <slash_terminator>
 
-input_stmt_prefix = <'&'> namelist_group_name <#'\s+'>
+input_stmt_prefix = <#'\s*'> <'&'> namelist_group_name <#'\s+'>
 
 name_value_subsequences = <comment+> / name_value_subsequence*
 
