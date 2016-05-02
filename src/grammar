@@ -1,8 +1,6 @@
-s = ( <pre_stmt_junk>? namelist_input_stmt )+ <post_input_junk>?
+s = ( <detritus>? namelist_input_stmt )+ <detritus>?
 
-pre_stmt_junk = ( #'![^\n]*' / ( !input_stmt_prefix #'[^!]|\n' )+ )+
-
-post_input_junk = ( !input_stmt_prefix ( #'\s*![^\n]*' / #'.|\n' ) )+
+detritus = ( #'![^\n]*' / ( !input_stmt_prefix #'[^!]|\n' )+ )+
 
 namelist_group_name = #'[a-zA-Z][a-zA-Z0-9_]{0,30}'
 
