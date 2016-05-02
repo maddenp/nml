@@ -28,6 +28,8 @@ comment = '!' #'[^\n]*' #'\s+'
 
 null = #'\s*' &separator_comma
 
+user_supplied_values = value ( <separator> value )* <separator>?
+
 array                = name sect
 c                    = real / string / logical / complex
 comma                = ','

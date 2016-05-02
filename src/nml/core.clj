@@ -157,13 +157,14 @@
                 :string string_id
                 :true string_lc
                 :uint identity
+                :user_supplied_values (fn [& values] (apply vector values))
                 :value string_id
                 :value_and_separator identity
                 } tree)]
       new)))
 
 (defn nml-set [m nml key val]
-  (let [val (nml-map val :values "user-supplied value")]
+  (let [val (nml-map val :user_supplied_values "user-supplied value(s)")]
     (assoc-in m [(string/lower-case nml) (string/lower-case key)] val)))
 
 ;; cli
