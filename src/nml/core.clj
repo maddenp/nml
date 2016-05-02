@@ -143,7 +143,7 @@
                 :logical identity
                 :minus identity
                 :name string_lc
-                :name_value_subsequence (fn [dataref values] {dataref values})
+                :name_value_subsequence (fn [dataref & values] {dataref values})
                 :name_value_subsequences (fn [& name_value_subsequences] (into {} name_value_subsequences))
                 :namelist_group_name string_lc
                 :namelist_input_stmt (fn [namelist_group_name name_value_subsequences] (into {} {namelist_group_name name_value_subsequences}))
@@ -158,7 +158,6 @@
                 :true string_lc
                 :uint identity
                 :value string_id
-                :values (fn [& values] (apply vector values))
                 :value_and_separator identity
                 } tree)]
       new)))
