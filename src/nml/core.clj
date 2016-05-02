@@ -98,11 +98,11 @@
            (fail (str "Could not write to '" out "'"))))))
 
 (defn- nml-parse [text start-symbol provenance]
-  (let [unhide :all
-        parses (insta/parses parse text :start start-symbol :unhide unhide)]
-    (binding [*out* *err*]
-      (doseq [parse parses] (println (str "----\n" parse)))
-      (println (str "### " (count parses)))))
+;;   (let [unhide :all
+;;         parses (insta/parses parse text :start start-symbol :unhide unhide)]
+;;     (binding [*out* *err*]
+;;       (doseq [parse parses] (println (str "----\n" parse)))
+;;       (println (str "### " (count parses)))))
   (let [result (parse text :start start-symbol)]
     (if (insta/failure? result)
       (let [{t :text l :line c :column} result]
