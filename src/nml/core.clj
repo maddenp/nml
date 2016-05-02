@@ -13,8 +13,8 @@
         n   (lo 1)
         k   (lo 2)
         eq #(string/replace % "\"" "\\\"")
-        f0  (fn [[dataref values]]
-              (let [v (eq values)]
+        f0  (fn [[dataref vals]]
+              (let [v (eq vals)]
                 (str "'" dataref "') echo \"" v "\";;")))
         f1  (fn [[name nv_sequence]]
               (let [x (strmap f0 nv_sequence)]
@@ -28,7 +28,7 @@
   (fmt-sh m #(str "\"$(echo $" % " | tr [:upper:] [:lower:])\"")))
 
 (defn- fmt-namelist [m]
-  (let [f0 (fn [[dataref values]] (str "  " dataref "=" (valstr values) "\n"))
+  (let [f0 (fn [[dataref vals]] (str "  " dataref "=" (valstr vals) "\n"))
         f1 (fn [[name nv_sequence]] (str "&" name "\n" (strmap f0 (sort nv_sequence)) "/\n"))]
     (strmap f1 (sort m))))
 
@@ -78,8 +78,8 @@
       (println x))
     (System/exit 0)))
 
-(defn- valstr [values]
-  (string/join "," values))
+(defn- valstr [vals]
+  (string/join "," vals))
 
 ;; nml private defns
 
@@ -143,28 +143,28 @@
                 :logical identity
                 :minus identity
                 :name string_lc
-                :name_value_subsequence (fn [dataref & values] {dataref values})
-                :name_value_subsequences (fn [& name_value_subsequences] (into {} name_value_subsequences))
-                :namelist_group_name string_lc
-                :namelist_input_stmt (fn [namelist_group_name name_value_subsequences] (into {} {namelist_group_name name_value_subsequences}))
+                :nv_subseq (fn [dataref & vals] {dataref vals})
+                :nv_subseqs (fn [& nv_subseqs] (into {} nv_subseqs))
+                :group_name string_lc
+                :input_stmt (fn [group_name nv_subseqs] (into {} {group_name nv_subseqs}))
                 :partref identity
                 :plus identity
                 :r identity
                 :real string_id
-                :s (fn [& namelist_input_stmts] (into {} namelist_input_stmts))
+                :s (fn [& input_stmts] (into {} input_stmts))
                 :sign identity
                 :star identity
                 :string string_id
                 :true string_lc
                 :uint identity
-                :user_supplied_values (fn [& values] (apply vector values))
-                :value string_id
-                :value_and_separator identity
+                :user_supplied_vals (fn [& vals] (apply vector vals))
+                :val string_id
+                :val_and_sep identity
                 } tree)]
       new)))
 
 (defn nml-set [m nml key val]
-  (let [val (nml-map val :user_supplied_values "user-supplied value(s)")]
+  (let [val (nml-map val :user_supplied_vals "user-supplied value(s)")]
     (assoc-in m [(string/lower-case nml) (string/lower-case key)] val)))
 
 ;; cli
