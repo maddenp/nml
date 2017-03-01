@@ -54,7 +54,7 @@
 
 (def parse (insta/parser (clojure.java.io/resource "grammar")))
 
-(def version "0.3")
+(def version "0.5")
 
 ;; utility defns
 
