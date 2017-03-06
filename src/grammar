@@ -17,7 +17,7 @@ minus              = '-'
 name               = #'[a-zA-Z][a-zA-Z0-9_]{0,30}'
 null               = #'\s*' &sep_comma
 nv_subseq          = dataref <#'\s*=\s*'> val_and_sep ( <comment> / val_and_sep )*
-nv_subseqs         = <comment+> / nv_subseq*
+nv_subseqs         = <comment*> nv_subseq*
 partref            = array / name
 plus               = '+'
 r                  = uint
