@@ -1,12 +1,27 @@
 (ns nml.core
+  (:require [clojure.data.json :as json  ])
   (:require [clojure.string    :as string])
-  (:require [instaparse.core   :as insta ])
   (:require [clojure.tools.cli :as cli   ])
+  (:require [instaparse.core   :as insta ])
   (:gen-class))
 
-(declare nml-get nml-parse nml-set strmap valstr)
+(declare fmt-sh nml-get nml-parse nml-set strmap valstr)
 
 ;; formatting
+
+(defn- fmt-bash [m]
+  (fmt-sh m #(str "\"$(echo $" % " | tr [:upper:] [:lower:])\"")))
+
+(defn- fmt-json [m]
+  (with-out-str (json/pprint m)))
+
+(defn- fmt-ksh [m]
+  (fmt-sh m #(str "\"$(echo $" % " | tr [:upper:] [:lower:])\"")))
+
+(defn- fmt-namelist [m]
+  (let [f0 (fn [[dataref vals]] (str "  " dataref "=" (valstr vals) "\n"))
+        f1 (fn [[name nv_sequence]] (str "&" name "\n" (strmap f0 (sort nv_sequence)) "/\n"))]
+    (strmap f1 (sort m))))
 
 (defn- fmt-sh [m lo]
   (let [ms  (sort m)
@@ -21,21 +36,11 @@
                 (str "'" name "') case " k " in " x "*) echo '';;esac;;" )))]
     (str "nmlquery(){ case " n " in " (strmap f1 ms) "*) echo '';;esac; }\n")))
 
-(defn- fmt-bash [m]
-  (fmt-sh m #(str "\"$(echo $" % " | tr [:upper:] [:lower:])\"")))
-
-(defn- fmt-ksh [m]
-  (fmt-sh m #(str "\"$(echo $" % " | tr [:upper:] [:lower:])\"")))
-
-(defn- fmt-namelist [m]
-  (let [f0 (fn [[dataref vals]] (str "  " dataref "=" (valstr vals) "\n"))
-        f1 (fn [[name nv_sequence]] (str "&" name "\n" (strmap f0 (sort nv_sequence)) "/\n"))]
-    (strmap f1 (sort m))))
-
 ;; defs
 
 (def formats
   {"bash"     fmt-bash
+   "json"     fmt-json
    "ksh"      fmt-ksh
    "namelist" fmt-namelist})
 
