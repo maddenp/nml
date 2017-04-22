@@ -10,31 +10,31 @@
 ;; formatting
 
 (defn- fmt-bash [m]
-  (fmt-sh m #(str "\"$(echo $" % " | tr [:upper:] [:lower:])\"")))
+  (fmt-sh m))
 
 (defn- fmt-json [m]
-  (with-out-str (json/pprint m)))
+  (println m)
+  "")
+;;   (with-out-str (json/pprint m)))
 
 (defn- fmt-ksh [m]
-  (fmt-sh m #(str "\"$(echo $" % " | tr [:upper:] [:lower:])\"")))
+  (fmt-sh m))
 
 (defn- fmt-namelist [m]
   (let [f0 (fn [[dataref vals]] (str "  " dataref "=" (valstr vals) "\n"))
         f1 (fn [[name nv_sequence]] (str "&" name "\n" (strmap f0 (sort nv_sequence)) "/\n"))]
     (strmap f1 (sort m))))
 
-(defn- fmt-sh [m lo]
-  (let [ms  (sort m)
-        n   (lo 1)
-        k   (lo 2)
-        eq #(string/replace % "\"" "\\\"")
-        f0  (fn [[dataref vals]]
-              (let [v (eq (apply str vals))]
-                (str "'" dataref "') echo \"" v "\";;")))
-        f1  (fn [[name nv_sequence]]
-              (let [x (strmap f0 nv_sequence)]
-                (str "'" name "') case " k " in " x "*) echo '';;esac;;" )))]
-    (str "nmlquery(){ case " n " in " (strmap f1 ms) "*) echo '';;esac; }\n")))
+(defn- fmt-sh [m]
+  (let [lo #(str "\"$(echo $" % " | tr [:upper:] [:lower:])\"")
+        esc-quotes #(string/replace % "\"" "\\\"")
+        f0 (fn [[dataref vals]]
+             (let [v (esc-quotes (valstr vals))]
+               (str "'" dataref "') echo \"" v "\";;")))
+        f1 (fn [[name nv_sequence]]
+             (let [x (strmap f0 nv_sequence)]
+               (str "'" name "') case " (lo 2) " in " x "*) echo '';;esac;;" )))]
+    (str "nmlquery(){ case " (lo 1) " in " (strmap f1 (sort m)) "*) echo '';;esac; }\n")))
 
 ;; defs
 
