@@ -2,6 +2,7 @@
   (:require [clojure.data.json :as json  ])
   (:require [clojure.string    :as string])
   (:require [clojure.tools.cli :as cli   ])
+  (:require [clojure.walk      :as walk  ])
   (:require [instaparse.core   :as insta ])
   (:gen-class))
 
@@ -13,9 +14,19 @@
   (fmt-sh m))
 
 (defn- fmt-json [m]
-  (println m)
-  "")
-;;   (with-out-str (json/pprint m)))
+  (let [f (fn [e]
+            (let [re #"[+-]?(\d*\.)?\d+(d[+-]?\d+)?"
+                  e (if (and (string? e) (re-matches re e)) (string/replace e #"d" "e") e)
+                  x (try (read-string e) (catch Exception e nil))]
+              (cond
+                (number? x) x
+                (= "t" e) true
+                (= "f" e) false
+                (and (seq? e) (= 1 (count e))) (first e)
+                (string? e) (let [m (re-matches #"^[\'\"](.*)[\'\"]$" e)]
+                              (if m (second m) e))
+                :else e)))]
+        (with-out-str (json/pprint (walk/postwalk f m)))))
 
 (defn- fmt-ksh [m]
   (fmt-sh m))
