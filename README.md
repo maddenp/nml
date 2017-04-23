@@ -4,19 +4,19 @@ nml
 
 A query/modify utility for Fortran namelists
 
-###Build
+### Build
 
 Install [Leiningen](http://leiningen.org/) if you don't have it, then:
 
 `lein uberjar`
 
-###Test
+### Test
 
 `lein test`
 
 The Fortran program test/nml/test.f90 may be used to verify the correctness of the test namelist file test/nml/nl.
 
-###Run
+### Run
 
 The _nml_ wrapper script invokes _java -jar_ with the path to the Leiningen-generated _target/nml.jar_. It may be convenient to edit this script for your own use.
 
@@ -36,10 +36,10 @@ Options:
   -s, --set n:k=v   Set value of key 'k' in namelist 'n' to 'v'
   -v, --version     Show version information
 
-Valid output formats are: bash, ksh, namelist
+Valid output formats are: bash, json, ksh, namelist
 ````
 
-###Examples
+### Examples
 
 Assume that the contents of the file _nl_ are as follows:
 
@@ -80,7 +80,7 @@ Note that _nml_ normalizes many formatting options:
 
 The _--in_ and _--out_ options can be used to specify input and output files, respectively.
 
-#####Querying
+##### Querying
 
 To get values:
 
@@ -119,7 +119,7 @@ nml: b:x not found
 FAIL
 ````
 
-#####Modifying
+##### Modifying
 
 To set (or add) values:
 
@@ -168,9 +168,11 @@ To create a new namelist file from scratch (i.e. without starting with an input 
 /
 ````
 
-#####Output Format
+##### Output Format
 
-In addition to the default Fortran namelist output format, _nml_ can output namelist data as a bash/ksh function. This allows fast lookups in shell scripts after a single _nml_ invocation, via the defined _nmlquery_ shell function.
+In addition to the default Fortran namelist output format, _nml_ can output namelist data as a bash/ksh function, or as JSON data.
+
+The bash/ksh function allows fast lookups in shell scripts after a single _nml_ invocation, via the defined _nmlquery_ shell function.
 
 ````
 % eval "$(nml --in nl --format bash)"
@@ -182,13 +184,23 @@ In addition to the default Fortran namelist output format, _nml_ can output name
 (3.142,2.718)
 ````
 
-###Limitations
+Example JSON output:
 
-#####Standards support
+```
+% nml --in nl --format json
+{"b":{"l":true, "c":"(3.142,2.718)", "i":88},
+ "a":{"r":2.2E8, "s":"Hello World"}}
+```
+
+Note that several valid Fortran namelist values, e.g. `r*c` repeat values like `10*'c'`, or complex literals like `(1.2,3.4)` are represented as strings in JSON for lack of native support.
+
+### Limitations
+
+##### Standards support
 
 _nml_ tries to conform to Fortran 2008 section 10.11 "Namelist formatting", though no explicit attempt has been made to support object-oriented constructs. The standard permits all sorts of nonsense that ought, for sanity's sake, to be prohibited; compilers make matters worse by apparently allowing further, non-conformant nonsense. I would be grateful for bug reports describing non-conformant _nml_ behavior, but please confirm that your namelist is conformant before filing a ticket or PR.
 
-#####Repeated namelists
+##### Repeated namelists
 
 The Fortran standard allows namelist files like this:
 
@@ -208,10 +220,10 @@ Currently, _nml_ does not (TODO: but should) correctly support this variant of t
 
 The correct behavior would be to merge the contents of the two same-named namelists, providing values for both _v_ and _w_.
 
-#####Semicolon as value separator
+##### Semicolon as value separator
 
 The use of the semicolon as a value separator (in COMMA decimal edit mode, rather than POINT decimal edit mode -- see Fortran 2008 standard section 10.10.2), is not currently supported.
 
-###Thanks
+### Thanks
 
 Thanks to Mark Engelberg for the wonderful [Instaparse](https://github.com/Engelberg/instaparse), on which _nml_ is based.

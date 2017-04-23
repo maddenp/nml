@@ -1,41 +1,57 @@
 (ns nml.core
+  (:require [clojure.data.json :as json  ])
   (:require [clojure.string    :as string])
-  (:require [instaparse.core   :as insta ])
   (:require [clojure.tools.cli :as cli   ])
+  (:require [clojure.walk      :as walk  ])
+  (:require [instaparse.core   :as insta ])
   (:gen-class))
 
-(declare nml-get nml-parse nml-set strmap valstr)
+(declare fmt-sh nml-get nml-parse nml-set strmap valstr)
 
 ;; formatting
 
-(defn- fmt-sh [m lo]
-  (let [ms  (sort m)
-        n   (lo 1)
-        k   (lo 2)
-        eq #(string/replace % "\"" "\\\"")
-        f0  (fn [[dataref vals]]
-              (let [v (eq (apply str vals))]
-                (str "'" dataref "') echo \"" v "\";;")))
-        f1  (fn [[name nv_sequence]]
-              (let [x (strmap f0 nv_sequence)]
-                (str "'" name "') case " k " in " x "*) echo '';;esac;;" )))]
-    (str "nmlquery(){ case " n " in " (strmap f1 ms) "*) echo '';;esac; }\n")))
-
 (defn- fmt-bash [m]
-  (fmt-sh m #(str "\"$(echo $" % " | tr [:upper:] [:lower:])\"")))
+  (fmt-sh m))
+
+(defn- fmt-json [m]
+  (let [f (fn [e]
+            (let [re #"[+-]?(\d*\.)?\d+(d[+-]?\d+)?"
+                  e (if (and (string? e) (re-matches re e)) (string/replace e #"d" "e") e)
+                  x (try (read-string e) (catch Exception e nil))]
+              (cond
+                (number? x) x
+                (= "t" e) true
+                (= "f" e) false
+                (and (seq? e) (= 1 (count e))) (first e)
+                (string? e) (let [m (re-matches #"^[\'\"](.*)[\'\"]$" e)]
+                              (if m (second m) e))
+                :else e)))]
+        (with-out-str (json/pprint (walk/postwalk f m)))))
 
 (defn- fmt-ksh [m]
-  (fmt-sh m #(str "\"$(echo $" % " | tr [:upper:] [:lower:])\"")))
+  (fmt-sh m))
 
 (defn- fmt-namelist [m]
   (let [f0 (fn [[dataref vals]] (str "  " dataref "=" (valstr vals) "\n"))
         f1 (fn [[name nv_sequence]] (str "&" name "\n" (strmap f0 (sort nv_sequence)) "/\n"))]
     (strmap f1 (sort m))))
 
+(defn- fmt-sh [m]
+  (let [lo #(str "\"$(echo $" % " | tr [:upper:] [:lower:])\"")
+        esc-quotes #(string/replace % "\"" "\\\"")
+        f0 (fn [[dataref vals]]
+             (let [v (esc-quotes (valstr vals))]
+               (str "'" dataref "') echo \"" v "\";;")))
+        f1 (fn [[name nv_sequence]]
+             (let [x (strmap f0 nv_sequence)]
+               (str "'" name "') case " (lo 2) " in " x "*) echo '';;esac;;" )))]
+    (str "nmlquery(){ case " (lo 1) " in " (strmap f1 (sort m)) "*) echo '';;esac; }\n")))
+
 ;; defs
 
 (def formats
   {"bash"     fmt-bash
+   "json"     fmt-json
    "ksh"      fmt-ksh
    "namelist" fmt-namelist})
 
@@ -54,7 +70,7 @@
 
 (def parse (insta/parser (clojure.java.io/resource "grammar")))
 
-(def version "0.6")
+(def version "0.7")
 
 ;; utility defns
 
