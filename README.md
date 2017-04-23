@@ -36,7 +36,7 @@ Options:
   -s, --set n:k=v   Set value of key 'k' in namelist 'n' to 'v'
   -v, --version     Show version information
 
-Valid output formats are: bash, ksh, namelist
+Valid output formats are: bash, json, ksh, namelist
 ````
 
 ### Examples
@@ -170,7 +170,9 @@ To create a new namelist file from scratch (i.e. without starting with an input 
 
 ##### Output Format
 
-In addition to the default Fortran namelist output format, _nml_ can output namelist data as a bash/ksh function. This allows fast lookups in shell scripts after a single _nml_ invocation, via the defined _nmlquery_ shell function.
+In addition to the default Fortran namelist output format, _nml_ can output namelist data as a bash/ksh function, or as JSON data.
+
+The bash/ksh function allows fast lookups in shell scripts after a single _nml_ invocation, via the defined _nmlquery_ shell function.
 
 ````
 % eval "$(nml --in nl --format bash)"
@@ -181,6 +183,16 @@ In addition to the default Fortran namelist output format, _nml_ can output name
 % nmlquery b c
 (3.142,2.718)
 ````
+
+Example JSON output:
+
+```
+% nml --in nl --format json
+{"b":{"l":true, "c":"(3.142,2.718)", "i":88},
+ "a":{"r":2.2E8, "s":"Hello World"}}
+```
+
+Note that several valid Fortran namelist values, e.g. `r*c` repeat values like `10*'c'`, or complex literals like `(1.2,3.4)` are represented as strings in JSON for lack of native support.
 
 ### Limitations
 
