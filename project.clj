@@ -7,5 +7,6 @@
   :description "A query/modify utility for Fortran namelists"
   :license {:name "Apache License Version 2.0" :url "http://www.apache.org/licenses/LICENSE-2.0.html"}
   :main nml.core
+  :target-path "target/%s"
   :uberjar-name "nml.jar"
   :url "https://github.com/maddenp/nml")

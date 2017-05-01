@@ -18,7 +18,7 @@ The Fortran program test/nml/test.f90 may be used to verify the correctness of t
 
 ### Run
 
-The _nml_ wrapper script invokes _java -jar_ with the path to the Leiningen-generated _target/nml.jar_. It may be convenient to edit this script for your own use.
+The _nml_ wrapper script invokes _java -jar_ with the path to the Leiningen-generated _target/uberjar/nml.jar_. It may be convenient to edit this script for your own use.
 
 ````
 Usage: nml [options]
