@@ -70,7 +70,7 @@
 
 (def parse (insta/parser (clojure.java.io/resource "grammar")))
 
-(def version "0.7")
+(def version "0.7.1")
 
 ;; utility defns
 
@@ -223,7 +223,7 @@
     [nml key val]))
 
 (def cliopts
-  [["-c" "--create"     "Create new namelist"                                                              ]
+  [["-c" "--create"     "Create new namelist file"                                                         ]
    ["-e" "--edit file"  "Edit file (instead of '-i file -o file')"     :assoc-fn assoc-e                   ]
    ["-f" "--format fmt" "Output in format 'fmt' (default: namelist)"   :assoc-fn assoc-f :parse-fn parse-f ]
    ["-g" "--get n:k"    "Get value of key 'k' in namelist 'n'"         :assoc-fn assoc-g :parse-fn parse-g ]
