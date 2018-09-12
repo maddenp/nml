@@ -1,17 +1,17 @@
 program p
   implicit none
-  character(len=3) :: c0 = '', c1 = '', c2 = '', c3 = ''
-  character(len=1) :: c4(2) = '', c5(2) = ''
-  character(len=1) :: x = 'x'
-  character(len=1) :: c6(3) = ''
-  character(len=1) :: c7(3) = (/'f', 'o', 'o'/)
-  integer :: i0 = 0, i1 = 0, i2 = 0, i3 = 77
-  logical :: t0 = .false., t1 = .false., t2 = .false., t3 = .false., t4 = .false., t5 = .false.
-  logical :: f0 = .true., f1 = .true., f2 = .true., f3 = .true., f4 = .true., f5 = .true.
-  complex :: m0 = (0, 0), m1 = (0, 0), m2 = (0, 0), m3 = (0, 0)
-  real :: r0(4) = 0., r1(4) = 0., r2(4) = 0., r3(4) = (/66., 77., 88., 99./)
+  character(len=3) :: c0='', c1='', c2='', c3=''
+  character(len=1) :: c4(2)='', c5(2)=''
+  character(len=1) :: x='x'
+  character(len=1) :: c6(3)=''
+  character(len=1) :: c7(3)=(/'f', 'o', 'o'/)
+  integer :: i0=0, i1=0, i2=0, i3(2)=(/77, 99/), i4(2)=(/77, 77/), i5(4)=(/77, 77, 77, 77/), i6(2)=(/77, 77/), i7=77
+  logical :: t0=.false., t1=.false., t2=.false., t3=.false., t4=.false., t5=.false.
+  logical :: f0=.true., f1=.true., f2=.true., f3=.true., f4=.true., f5=.true.
+  complex :: m0=(0, 0), m1=(0, 0), m2=(0, 0), m3=(0, 0)
+  real :: r0(4)=0., r1(4)=0., r2(4)=0., r3(4)=(/66., 77., 88., 99./)
   namelist /na/ c0, c1, c2, c3, c4, c5, c6, c7
-  namelist /nb/ i0, i1, i2
+  namelist /nb/ i0, i1, i2, i3, i4, i5, i6, i7
   namelist /nc/ t0, t1, t2, t3, t4, t5, f0, f1, f2, f3, f4, f5
   namelist /nd/ m0, m1, m2, m3
   namelist /ne/ r0, r1, r2, r3
@@ -41,7 +41,17 @@ program p
   if (i0.ne.88)             stop 'FAIL i0'
   if (i1.ne.88)             stop 'FAIL i1'
   if (i2.ne.-88)            stop 'FAIL i2'
-  if (i3.ne.77)             stop 'FAIL i3'
+  if (i3(1).ne.88)          stop 'FAIL i3(1)'
+  if (i3(2).ne.99)          stop 'FAIL i3(2)'
+  if (i4(1).ne.88)          stop 'FAIL i4(1)'
+  if (i4(2).ne.88)          stop 'FAIL i4(2)'
+  if (i5(1).ne.77)          stop 'FAIL i5(1)'
+  if (i5(2).ne.88)          stop 'FAIL i5(2)'
+  if (i5(3).ne.77)          stop 'FAIL i5(3)'
+  if (i5(4).ne.88)          stop 'FAIL i5(4)'
+  if (i6(1).ne.77)          stop 'FAIL i6(1)'
+  if (i6(2).ne.88)          stop 'FAIL i6(2)'
+  if (i7.ne.77)             stop 'FAIL i7'
   if (t0.neqv..true.)       stop 'FAIL t0'
   if (t1.neqv..true.)       stop 'FAIL t1'
   if (t2.neqv..true.)       stop 'FAIL t2'

@@ -148,6 +148,7 @@
         string_lc (fn [& components] (string/lower-case (apply string_id components)))]
     (let [new (insta/transform
                {
+                :array string_id
                 :c identity
                 :comma identity
                 :complex string_id
@@ -169,6 +170,7 @@
                 :r identity
                 :real string_id
                 :s (fn [& input_stmts] (into {} input_stmts))
+                :sect string_id
                 :sign identity
                 :star identity
                 :string string_id
