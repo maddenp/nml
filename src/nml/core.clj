@@ -26,7 +26,7 @@
                 (string? e) (let [m (re-matches #"^[\'\"](.*)[\'\"]$" e)]
                               (if m (second m) e))
                 :else e)))]
-        (with-out-str (json/pprint (walk/postwalk f m)))))
+    (with-out-str (json/pprint (walk/postwalk f m)))))
 
 (defn- fmt-ksh [m]
   (fmt-sh m))
@@ -70,7 +70,7 @@
 
 (def parse (insta/parser (clojure.java.io/resource "grammar")))
 
-(def version "0.7.1")
+(def version "0.7.2")
 
 ;; utility defns
 
@@ -116,10 +116,10 @@
 (defn- nml-parse [text start-symbol provenance]
   ;; TEST FOR AMBIGUOUS GRAMMAR
   #_(let [unhide :all
-        parses (insta/parses parse text :start start-symbol :unhide unhide)]
-    (binding [*out* *err*]
-      (doseq [parse parses] (println (str "----\n" parse)))
-      (println (str "### " (count parses)))))
+          parses (insta/parses parse text :start start-symbol :unhide unhide)]
+      (binding [*out* *err*]
+        (doseq [parse parses] (println (str "----\n" parse)))
+        (println (str "### " (count parses)))))
   (let [result (parse text :start start-symbol)]
     (if (insta/failure? result)
       (let [{t :text l :line c :column} result]

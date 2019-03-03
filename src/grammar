@@ -14,7 +14,7 @@ input_stmt_prefix  = <#'\s*'> <'&'> group_name <#'\s+'>
 int                = sign? uint
 logical            = <'.'>? ( true / false ) <#'[^/,=\s]*'>
 minus              = '-'
-name               = #'[a-zA-Z][a-zA-Z0-9_]{0,30}'
+name               = #'[a-zA-Z][a-zA-Z0-9_]{0,62}'
 null               = #'\s*' &sep_comma
 nv_subseq          = dataref <#'\s*=\s*'> val_and_sep ( <comment> / val_and_sep )*
 nv_subseqs         = <comment*> nv_subseq*
