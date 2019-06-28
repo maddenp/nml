@@ -71,8 +71,8 @@
         f0 (fn [[dataref vals]]
              (let [v (esc-quotes (valstr vals))]
                (str "'" dataref "') echo \"" v "\";;")))
-        f1 (fn [[name nv_sequence]]
-             (let [x (strmap f0 nv_sequence)]
+        f1 (fn [[name nv-sequence]]
+             (let [x (strmap f0 nv-sequence)]
                (str "'" name "') case " (lo 2) " in " x "*) echo '';;esac;;" )))]
     (str "nmlquery(){ case " (lo 1) " in " (strmap f1 (sort m)) "*) echo '';;esac; }\n")))
 
@@ -103,7 +103,7 @@
 (defn fmt-namelist
   [sort? m]
   (let [f0 (fn [[dataref vals]] (str "  " dataref "=" (valstr vals) "\n"))
-        f1 (fn [[name nv_sequence]] (str "&" name "\n" (strmap f0 (sort nv_sequence)) "/\n"))]
+        f1 (fn [[name nv-sequence]] (str "&" name "\n" (strmap f0 (sort nv-sequence)) "/\n"))]
     (strmap f1 (if sort? (sort m) m))))
 
 (def formats
@@ -134,9 +134,9 @@
    ["-g" "--get n:k"    "Get value of key 'k' in namelist 'n'"         :assoc-fn assoc-g :parse-fn parse-g ]
    ["-h" "--help"       "Show usage information"                                                           ]
    ["-i" "--in file"    "Input file (default: stdin)"                  :assoc-fn assoc-i                   ]
+   ["-k" "--keep-order" "Keep namelists in original order"                                                 ]
    ["-n" "--no-prefix"  "Report values without 'namelist:key=' prefix"                                     ]
    ["-o" "--out file"   "Output file (default: stdout)"                :assoc-fn assoc-o                   ]
-   ["-r" "--no-sort"    "Do not sort namelists in output"                                                  ]
    ["-s" "--set n:k=v"  "Set value of key 'k' in namelist 'n' to 'v'"  :assoc-fn assoc-s :parse-fn parse-s ]
    ["-v" "--version"    "Show version information"                                                         ]])
 
@@ -147,7 +147,7 @@
       (println x))
     (System/exit 0)))
 
-(def version "1.0.0")
+(def version "1.0.1")
 
 (def parse (insta/parser (clojure.java.io/resource "grammar")))
 
@@ -171,42 +171,40 @@
   [text start-symbol provenance]
   (let [tree (nml-parse text start-symbol provenance)
         blank (fn [& _] "")
-        string_id (fn [& components] (apply str components))
-        string_lc (fn [& components] (string/lower-case (apply string_id components)))]
+        string-id (fn [& components] (apply str components))
+        string-lc (fn [& components] (string/lower-case (apply string-id components)))]
     (let [new (insta/transform
-               {
-                :array string_id
+               {:array string-id
                 :c identity
                 :comma identity
-                :complex string_id
-                :dataref string_id
+                :complex string-id
+                :dataref string-id
                 :dec (fn [point & int] (str point (apply str int)))
-                :exp string_lc
-                :false string_lc
-                :input_stmt_prefix string_id
-                :int string_id
+                :exp string-lc
+                :false string-lc
+                :input-stmt-prefix string-id
+                :int string-id
                 :logical identity
                 :minus identity
-                :name string_lc
-                :nv_subseq (fn [dataref & vals] {dataref vals})
-                :nv_subseqs (fn [& nv_subseqs] (into {} nv_subseqs))
-                :group_name string_lc
-                :input_stmt (fn [group_name nv_subseqs] (into {} {group_name nv_subseqs}))
+                :name string-lc
+                :nv-subseq (fn [dataref & vals] {dataref vals})
+                :nv-subseqs (fn [& nv-subseqs] (into {} nv-subseqs))
+                :group-name string-lc
+                :input-stmt (fn [group-name nv-subseqs] {group-name nv-subseqs})
                 :partref identity
                 :plus identity
                 :r identity
-                :real string_id
-                :s (fn [& input_stmts] (into {} input_stmts))
-                :sect string_id
+                :real string-id
+                :s (fn [& input-stmts] (apply array-map (flatten (map seq input-stmts))))
+                :sect string-id
                 :sign identity
                 :star identity
-                :string string_id
-                :true string_lc
+                :string string-id
+                :true string-lc
                 :uint identity
-                :user_supplied_vals (fn [& vals] (apply vector vals))
-                :val string_id
-                :val_and_sep identity
-                } tree)]
+                :user-supplied-vals (fn [& vals] (apply vector vals))
+                :val string-id
+                :val-and-sep identity} tree)]
       new)))
 
 (defn read-file
@@ -237,7 +235,7 @@
 
 (defn nml-set
   [m nml key val]
-  (let [val (nml-map val :user_supplied_vals "user-supplied value(s)")]
+  (let [val (nml-map val :user-supplied-vals "user-supplied value(s)")]
     (assoc-in m [(string/lower-case nml) (string/lower-case key)] val)))
 
 (defn nml-sets
@@ -279,10 +277,10 @@
 
     ;; read -> parse -> lookup or modify -> output
 
-    (let [fmt-namelist (partial fmt-namelist (not (:no-sort options)))
+    (let [fmt-namelist (partial fmt-namelist (not (:keep-order options)))
           formats      (assoc formats "namelist" fmt-namelist)
           fmt          (get formats (:format options) fmt-namelist)
-          m            (if (:create options) {} (nml-map (read-file in) :s provenance))]
+          m            (if (:create options) (array-map) (nml-map (read-file in) :s provenance))]
       (cond gets  (nml-out out (nml-gets m gets (:no-prefix options)))
             sets  (nml-out out (fmt (nml-sets m sets)))
             :else (nml-out out (fmt m))))))
