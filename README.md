@@ -14,34 +14,35 @@ Install [Leiningen](http://leiningen.org/) if you don't have it, then:
 
 `lein test`
 
-The Fortran program test/nml/test.f90 may be used to verify the correctness of the test namelist file test/nml/nl.
+The Fortran program `test/nml/test.f90` may be used to verify the correctness of the test namelist file `test/nml/nl`.
 
 ### Run
 
-The _nml_ wrapper script invokes _java -jar_ with the path to the Leiningen-generated _target/uberjar/nml.jar_. It may be convenient to edit this script for your own use.
+The `nml` wrapper script invokes `java -jar` with the path to the Leiningen-generated `target/uberjar/nml.jar`. It may be convenient to edit this script for your own use.
 
-````
+```
 Usage: nml [options]
 
 Options:
 
-  -c, --create      Create new namelist
+  -c, --create      Create new namelist file
   -e, --edit file   Edit file (instead of '-i file -o file')
   -f, --format fmt  Output in format 'fmt' (default: namelist)
   -g, --get n:k     Get value of key 'k' in namelist 'n'
   -h, --help        Show usage information
   -i, --in file     Input file (default: stdin)
+  -k, --keep-order  Keep namelists in original order
   -n, --no-prefix   Report values without 'namelist:key=' prefix
   -o, --out file    Output file (default: stdout)
   -s, --set n:k=v   Set value of key 'k' in namelist 'n' to 'v'
   -v, --version     Show version information
 
 Valid output formats are: bash, json, ksh, namelist
-````
+```
 
 ### Examples
 
-Assume that the contents of the file _nl_ are as follows:
+Assume that the contents of the file `nl` are as follows:
 
 ```
 &b
@@ -78,7 +79,9 @@ Note that _nml_ normalizes many formatting options:
 - Key-value pairs are printed one-per-line without comma separators.
 - Logical values are represented in their simplest form.
 
-The _--in_ and _--out_ options can be used to specify input and output files, respectively.
+You may supply the `-k/--keep-order` flag to have _nml_ output namelists in the same order in which they were read.
+
+The `--in` and `--out` options can be used to specify input and output files, respectively.
 
 ##### Querying
 
@@ -90,7 +93,7 @@ a:r=2.2e8
 b:i=88
 ````
 
-To print only values, without _namelist:key=_ prefixes:
+To print only values, without `namelist:key=` prefixes:
 
 ````
 % nml --in nl --no-prefix --get b:i --get a:r
@@ -142,7 +145,7 @@ To set (or add) values:
 
 Note that get and set commands may not be mixed in a single _nml_ invovation.
 
-A file may be edited in place with the _--edit_ command (equivalent, in this case, to _--in nl --out nl_):
+A file may be edited in place with the `--edit` command (equivalent, in this case, to `--in nl --out nl`):
 
 ````
 % nml --in nl --get a:s
@@ -172,7 +175,7 @@ To create a new namelist file from scratch (i.e. without starting with an input 
 
 In addition to the default Fortran namelist output format, _nml_ can output namelist data as a bash/ksh function, or as JSON data.
 
-The bash/ksh function allows fast lookups in shell scripts after a single _nml_ invocation, via the defined _nmlquery_ shell function.
+The bash/ksh function allows fast lookups in shell scripts after a single _nml_ invocation, via the defined `nmlquery` shell function.
 
 ````
 % eval "$(nml --in nl --format bash)"
@@ -209,7 +212,7 @@ The Fortran standard allows namelist files like this:
 &nl v = 88 /
 ```
 
-With the namelist file open, a first Fortran _read_ statement would set v to 77, and the second would set it to 88. This use case is not supported by _nml_. Rather, the last of a set of same-named namelists will override previous ones, and _nml_ will output a single _nl_ namelist with the final values.
+With the namelist file open, a first Fortran `read` statement would set `v` to `77`, and the second would set it to `88`. This use case is not supported by _nml_. Rather, the last of a set of same-named namelists will override previous ones, and _nml_ will output a single `nl` namelist with the final values.
 
 Currently, _nml_ does not (TODO: but should) correctly support this variant of the above:
 
@@ -218,7 +221,7 @@ Currently, _nml_ does not (TODO: but should) correctly support this variant of t
 &nl w = 88 /
 ```
 
-The correct behavior would be to merge the contents of the two same-named namelists, providing values for both _v_ and _w_.
+The correct behavior would be to merge the contents of the two same-named namelists, providing values for both `v` and `w`.
 
 ##### Semicolon as value separator
 
