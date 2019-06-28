@@ -6,54 +6,12 @@
   (:require [instaparse.core   :as insta ])
   (:gen-class))
 
-(declare fmt-sh nml-get nml-parse nml-set strmap valstr)
-
-;; formatting
-
-(defn- fmt-bash [m]
-  (fmt-sh m))
-
-(defn- fmt-json [m]
-  (let [f (fn [e]
-            (let [re #"[+-]?(\d*\.)?\d+(d[+-]?\d+)?"
-                  e (if (and (string? e) (re-matches re e)) (string/replace e #"d" "e") e)
-                  x (try (read-string e) (catch Exception e nil))]
-              (cond
-                (number? x) x
-                (= "t" e) true
-                (= "f" e) false
-                (and (seq? e) (= 1 (count e))) (first e)
-                (string? e) (let [m (re-matches #"^[\'\"](.*)[\'\"]$" e)]
-                              (if m (second m) e))
-                :else e)))]
-    (with-out-str (json/pprint (walk/postwalk f m)))))
-
-(defn- fmt-ksh [m]
-  (fmt-sh m))
-
-(defn- fmt-namelist [m]
-  (let [f0 (fn [[dataref vals]] (str "  " dataref "=" (valstr vals) "\n"))
-        f1 (fn [[name nv_sequence]] (str "&" name "\n" (strmap f0 (sort nv_sequence)) "/\n"))]
-    (strmap f1 (sort m))))
-
-(defn- fmt-sh [m]
-  (let [lo #(str "\"$(echo $" % " | tr [:upper:] [:lower:])\"")
-        esc-quotes #(string/replace % "\"" "\\\"")
-        f0 (fn [[dataref vals]]
-             (let [v (esc-quotes (valstr vals))]
-               (str "'" dataref "') echo \"" v "\";;")))
-        f1 (fn [[name nv_sequence]]
-             (let [x (strmap f0 nv_sequence)]
-               (str "'" name "') case " (lo 2) " in " x "*) echo '';;esac;;" )))]
-    (str "nmlquery(){ case " (lo 1) " in " (strmap f1 (sort m)) "*) echo '';;esac; }\n")))
-
-;; defs
-
-(def formats
-  {"bash"     fmt-bash
-   "json"     fmt-json
-   "ksh"      fmt-ksh
-   "namelist" fmt-namelist})
+(defn fail
+  [& lines]
+  (binding [*out* *err*]
+    (doseq [line lines]
+      (println (str "nml: " line)))
+    (System/exit 1)))
 
 (def msgs
   {:bad-format    "Bad output format"
@@ -68,52 +26,133 @@
    :multi-out     "-o/--out may be specified only once"
    :set+no-prefix "-n/--no-prefix not valid with -s/--set"})
 
-(def parse (insta/parser (clojure.java.io/resource "grammar")))
+(defn assoc-e
+  [m k v]
+  (if (k m) (fail (msgs :multi-edit)))
+  (assoc m k v))
 
-(def version "0.7.2")
+(defn assoc-f
+  [m k v]
+  (if (k m) (fail (msgs :multi-format)))
+  (assoc m k v))
 
-;; utility defns
+(defn assoc-g
+  [m k v]
+  (let [gets (:get m [])]
+    (assoc m :get (into gets [v]))))
 
-(defn- fail [& lines]
-  (binding [*out* *err*]
-    (doseq [line lines]
-      (println (str "nml: " line)))
-    (System/exit 1)))
+(defn assoc-i
+  [m k v]
+  (if (k m) (fail (msgs :multi-in)))
+  (assoc m k v))
 
-(defn- read-file [in]
-  (try (slurp in)
-       (catch Exception e
-         (fail (str "Could not read from '" in "'")))))
+(defn assoc-o
+  [m k v]
+  (if (k m) (fail (msgs :multi-out)))
+  (assoc m k v))
 
-(defn- strmap [f coll]
+(defn assoc-s
+  [m k v]
+  (let [sets (:set m [])]
+    (assoc m :set (into sets [v]))))
+
+(defn valstr
+  [vals]
+  (string/join "," vals))
+
+(defn strmap
+  [f coll]
   (apply str (map f coll)))
 
-(defn- usage [summary]
+(defn fmt-sh
+  [m]
+  (let [lo #(str "\"$(echo $" % " | tr [:upper:] [:lower:])\"")
+        esc-quotes #(string/replace % "\"" "\\\"")
+        f0 (fn [[dataref vals]]
+             (let [v (esc-quotes (valstr vals))]
+               (str "'" dataref "') echo \"" v "\";;")))
+        f1 (fn [[name nv_sequence]]
+             (let [x (strmap f0 nv_sequence)]
+               (str "'" name "') case " (lo 2) " in " x "*) echo '';;esac;;" )))]
+    (str "nmlquery(){ case " (lo 1) " in " (strmap f1 (sort m)) "*) echo '';;esac; }\n")))
+
+(defn fmt-bash
+  [m]
+  (fmt-sh m))
+
+(defn fmt-json
+  [m]
+  (let [f (fn [e]
+            (let [re #"[+-]?(\d*\.)?\d+(d[+-]?\d+)?"
+                  e (if (and (string? e) (re-matches re e)) (string/replace e #"d" "e") e)
+                  x (try (read-string e) (catch Exception e nil))]
+              (cond
+                (number? x) x
+                (= "t" e) true
+                (= "f" e) false
+                (and (seq? e) (= 1 (count e))) (first e)
+                (string? e) (let [m (re-matches #"^[\'\"](.*)[\'\"]$" e)]
+                              (if m (second m) e))
+                :else e)))]
+    (with-out-str (json/pprint (walk/postwalk f m)))))
+
+(defn fmt-ksh
+  [m]
+  (fmt-sh m))
+
+(defn fmt-namelist
+  [sort? m]
+  (let [f0 (fn [[dataref vals]] (str "  " dataref "=" (valstr vals) "\n"))
+        f1 (fn [[name nv_sequence]] (str "&" name "\n" (strmap f0 (sort nv_sequence)) "/\n"))]
+    (strmap f1 (if sort? (sort m) m))))
+
+(def formats
+  {"bash"     fmt-bash
+   "json"     fmt-json
+   "ksh"      fmt-ksh
+   "namelist" fmt-namelist})
+
+(defn parse-f
+  [x]
+  (if-not (contains? formats x) (fail (msgs :bad-format)))
+  x)
+
+(defn parse-g
+  [x]
+  (string/split x #":" 2))
+
+(defn parse-s
+  [x]
+  (let [[nml+key val] (string/split x #"=" 2)
+        [nml key] (parse-g nml+key)]
+    [nml key val]))
+
+(def cliopts
+  [["-c" "--create"     "Create new namelist file"                                                         ]
+   ["-e" "--edit file"  "Edit file (instead of '-i file -o file')"     :assoc-fn assoc-e                   ]
+   ["-f" "--format fmt" "Output in format 'fmt' (default: namelist)"   :assoc-fn assoc-f :parse-fn parse-f ]
+   ["-g" "--get n:k"    "Get value of key 'k' in namelist 'n'"         :assoc-fn assoc-g :parse-fn parse-g ]
+   ["-h" "--help"       "Show usage information"                                                           ]
+   ["-i" "--in file"    "Input file (default: stdin)"                  :assoc-fn assoc-i                   ]
+   ["-n" "--no-prefix"  "Report values without 'namelist:key=' prefix"                                     ]
+   ["-o" "--out file"   "Output file (default: stdout)"                :assoc-fn assoc-o                   ]
+   ["-r" "--no-sort"    "Do not sort namelists in output"                                                  ]
+   ["-s" "--set n:k=v"  "Set value of key 'k' in namelist 'n' to 'v'"  :assoc-fn assoc-s :parse-fn parse-s ]
+   ["-v" "--version"    "Show version information"                                                         ]])
+
+(defn usage
+  [summary]
   (let [f (str "Valid output formats are: " (string/join ", " (keys formats)))]
     (doseq [x ["\nUsage: nml [options]\n\nOptions:\n" summary "" f ""]]
       (println x))
     (System/exit 0)))
 
-(defn- valstr [vals]
-  (string/join "," vals))
+(def version "1.0.0")
 
-;; nml private defns
+(def parse (insta/parser (clojure.java.io/resource "grammar")))
 
-(defn- nml-gets [m gets no-prefix]
-  (let [f (fn [[nml key]]
-            (let [val (nml-get m nml key)]
-              (if (= "" val) (fail (str nml ":" key " not found")))
-              (if no-prefix val (str nml ":" key "=" val))))]
-    (str (string/join "\n" (map f gets)) "\n")))
-
-(defn- nml-out [out s]
-  (if (= out *out*)
-    (println (string/trim s))
-    (try (spit out s)
-         (catch Exception e
-           (fail (str "Could not write to '" out "'"))))))
-
-(defn- nml-parse [text start-symbol provenance]
+(defn nml-parse
+  [text start-symbol provenance]
   ;; TEST FOR AMBIGUOUS GRAMMAR
   #_(let [unhide :all
           parses (insta/parses parse text :start start-symbol :unhide unhide)]
@@ -128,20 +167,8 @@
               (str (apply str (repeat (- c 1) " ")) "^")))
       result)))
 
-(defn- nml-sets [m sets]
-  (loop [m m s sets]
-    (if (empty? s)
-      m
-      (let [[nml key val] (first s)]
-        (if (nil? val) (fail (str "No value supplied for key '" key "'")))
-        (recur (nml-set m nml key val) (rest s))))))
-
-;; nml public defns
-
-(defn nml-get [m nml key]
-  (valstr (get (get m (string/lower-case nml) {}) (string/lower-case key) "")))
-
-(defn nml-map [text start-symbol provenance]
+(defn nml-map
+  [text start-symbol provenance]
   (let [tree (nml-parse text start-symbol provenance)
         blank (fn [& _] "")
         string_id (fn [& components] (apply str components))
@@ -182,63 +209,48 @@
                 } tree)]
       new)))
 
-(defn nml-set [m nml key val]
+(defn read-file
+  [in]
+  (try (slurp in)
+       (catch Exception e
+         (fail (str "Could not read from '" in "'")))))
+
+(defn nml-out
+  [out s]
+  (if (= out *out*)
+    (println (string/trim s))
+    (try (spit out s)
+         (catch Exception e
+           (fail (str "Could not write to '" out "'"))))))
+
+(defn nml-get
+  [m nml key]
+  (valstr (get (get m (string/lower-case nml) {}) (string/lower-case key) "")))
+
+(defn nml-gets
+  [m gets no-prefix]
+  (let [f (fn [[nml key]]
+            (let [val (nml-get m nml key)]
+              (if (= "" val) (fail (str nml ":" key " not found")))
+              (if no-prefix val (str nml ":" key "=" val))))]
+    (str (string/join "\n" (map f gets)) "\n")))
+
+(defn nml-set
+  [m nml key val]
   (let [val (nml-map val :user_supplied_vals "user-supplied value(s)")]
     (assoc-in m [(string/lower-case nml) (string/lower-case key)] val)))
 
-;; cli
+(defn nml-sets
+  [m sets]
+  (loop [m m s sets]
+    (if (empty? s)
+      m
+      (let [[nml key val] (first s)]
+        (if (nil? val) (fail (str "No value supplied for key '" key "'")))
+        (recur (nml-set m nml key val) (rest s))))))
 
-(defn- assoc-e [m k v]
-  (if (k m) (fail (msgs :multi-edit)))
-  (assoc m k v))
-
-(defn- assoc-f [m k v]
-  (if (k m) (fail (msgs :multi-format)))
-  (assoc m k v))
-
-(defn- assoc-g [m k v]
-  (let [gets (:get m [])]
-    (assoc m :get (into gets [v]))))
-
-(defn- assoc-i [m k v]
-  (if (k m) (fail (msgs :multi-in)))
-  (assoc m k v))
-
-(defn- assoc-o [m k v]
-  (if (k m) (fail (msgs :multi-out)))
-  (assoc m k v))
-
-(defn- assoc-s [m k v]
-  (let [sets (:set m [])]
-    (assoc m :set (into sets [v]))))
-
-(defn- parse-f [x]
-  (if-not (contains? formats x) (fail (msgs :bad-format)))
-  x)
-
-(defn- parse-g [x]
-  (string/split x #":" 2))
-
-(defn- parse-s [x]
-  (let [[nml+key val] (string/split x #"=" 2)
-        [nml key] (parse-g nml+key)]
-    [nml key val]))
-
-(def cliopts
-  [["-c" "--create"     "Create new namelist file"                                                         ]
-   ["-e" "--edit file"  "Edit file (instead of '-i file -o file')"     :assoc-fn assoc-e                   ]
-   ["-f" "--format fmt" "Output in format 'fmt' (default: namelist)"   :assoc-fn assoc-f :parse-fn parse-f ]
-   ["-g" "--get n:k"    "Get value of key 'k' in namelist 'n'"         :assoc-fn assoc-g :parse-fn parse-g ]
-   ["-h" "--help"       "Show usage information"                                                           ]
-   ["-i" "--in file"    "Input file (default: stdin)"                  :assoc-fn assoc-i                   ]
-   ["-n" "--no-prefix"  "Report values without 'namelist:key=' prefix"                                     ]
-   ["-o" "--out file"   "Output file (default: stdout)"                :assoc-fn assoc-o                   ]
-   ["-s" "--set n:k=v"  "Set value of key 'k' in namelist 'n' to 'v'"  :assoc-fn assoc-s :parse-fn parse-s ]
-   ["-v" "--version"    "Show version information"                                                         ]])
-
-;; main
-
-(defn -main [& args]
+(defn -main
+  [& args]
 
   (alter-var-root #'*read-eval* (constantly false))
 
@@ -267,8 +279,10 @@
 
     ;; read -> parse -> lookup or modify -> output
 
-    (let [fmt (let [f (:format options)] (if f (formats f) fmt-namelist))
-          m   (if (:create options) {} (nml-map (read-file in) :s provenance))]
+    (let [fmt-namelist (partial fmt-namelist (not (:no-sort options)))
+          formats      (assoc formats "namelist" fmt-namelist)
+          fmt          (get formats (:format options) fmt-namelist)
+          m            (if (:create options) {} (nml-map (read-file in) :s provenance))]
       (cond gets  (nml-out out (nml-gets m gets (:no-prefix options)))
             sets  (nml-out out (fmt (nml-sets m sets)))
             :else (nml-out out (fmt m))))))

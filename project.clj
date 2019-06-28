@@ -1,4 +1,4 @@
-(defproject nml "0.7"
+(defproject nml "1.0.0"
   :aot [nml.core]
   :dependencies [[instaparse "1.4.9"]
                  [org.clojure/clojure "1.9.0"]
