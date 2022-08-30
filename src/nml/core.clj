@@ -28,12 +28,12 @@
 
 (defn assoc-e
   [m k v]
-  (if (k m) (fail (msgs :multi-edit)))
+  (when (k m) (fail (msgs :multi-edit)))
   (assoc m k v))
 
 (defn assoc-f
   [m k v]
-  (if (k m) (fail (msgs :multi-format)))
+  (when (k m) (fail (msgs :multi-format)))
   (assoc m k v))
 
 (defn assoc-g
@@ -43,12 +43,12 @@
 
 (defn assoc-i
   [m k v]
-  (if (k m) (fail (msgs :multi-in)))
+  (when (k m) (fail (msgs :multi-in)))
   (assoc m k v))
 
 (defn assoc-o
   [m k v]
-  (if (k m) (fail (msgs :multi-out)))
+  (when (k m) (fail (msgs :multi-out)))
   (assoc m k v))
 
 (defn assoc-s
@@ -114,7 +114,7 @@
 
 (defn parse-f
   [x]
-  (if-not (contains? formats x) (fail (msgs :bad-format)))
+  (when-not (contains? formats x) (fail (msgs :bad-format)))
   x)
 
 (defn parse-g
@@ -229,7 +229,7 @@
   [m gets no-prefix]
   (let [f (fn [[nml key]]
             (let [val (nml-get m nml key)]
-              (if (= "" val) (fail (str nml ":" key " not found")))
+              (when (= "" val) (fail (str nml ":" key " not found")))
               (if no-prefix val (str nml ":" key "=" val))))]
     (str (string/join "\n" (map f gets)) "\n")))
 
@@ -244,7 +244,7 @@
     (if (empty? s)
       m
       (let [[nml key val] (first s)]
-        (if (nil? val) (fail (str "No value supplied for key '" key "'")))
+        (when (nil? val) (fail (str "No value supplied for key '" key "'")))
         (recur (nml-set m nml key val) (rest s))))))
 
 (defn -main
@@ -264,16 +264,16 @@
 
     ;; error checking
 
-    (if (not-empty arguments) (fail (str "Unexpected argument '" (first arguments) "'")))
-    (if (:help options) (usage summary))
-    (if (:version options) (do (println version) (System/exit 0)))
-    (if (and gets sets) (fail (msgs :get+set)))
-    (if (and gets edit) (fail (msgs :get+edit)))
-    (if (and edit (:in options)) (fail (msgs :edit+in)))
-    (if (and edit (:out options)) (fail (msgs :edit+out)))
-    (if (and gets (:format options)) (fail (msgs :get+format)))
-    (if (and sets (:no-prefix options)) (fail (msgs :set+no-prefix)))
-    (if (and (:create options) (:in options)) (fail (msgs :create+in)))
+    (when (not-empty arguments) (fail (str "Unexpected argument '" (first arguments) "'")))
+    (when (:help options) (usage summary))
+    (when (:version options) (do (println version) (System/exit 0)))
+    (when (and gets sets) (fail (msgs :get+set)))
+    (when (and gets edit) (fail (msgs :get+edit)))
+    (when (and edit (:in options)) (fail (msgs :edit+in)))
+    (when (and edit (:out options)) (fail (msgs :edit+out)))
+    (when (and gets (:format options)) (fail (msgs :get+format)))
+    (when (and sets (:no-prefix options)) (fail (msgs :set+no-prefix)))
+    (when (and (:create options) (:in options)) (fail (msgs :create+in)))
 
     ;; read -> parse -> lookup or modify -> output
 
