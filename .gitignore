@@ -11,5 +11,6 @@
 /classes
 /lib
 /target
+nml.build_artifacts.txt
 pom.xml
 pom.xml.asc
