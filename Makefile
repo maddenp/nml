@@ -24,5 +24,5 @@ $(NATIVE): $(UBERJAR)
 	@if ! which $(GN) >/dev/null; then echo "Could not find $(GN). Run 'gu install native-image' perhaps?'"; false; fi
 	$(GN) -jar $< --no-fallback -o $@
 
-$(UBERJAR): src/$(NAME).clj
+$(UBERJAR): src/$(NAME)/core.clj
 	clj -T:build uberjar

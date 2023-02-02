@@ -31,5 +31,5 @@
   (b/uber
     {:basis basis
      :class-dir classes
-     :main (symbol libname)
+     :main (symbol (str libname ".core"))
      :uber-file (path target (str libname ".jar"))}))
