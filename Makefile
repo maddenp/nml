@@ -1,18 +1,23 @@
-X=nml
+GN=$(GRAALVM)/native-image
+JARDIR=target/default+uberjar
+JARFILE=$(JARDIR)/$(NAME).jar
+NAME=nml
+NATIVE=target/nml
 
-.PHONY: clean test
+.PHONY: clean native test
 
-$(X).tgz: $(X) $(X).jar
-	tar cvzf $@ $^
-
-$(X).jar: target/uberjar/$(X).jar
-	cp -vr $< $@
-
-target/uberjar/$(X).jar: src/$(X)/core.clj
+$(JARFILE): src/$(NAME)/core.clj
 	lein uberjar
+
+native: $(NATIVE)
+
+$(NATIVE): $(JARFILE)
+	@if [ -z "$(GRAALVM)" ]; then echo "Please set GRAALVM to point to your GraalVM installation"; false; fi
+	@if ! which $(GN) >/dev/null; then echo "Could not find $(GN). Run 'gu install native-image' perhaps?'"; false; fi
+	$(GN) -jar $< --no-fallback -o $(JARDIR)/$(NAME)
+
+clean:
+	$(RM) -frv target
 
 test:
 	lein test
-
-clean:
-	$(RM) -fr $(X).jar $(X).tgz target

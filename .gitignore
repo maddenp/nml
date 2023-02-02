@@ -1,16 +1,2 @@
-*.class
-*.jar
-*.tgz
-.clj-kondo
-.lein-deps-sum
-.lein-failures
-.lein-plugins
-.lein-repl-history
-.nrepl-port
-/checkouts
-/classes
-/lib
 /target
 nml.build_artifacts.txt
-pom.xml
-pom.xml.asc
