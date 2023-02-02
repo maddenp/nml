@@ -1,8 +1,8 @@
-(ns nml.core-test
+(ns nml-test
   (:require [clojure.test :refer :all]
-            [nml.core :refer :all]))
+            [nml :refer :all]))
 
-(let [m (nml-map (slurp "test/nml/nl") :s "test")]
+(let [m (nml-map (slurp "test/nl") :s "test")]
 
   (deftest gets
     (is (= (nml-get m "na" "C0") "'foo'"                                                           ))

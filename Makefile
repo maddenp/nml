@@ -11,12 +11,12 @@ all:
 	$(error Valid targets are: $(TARGETS))
 
 clean:
-	$(RM) -frv target
+	clj -T:build $@
 
 native: $(NATIVE)
 
 test:
-	lein test
+	clj -X:test
 
 uberjar: $(UBERJAR)
 
@@ -26,4 +26,4 @@ $(NATIVE): $(UBERJAR)
 	$(GN) -jar $< --no-fallback -o $(JARDIR)/$(NAME)
 
 $(UBERJAR): src/$(NAME)/core.clj
-	lein uberjar
+	clj -T:build uberjar
