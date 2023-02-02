@@ -2,7 +2,6 @@ branches:
   only:
     - master
 jdk:
-  - openjdk8
-  - openjdk9
+  - openjdk11
 language: clojure
 sudo: false
