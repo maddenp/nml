@@ -1,2 +1,3 @@
+*.build_artifacts.txt
 .cpcache/
 target/
