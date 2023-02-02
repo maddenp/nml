@@ -1,7 +1,0 @@
-branches:
-  only:
-    - master
-jdk:
-  - openjdk11
-language: clojure
-sudo: false

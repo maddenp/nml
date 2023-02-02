@@ -1,6 +1,4 @@
-nml
-===
-[![Build Status](https://travis-ci.org/maddenp/nml.svg)](https://travis-ci.org/maddenp/nml)
+# nml
 
 A query/modify utility for Fortran namelists
 
