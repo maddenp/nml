@@ -1,4 +1,4 @@
-GN=$(GRAALVM)/native-image
+GN=$(GRAALVM)/bin/native-image
 JARDIR=target/default+uberjar
 NAME=nml
 NATIVE=target/nml
