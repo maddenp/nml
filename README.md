@@ -10,6 +10,15 @@ Install [Leiningen](http://leiningen.org/) if you don't have it, then:
 
 `lein uberjar`
 
+Alternatively, you may leverage [GraalVM](https://www.graalvm.org/) to build a native executable. To do so:
+
+1. Download and extract GraalVM [release](https://github.com/graalvm/graalvm-ce-builds/releases) matching your OS and Java versions. A successful build was last done with GraalVM Community Edition 22.3.1 on Linux with Java 11.
+2. Export environment variable `GRAALVM` pointing to the root of the extracted directory.
+3. Install GraalVM's `native-image` tool: `gu install native-image`.
+4. Run `make native`.
+
+If the above recipe was successful, `target/nml` will be the expected native executable.
+
 ### Test
 
 `lein test`
