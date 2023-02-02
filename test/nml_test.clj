@@ -1,6 +1,6 @@
 (ns nml-test
   (:require [clojure.test :refer :all]
-            [nml :refer :all]))
+            [nml.core :refer :all]))
 
 (let [m (nml-map (slurp "test/nl") :s "test")]
 

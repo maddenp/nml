@@ -1,4 +1,4 @@
-(ns nml
+(ns nml.core
   (:require [clojure.data.json :as json  ])
   (:require [clojure.string    :as string])
   (:require [clojure.tools.cli :as cli   ])
