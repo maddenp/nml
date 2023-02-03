@@ -9,7 +9,7 @@ A query/modify utility for Fortran namelists
 To create an executable uberjar:
 
 1. [Install Clojure](https://clojure.org/guides/install_clojure) if you do not already have it. You can use the installer's `--prefix` option to specify any installation location that works for you.
-2. Add your Clojure installation's `bin/` directory to your `PATH` and ensure that `clj --version` runs successfully.
+2. Add your Clojure installation's `bin/` directory to your `PATH` and ensure that `clj --help` runs successfully.
 3. Run `make uberjar`.
 
 You should now be able to run `java -jar target/nml.jar --help` for a usage synopsis.

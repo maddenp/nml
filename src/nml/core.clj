@@ -1,9 +1,10 @@
 (ns nml.core
-  (:require [clojure.data.json :as json  ])
-  (:require [clojure.string    :as string])
-  (:require [clojure.tools.cli :as cli   ])
-  (:require [clojure.walk      :as walk  ])
-  (:require [instaparse.core   :as insta ])
+  (:require [clojure.data.json :as json ]
+            [clojure.java.io   :as io   ]
+            [clojure.string    :as s    ]
+            [clojure.tools.cli :as cli  ]
+            [clojure.walk      :as walk ]
+            [instaparse.core   :as insta])
   (:gen-class))
 
 (defn fail
@@ -58,7 +59,7 @@
 
 (defn valstr
   [vals]
-  (string/join "," vals))
+  (s/join "," vals))
 
 (defn strmap
   [f coll]
@@ -67,7 +68,7 @@
 (defn fmt-sh
   [m]
   (let [lo #(str "\"$(echo $" % " | tr [:upper:] [:lower:])\"")
-        esc-quotes #(string/replace % "\"" "\\\"")
+        esc-quotes #(s/replace % "\"" "\\\"")
         f0 (fn [[dataref vals]]
              (let [v (esc-quotes (valstr vals))]
                (str "'" dataref "') echo \"" v "\";;")))
@@ -84,7 +85,7 @@
   [m]
   (let [f (fn [e]
             (let [re #"[+-]?(\d*\.)?\d+(d[+-]?\d+)?"
-                  e (if (and (string? e) (re-matches re e)) (string/replace e #"d" "e") e)
+                  e (if (and (string? e) (re-matches re e)) (s/replace e #"d" "e") e)
                   x (try (read-string e) (catch Exception e nil))]
               (cond
                 (number? x) x
@@ -119,11 +120,11 @@
 
 (defn parse-g
   [x]
-  (string/split x #":" 2))
+  (s/split x #":" 2))
 
 (defn parse-s
   [x]
-  (let [[nml+key val] (string/split x #"=" 2)
+  (let [[nml+key val] (s/split x #"=" 2)
         [nml key] (parse-g nml+key)]
     [nml key val]))
 
@@ -142,14 +143,12 @@
 
 (defn usage
   [summary]
-  (let [f (str "Valid output formats are: " (string/join ", " (keys formats)))]
+  (let [f (str "Valid output formats are: " (s/join ", " (keys formats)))]
     (doseq [x ["\nUsage: nml [options]\n\nOptions:\n" summary "" f ""]]
       (println x))
     (System/exit 0)))
 
-(def version "1.0.1")
-
-(def parse (insta/parser (clojure.java.io/resource "grammar")))
+(def parse (insta/parser (io/resource "grammar")))
 
 (defn nml-parse
   [text start-symbol provenance]
@@ -172,7 +171,7 @@
   (let [tree (nml-parse text start-symbol provenance)
         blank (fn [& _] "")
         string-id (fn [& components] (apply str components))
-        string-lc (fn [& components] (string/lower-case (apply string-id components)))]
+        string-lc (fn [& components] (s/lower-case (apply string-id components)))]
     (let [new (insta/transform
                {:array string-id
                 :c identity
@@ -216,14 +215,14 @@
 (defn nml-out
   [out s]
   (if (= out *out*)
-    (println (string/trim s))
+    (println (s/trim s))
     (try (spit out s)
          (catch Exception e
            (fail (str "Could not write to '" out "'"))))))
 
 (defn nml-get
   [m nml key]
-  (valstr (get (get m (string/lower-case nml) {}) (string/lower-case key) "")))
+  (valstr (get (get m (s/lower-case nml) {}) (s/lower-case key) "")))
 
 (defn nml-gets
   [m gets no-prefix]
@@ -231,12 +230,12 @@
             (let [val (nml-get m nml key)]
               (when (= "" val) (fail (str nml ":" key " not found")))
               (if no-prefix val (str nml ":" key "=" val))))]
-    (str (string/join "\n" (map f gets)) "\n")))
+    (str (s/join "\n" (map f gets)) "\n")))
 
 (defn nml-set
   [m nml key val]
   (let [val (nml-map val :user-supplied-vals "user-supplied value(s)")]
-    (assoc-in m [(string/lower-case nml) (string/lower-case key)] val)))
+    (assoc-in m [(s/lower-case nml) (s/lower-case key)] val)))
 
 (defn nml-sets
   [m sets]
@@ -266,7 +265,8 @@
 
     (when (not-empty arguments) (fail (str "Unexpected argument '" (first arguments) "'")))
     (when (:help options) (usage summary))
-    (when (:version options) (do (println version) (System/exit 0)))
+    (when (:version options) (do (println (s/trim-newline (slurp (io/resource "version"))))
+                                 (System/exit 0)))
     (when (and gets sets) (fail (msgs :get+set)))
     (when (and gets edit) (fail (msgs :get+edit)))
     (when (and edit (:in options)) (fail (msgs :edit+in)))

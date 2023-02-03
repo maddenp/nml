@@ -2,16 +2,15 @@
   (:require [clojure.java.io :as io]
             [clojure.tools.build.api :as b]))
 
-(def libname "nml")
-(def version "1.1.0")
-
 (defn path [& xs] (str (apply io/file xs)))
 
 (def basis (b/create-basis {:project "deps.edn"}))
-(def target "target")
-(def classes (path target "classes"))
-
 (def grammar "grammar")
+(def libname "nml")
+(def target "target")
+(def version "version")
+
+(def classes (path target "classes"))
 
 (defn clean [_]
   (b/delete {:path target}))
@@ -28,6 +27,9 @@
   (b/copy-file
     {:src (path target grammar)
      :target (path classes grammar)})
+  (b/copy-file
+    {:src (path target version)
+     :target (path classes version)})
   (b/uber
     {:basis basis
      :class-dir classes
