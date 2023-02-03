@@ -23,10 +23,10 @@ jobs:
       - name: Build uberjar
         run: make uberjar
       - name: Check jarfile
-        run: java -jar target/nml.jar --help
+        run: java -jar target/nml.jar --version
       - name: Build native executable
         run: make native
       - name: Check native executable
-        run: ./nml --help
+        run: ./nml --version
       - name: Tag
         run: .github/scripts/tag-create
