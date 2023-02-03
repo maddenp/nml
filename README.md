@@ -10,7 +10,7 @@ To create an executable uberjar:
 2. Add your Clojure installation's `bin/` directory to your `PATH` and ensure that `clj --version` runs successfully.
 3. Run `make uberjar`.
 
-You should now be able to run `java -jar target/nml.jar --help`, or make use of the `nml` wrapper script in the root of this repo, i.e. `./nml --help`.
+You should now be able to run `java -jar target/nml.jar --help` for a usage synopsis.
 
 Alternatively, you may leverage [GraalVM](https://www.graalvm.org/) to build a native executable:
 
@@ -19,7 +19,7 @@ Alternatively, you may leverage [GraalVM](https://www.graalvm.org/) to build a n
 3. Install GraalVM's `native-image` tool: `gu install native-image`.
 4. Run `make native`. This may take some time.
 
-You should now have an executable `nml.native` program (which you can rename if you like) will be available in this directory.
+You should now have an executable `nml` native executable in this directory.
 
 ### Test
 
@@ -29,7 +29,7 @@ The Fortran program `test/test.f90` may be used to verify the validity  of the t
 
 ### Run
 
-Running either the `nml` wrapper script or the `nml.native` executable with `--help`:
+Running either `java -jar target/nml.jar`, or the `nml` native executable, with the `--help` flag:
 
 ```
 Usage: nml [options]
