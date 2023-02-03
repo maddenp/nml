@@ -246,6 +246,10 @@
         (when (nil? val) (fail (str "No value supplied for key '" key "'")))
         (recur (nml-set m nml key val) (rest s))))))
 
+(defmacro version
+  []
+  (s/trim-newline (slurp (io/resource "version"))))
+
 (defn -main
   [& args]
 
@@ -265,8 +269,7 @@
 
     (when (not-empty arguments) (fail (str "Unexpected argument '" (first arguments) "'")))
     (when (:help options) (usage summary))
-    (when (:version options) (do (println (s/trim-newline (slurp (io/resource "version"))))
-                                 (System/exit 0)))
+    (when (:version options) (println (version)) (System/exit 0))
     (when (and gets sets) (fail (msgs :get+set)))
     (when (and gets edit) (fail (msgs :get+edit)))
     (when (and edit (:in options)) (fail (msgs :edit+in)))
