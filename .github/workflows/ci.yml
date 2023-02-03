@@ -13,23 +13,26 @@ jobs:
         run: |
           ver=22.3.1
           fn=graalvm-ce-java11-linux-amd64-$ver.tar.gz
-          wget https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-$ver/$fn
-          mkdir -pv graalvm
-          tar xvzf $fn -C graalvm --strip-components 1
+          wget --no-verbose https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-$ver/$fn
           export GRAALVM=$PWD/graalvm
-          export PATH=$PWD/graalvm/bin:$PATH
+          mkdir -pv $GRAALVM
+          tar xzf $fn -C $GRAALVM --strip-components 1
+          export PATH=$GRAALVM/bin
+          gu install native-image
+          echo GRAALVM=$GRAALVM >>$GITHUB_ENV
+          echo PATH=$PATH >>$GITHUB_ENV
+      - name: Install GraalVM native-image
+        run: graalvm/bin/gu install native-image
       - name: Install Clojure
         run: |
           fn=linux-install-1.11.1.1208.sh
-          wget https://download.clojure.org/install/$fn
+          wget --no-verbose https://download.clojure.org/install/$fn
           chmod +x $fn
           sudo ./$fn
       - name: Run tests
-        run: echo $PATH && make test
+        run: make test
       - name: Build uberjar
         run: make uberjar
-      - name: Install native-image
-        run: gu install native-image
       - name: Build native executable
         run: make native
       - name: FOO
