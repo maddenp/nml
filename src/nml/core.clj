@@ -74,7 +74,7 @@
                (str "'" dataref "') echo \"" v "\";;")))
         f1 (fn [[name nv-sequence]]
              (let [x (strmap f0 nv-sequence)]
-               (str "'" name "') case " (lo 2) " in " x "*) echo '';;esac;;" )))]
+               (str "'" name "') case " (lo 2) " in " x "*) echo '';;esac;;")))]
     (str "nmlquery(){ case " (lo 1) " in " (strmap f1 (sort m)) "*) echo '';;esac; }\n")))
 
 (defn fmt-bash
