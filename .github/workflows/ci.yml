@@ -20,9 +20,9 @@ jobs:
         run: make test
       - name: Build uberjar
         run: make uberjar
+      - name: TODO-FIXME-1
+        run: java -jar target/nml.jar --help
       - name: Build native executable
         run: make native
-      - name: FOO
+      - name: TODO-FIXME-2
         run: ./nml --help
-      - name: BAR
-        run: java -jar target/nml.jar --help

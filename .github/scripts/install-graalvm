@@ -7,6 +7,7 @@ export GRAALVM=$PWD/graalvm
 mkdir -pv $GRAALVM
 tar xzf $f -C $GRAALVM --strip-components 1
 export PATH=$GRAALVM/bin:$PATH
-gu install native-image
-echo GRAALVM=$GRAALVM PATH=$PATH >>$GITHUB_ENV
+gu install --no-progress native-image
 rm -fv $f
+echo GRAALVM=$GRAALVM >>$GITHUB_ENV
+echo PATH=$PATH >>$GITHUB_ENV
