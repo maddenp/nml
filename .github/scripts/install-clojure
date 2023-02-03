@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -eux
 
 f=linux-install-$CLOJURE_VERSION.sh
 curl -O https://download.clojure.org/install/$f

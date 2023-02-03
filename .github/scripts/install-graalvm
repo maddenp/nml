@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -eux
 
 v=$GRAALVM_VERSION
 f=graalvm-ce-java11-linux-amd64-$v.tar.gz
