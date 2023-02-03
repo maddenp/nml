@@ -1,0 +1,25 @@
+#!/bin/bash -eux
+
+# Check jarfile.
+
+jarfile=target/nml.jar
+java -jar $jarfile --version
+java -jar $jarfile --help
+java -jar $jarfile -i test/nl.in -o nl.jarfile
+cmp test/nl.out nl.jarfile
+
+# Check native executable.
+
+./nml --version
+./nml --help
+./nml -i test/nl.in -o nl.native
+cmp test/nl.out nl.native
+
+# Validate with Fortran.
+
+sudo apt-get install -y gfortran
+gfortran -g test/nml_test.f90
+ln -fsv nl.jarfile nl.in
+./a.out
+ln -fsv nl.native nl.in
+./a.out
