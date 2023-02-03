@@ -1,9 +1,9 @@
 #!/bin/bash
 
-v=${{ env.graalvm_version }}
+v=$GRAALVM_VERSION
 f=graalvm-ce-java11-linux-amd64-$v.tar.gz
 curl -O https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-$v/$f
-export GRAALVM=${{ github.workspace }}/graalvm
+export GRAALVM=$PWD/graalvm
 mkdir -pv $GRAALVM
 tar xzf $fn -C $GRAALVM --strip-components 1
 export PATH=$GRAALVM/bin:$PATH
