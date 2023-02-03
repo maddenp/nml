@@ -1,8 +1,9 @@
 #!/bin/bash -eux
 
 v=$(head -n1 src/version)
+releases=/repos/maddenp/nml/releases
 
-gh api /repos/maddenp/nml/releases          \
+gh api $releases                            \
    -F draft=false                           \
    -F generate_release_notes=false          \
    -F prerelease=false                      \
@@ -11,3 +12,11 @@ gh api /repos/maddenp/nml/releases          \
    -f name=$v                               \
    -f tag_name=$v                           \
    -f target_commitish=master
+
+for x in target/nml.jar; do # TODO add nml
+  f=$(basename $x)
+  gh api $releases/$v/assets?name=$f          \
+     -H "Accept: application/vnd.github+json" \
+     -X POST                                  \
+     -f "@$f"
+done

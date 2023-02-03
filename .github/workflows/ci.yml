@@ -13,16 +13,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-#       - name: Check tag
-#         run:  .github/scripts/tag-check
-#       - name: Install GraalVM
-#         run: .github/scripts/install-graalvm
-#       - name: Install Clojure
-#         run: .github/scripts/install-clojure
-#       - name: Run tests
-#         run: make test
-#       - name: Build uberjar
-#         run: make uberjar
+      - name: Check tag
+        run:  .github/scripts/tag-check
+      - name: Install GraalVM
+        run: .github/scripts/install-graalvm
+      - name: Install Clojure
+        run: .github/scripts/install-clojure
+      - name: Run tests
+        run: make test
+      - name: Build uberjar
+        run: make uberjar
 #       - name: Build native executable
 #         run: make native
 #       - name: Check artifacts
