@@ -170,40 +170,40 @@
   [text start-symbol provenance]
   (let [tree (nml-parse text start-symbol provenance)
         string-id (fn [& components] (apply str components))
-        string-lc (fn [& components] (s/lower-case (apply string-id components)))]
-    (let [new (insta/transform
-               {:array string-id
-                :c identity
-                :comma identity
-                :complex string-id
-                :dataref string-id
-                :dec (fn [point & int] (str point (apply str int)))
-                :exp string-lc
-                :false string-lc
-                :input-stmt-prefix string-id
-                :int string-id
-                :logical identity
-                :minus identity
-                :name string-lc
-                :nv-subseq (fn [dataref & vals] {dataref vals})
-                :nv-subseqs (fn [& nv-subseqs] (into {} nv-subseqs))
-                :group-name string-lc
-                :input-stmt (fn [group-name nv-subseqs] {group-name nv-subseqs})
-                :partref identity
-                :plus identity
-                :r identity
-                :real string-id
-                :s (fn [& input-stmts] (apply array-map (flatten (map seq input-stmts))))
-                :sect string-id
-                :sign identity
-                :star identity
-                :string string-id
-                :true string-lc
-                :uint identity
-                :user-supplied-vals (fn [& vals] (apply vector vals))
-                :val string-id
-                :val-and-sep identity} tree)]
-      new)))
+        string-lc (fn [& components] (s/lower-case (apply string-id components)))
+        new (insta/transform
+              {:array string-id
+               :c identity
+               :comma identity
+               :complex string-id
+               :dataref string-id
+               :dec (fn [point & int] (str point (apply str int)))
+               :exp string-lc
+               :false string-lc
+               :input-stmt-prefix string-id
+               :int string-id
+               :logical identity
+               :minus identity
+               :name string-lc
+               :nv-subseq (fn [dataref & vals] {dataref vals})
+               :nv-subseqs (fn [& nv-subseqs] (into {} nv-subseqs))
+               :group-name string-lc
+               :input-stmt (fn [group-name nv-subseqs] {group-name nv-subseqs})
+               :partref identity
+               :plus identity
+               :r identity
+               :real string-id
+               :s (fn [& input-stmts] (apply array-map (flatten (map seq input-stmts))))
+               :sect string-id
+               :sign identity
+               :star identity
+               :string string-id
+               :true string-lc
+               :uint identity
+               :user-supplied-vals (fn [& vals] (apply vector vals))
+               :val string-id
+               :val-and-sep identity} tree)]
+    new))
 
 (defn read-file
   [in]
