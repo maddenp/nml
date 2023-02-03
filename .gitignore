@@ -1,4 +1,6 @@
 *.build_artifacts.txt
+.clj-kondo/
 .cpcache/
+.lsp/
 nml
 target/
