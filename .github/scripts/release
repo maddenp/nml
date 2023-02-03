@@ -13,14 +13,9 @@ gh api $releases                            \
    -f tag_name=$v                           \
    -f target_commitish=master
 
-pwd
-ls
-ls target
-mv -v target/nml.jar .
-
-for x in nml.jar; do # TODO add nml
-  gh api $releases/$v/assets?name=$x          \
-     -H "Accept: application/vnd.github+json" \
-     -X POST                                  \
-     -f "@$x"
+for x in target/nml.jar; do # TODO add nml
+  cat $x | gh api $releases/$v/assets?name=$(basename $x) \
+     -H "Accept: application/vnd.github+json"             \
+     -X POST                                              \
+     -f "@-"
 done
