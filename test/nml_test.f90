@@ -16,7 +16,7 @@ program p
   namelist /nd/ m0, m1, m2, m3
   namelist /ne/ r0, r1, r2, r3
   namelist /nf/ x
-  open (88, file='nl', status='old')
+  open (88, file='nl.in', status='old')
   read (88, na)
   read (88, nb)
   read (88, nc)

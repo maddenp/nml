@@ -27,7 +27,11 @@ You should now have an executable `nml` native executable in this directory.
 
 Run `make test`.
 
-The Fortran program `test/test.f90` may be used to verify the validity  of the test namelist file `test/nl`.
+The Fortran program `test/nml_test.f90` may be used to verify the validity of the test namelist file `test/nl.in`. Compile and run like e.g.
+
+``` bash
+$ gfortran -g nml_test.f90 && ./a.out
+```
 
 ### Run
 
