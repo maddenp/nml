@@ -9,8 +9,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: REMOVE-ME
-        run: pwd && echo $GITHUB_WORKSPACE && ls $GITHUB_WORKSPACE
       - name: Install JDK
         uses: actions/setup-java@v3
         with:
@@ -22,4 +20,6 @@ jobs:
           curl -O https://download.clojure.org/install/$fn
           chmod +x $fn
           sudo ./$fn
+      - name: Test
+        run: make test
 
