@@ -2,7 +2,7 @@
 
 v=$GRAALVM_VERSION
 f=graalvm-ce-java11-linux-amd64-$v.tar.gz
-curl -O https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-$v/$f
+curl -LO https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-$v/$f
 export GRAALVM=$PWD/graalvm
 mkdir -pv $GRAALVM
 tar xzf $f -C $GRAALVM --strip-components 1
