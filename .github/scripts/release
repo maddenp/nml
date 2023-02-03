@@ -2,14 +2,14 @@
 
 v=$(head -n1 src/version)
 args=(
-  -X POST
-  -H "Accept: application/vnd.github+json"
   /repos/maddenp/nml/releases
   -F draft=false
   -F generate_release_notes=false
   -F prerelease=false
-  -f name="$v"
-  -f tag_name="$v"
-  -f target_commitish="master"
+  -H "Accept: application/vnd.github+json"
+  -X POST
+  -f name=$v
+  -f tag_name=$v
+  -f target_commitish=master
 )
-gh api ${args[*]}
+gh api ${args[@]}
