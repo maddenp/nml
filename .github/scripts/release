@@ -14,7 +14,7 @@ curl https://api.github.com/$releases      \
   -d "{\"tag_name\":\"$v\"}" | tee $response
 
 release_id=$(jq -r .id $response)
-test $release_id == null && exit 1 || true
+test $release_id != null || exit 1
 
 # Upload the asset(s).
 
@@ -29,5 +29,7 @@ for x in nml target/nml.jar; do
        -H "X-GitHub-Api-Version: 2022-11-28"                           \
        -X POST | tee $response
   upload_id=$(jq -r .id $response)
-  test $upload_id == null && exit 1 || true
+  test $upload_id != null || exit 1
 done
+
+exit 0
