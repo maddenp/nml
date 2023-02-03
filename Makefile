@@ -9,12 +9,12 @@ all:
 	$(error Valid targets are: $(TARGETS))
 
 clean:
-	clj -T:build $@
+	clojure -T:build $@
 
 native: $(NAME)
 
 test:
-	clj -X:test
+	clojure -X:test
 
 uberjar: $(UBERJAR)
 
@@ -24,4 +24,4 @@ $(NAME): $(UBERJAR)
 	$(GN) -jar $< --no-fallback -o $@
 
 $(UBERJAR): src/$(NAME)/core.clj
-	clj -T:build uberjar
+	clojure -T:build uberjar

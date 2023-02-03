@@ -1,5 +1,7 @@
 # nml
 
+[![ci](https://github.com/maddenp/nml/actions/workflows/ci.yml/badge.svg)](https://github.com/maddenp/nml/actions/workflows/ci.yml)
+
 A query/modify utility for Fortran namelists
 
 ### Build

@@ -20,6 +20,5 @@ jobs:
           curl -O https://download.clojure.org/install/$fn
           chmod +x $fn
           sudo ./$fn
-      - name: Test
+      - name: Run Tests
         run: make test
-
