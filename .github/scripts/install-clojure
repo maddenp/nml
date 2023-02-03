@@ -1,0 +1,7 @@
+#!/bin/bash
+
+f=linux-install-${{ env.clojure_version }}.sh
+wget --no-verbose https://download.clojure.org/install/$f
+chmod +x $f
+sudo ./$f
+rm -fv $f

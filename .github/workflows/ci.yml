@@ -1,4 +1,7 @@
 name: ci
+env:
+  clojure_version: 1.11.1.1208
+  graalvm_version: 22.3.1
 on:
   push:
     branches:
@@ -10,25 +13,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Install GraalVM
-        run: |
-          ver=22.3.1
-          fn=graalvm-ce-java11-linux-amd64-$ver.tar.gz
-          wget --no-verbose https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-$ver/$fn
-          export GRAALVM=$PWD/graalvm
-          mkdir -pv $GRAALVM
-          tar xzf $fn -C $GRAALVM --strip-components 1
-          export PATH=$GRAALVM/bin
-          gu install native-image
-          echo GRAALVM=$GRAALVM >>$GITHUB_ENV
-          echo PATH=$PATH >>$GITHUB_ENV
-      - name: Install GraalVM native-image
-        run: graalvm/bin/gu install native-image
+        run: .github/scripts/install-graalvm
       - name: Install Clojure
-        run: |
-          fn=linux-install-1.11.1.1208.sh
-          wget --no-verbose https://download.clojure.org/install/$fn
-          chmod +x $fn
-          sudo ./$fn
+        run: .github/scripts/install-clojure
       - name: Run tests
         run: make test
       - name: Build uberjar
