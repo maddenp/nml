@@ -1,5 +1,6 @@
 #!/bin/bash -eux
 
+git tag
 v=$(head -n1 src/version)
 if git tag | grep -q "^$v$"; then
   echo "Tag $v already exists, aborting!"
