@@ -2,6 +2,5 @@
 
 v=$(head -n1 src/version)
 if git ls-remote --tags origin | grep -q "/$v$"; then
-  echo "Tag $v already exists, aborting!"
-  exit 1
+  exit 1 # tag already exists, aborting...
 fi
