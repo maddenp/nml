@@ -12,6 +12,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - name: Check tag
+        run:  .github/scripts/tag-check
       - name: Install GraalVM
         run: .github/scripts/install-graalvm
       - name: Install Clojure
@@ -26,3 +28,5 @@ jobs:
         run: make native
       - name: Check native executable
         run: ./nml --help
+      - name: Tag
+        run: .github/scripts/tag-create

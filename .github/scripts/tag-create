@@ -1,0 +1,5 @@
+#!/bin/bash -eux
+
+v=$(head -n1 src/version)
+git tag $v
+git push --tags
