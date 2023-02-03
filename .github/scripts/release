@@ -1,15 +1,13 @@
 #!/bin/bash -eux
 
 v=$(head -n1 src/version)
-args=(
-  /repos/maddenp/nml/releases
-  -F draft=false
-  -F generate_release_notes=false
-  -F prerelease=false
-  -H '"Accept: application/vnd.github+json"'
-  -X POST
-  -f name=$v
-  -f tag_name=$v
-  -f target_commitish=master
-)
-gh api ${args[*]}
+
+gh api /repos/maddenp/nml/releases          \
+   -F draft=false                           \
+   -F generate_release_notes=false          \
+   -F prerelease=false                      \
+   -H "Accept: application/vnd.github+json" \
+   -X POST                                  \
+   -f name=$v                               \
+   -f tag_name=$v                           \
+   -f target_commitish=master
