@@ -9,16 +9,27 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Install JDK
-        uses: actions/setup-java@v3
-        with:
-          java-version: 17
-          distribution: temurin
+      - name: Install GraalVM
+        run: |
+          ver=22.3.1
+          fn=graalvm-ce-java11-linux-amd64-$ver.tar.gz
+          wget https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-$ver/$fn
+          mkdir -pv graalvm
+          tar xvzf $fn -C graalvm --strip-components 1
+          export GRAALVM=$PWD/graalvm
+          export PATH=$PWD/graalvm:$PATH
+#       - name: Install JDK
+#         uses: actions/setup-java@v3
+#         with:
+#           java-version: 17
+#           distribution: temurin
       - name: Install Clojure
         run: |
           fn=linux-install-1.11.1.1208.sh
-          curl -O https://download.clojure.org/install/$fn
+          wget https://download.clojure.org/install/$fn
           chmod +x $fn
           sudo ./$fn
-      - name: Run Tests
-        run: make test
+      - name: Run tests
+        run: echo $PATH && make test
+      - name: Build uberjar
+        run: make uberjar
