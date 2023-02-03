@@ -12,8 +12,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: TODO-FIXME-GH-TEST
-        run: gh --version
 #       - name: Check tag
 #         run:  .github/scripts/tag-check
 #       - name: Install GraalVM
@@ -28,5 +26,7 @@ jobs:
 #         run: make native
 #       - name: Check artifacts
 #         run: .github/scripts/artifact-checks
-#       - name: Tag
-#         run: .github/scripts/tag-create
+      - name: Tag
+        run: .github/scripts/tag-create
+      - name: Release
+        run: .github/scripts/release
