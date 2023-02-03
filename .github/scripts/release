@@ -3,6 +3,7 @@
 v=$(head -n1 src/version)
 releases=/repos/maddenp/nml/releases
 
+
 gh api $releases                            \
    -F draft=false                           \
    -F generate_release_notes=false          \
@@ -13,7 +14,16 @@ gh api $releases                            \
    -f tag_name=$v                           \
    -f target_commitish=master
 
-gh api $releases/$v/assets?name=nml.jar     \
-   -H "Accept: application/vnd.github+json" \
-   -X POST                                  \
-   -f '@target/nml.jar'
+# gh api $releases/$v/assets?name=nml.jar     \
+#    -H "Accept: application/vnd.github+json" \
+#    -X POST                                  \
+#    -f '@target/nml.jar'
+
+curl                                                          \
+  -X POST                                                     \
+  -H "Accept: application/vnd.github+json"                    \
+  -H "Authorization: Bearer $GH_TOKEN"                        \
+  -H "X-GitHub-Api-Version: 2022-11-28"                       \
+  -H "Content-Type: application/octet-stream"                 \
+  https://uploads.github.com/$releases/$v/assets?name=nml.jar \
+  --data-binary "@target/nml.jar"
