@@ -1,7 +1,7 @@
 #!/bin/bash -eux
 
 v=$(head -n1 src/version)
-releases=/repos/maddenp/nml/releases
+releases=repos/maddenp/nml/releases
 
 # Create the release.
 
@@ -12,9 +12,10 @@ curl https://api.github.com/$releases      \
   -X POST                                  \
   -d "{\"tag_name\":\"$v\"}" | tee create.json
 
-# Upload the asset(s).
-
 id=$(jq -r .id create.json)
+test $id == null && exit 1
+
+# Upload the asset(s).
 
 curl https://uploads.github.com/$releases/$id/assets?name=nml.jar \
   --data-binary "@target/nml.jar"                                 \
