@@ -38,7 +38,7 @@
   (assoc m k v))
 
 (defn assoc-g
-  [m k v]
+  [m _ v]
   (let [gets (:get m [])]
     (assoc m :get (into gets [v]))))
 
@@ -53,7 +53,7 @@
   (assoc m k v))
 
 (defn assoc-s
-  [m k v]
+  [m _ v]
   (let [sets (:set m [])]
     (assoc m :set (into sets [v]))))
 
@@ -86,7 +86,7 @@
   (let [f (fn [e]
             (let [re #"[+-]?(\d*\.)?\d+(d[+-]?\d+)?"
                   e (if (and (string? e) (re-matches re e)) (s/replace e #"d" "e") e)
-                  x (try (read-string e) (catch Exception e nil))]
+                  x (try (read-string e) (catch Exception _ nil))]
               (cond
                 (number? x) x
                 (= "t" e) true
@@ -169,7 +169,6 @@
 (defn nml-map
   [text start-symbol provenance]
   (let [tree (nml-parse text start-symbol provenance)
-        blank (fn [& _] "")
         string-id (fn [& components] (apply str components))
         string-lc (fn [& components] (s/lower-case (apply string-id components)))]
     (let [new (insta/transform
@@ -209,7 +208,7 @@
 (defn read-file
   [in]
   (try (slurp in)
-       (catch Exception e
+       (catch Exception _
          (fail (str "Could not read from '" in "'")))))
 
 (defn nml-out
@@ -217,7 +216,7 @@
   (if (= out *out*)
     (println (s/trim s))
     (try (spit out s)
-         (catch Exception e
+         (catch Exception _
            (fail (str "Could not write to '" out "'"))))))
 
 (defn nml-get

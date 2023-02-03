@@ -1,6 +1,6 @@
 (ns nml-test
-  (:require [clojure.test :refer :all]
-            [nml.core :refer :all]))
+  (:require [clojure.test :refer [deftest is]]
+            [nml.core :refer [nml-get nml-map nml-set]]))
 
 (let [m (nml-map (slurp "test/nl.in") :s "test")]
 
