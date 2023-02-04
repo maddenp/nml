@@ -1,0 +1,35 @@
+#!/bin/bash -eux
+
+releases=repos/maddenp/nml/releases
+
+# Create the release.
+
+v=$(head -n1 src/version)
+response=create.json
+curl https://api.github.com/$releases      \
+  -H "Accept: application/vnd.github+json" \
+  -H "Authorization: Bearer $GH_TOKEN"     \
+  -H "X-GitHub-Api-Version: 2022-11-28"    \
+  -X POST                                  \
+  -d "{\"tag_name\":\"$v\"}" | tee $response
+
+release_id=$(jq -r .id $response)
+test $release_id != null || exit 1
+
+# Upload the asset(s).
+
+for x in nml target/nml.jar; do
+  f=$(basename $x)
+  response=$f.json
+  curl https://uploads.github.com/$releases/$release_id/assets?name=$f \
+       --data-binary "@$x"                                             \
+       -H "Accept: application/vnd.github+json"                        \
+       -H "Authorization: Bearer $GH_TOKEN"                            \
+       -H "Content-Type: application/octet-stream"                     \
+       -H "X-GitHub-Api-Version: 2022-11-28"                           \
+       -X POST | tee $response
+  upload_id=$(jq -r .id $response)
+  test $upload_id != null || exit 1
+done
+
+exit 0

@@ -1,0 +1,13 @@
+#!/bin/bash -eux
+
+v=$GRAALVM_VERSION
+f=graalvm-ce-java11-linux-amd64-$v.tar.gz
+curl -sLOS https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-$v/$f
+export GRAALVM=$PWD/graalvm
+mkdir -pv $GRAALVM
+tar xzf $f -C $GRAALVM --strip-components 1
+export PATH=$GRAALVM/bin:$PATH
+gu install --no-progress native-image
+rm -fv $f
+echo GRAALVM=$GRAALVM >>$GITHUB_ENV
+echo PATH=$PATH >>$GITHUB_ENV

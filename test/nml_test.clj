@@ -1,8 +1,8 @@
-(ns nml.core-test
-  (:require [clojure.test :refer :all]
-            [nml.core :refer :all]))
+(ns nml-test
+  (:require [clojure.test :refer [deftest is]]
+            [nml.core :refer [nml-get nml-map nml-set]]))
 
-(let [m (nml-map (slurp "test/nml/nl") :s "test")]
+(let [m (nml-map (slurp "test/nl.in") :s "test")]
 
   (deftest gets
     (is (= (nml-get m "na" "C0") "'foo'"                                                           ))
@@ -38,7 +38,7 @@
     (is (= (nml-get m "nd" "M1") "(1.1,2.2)"                                                       ))
     (is (= (nml-get m "ne" "r0") "1.,1.0,-1.0,+1.0"                                                ))
     (is (= (nml-get m "ne" "r1") "1.1e2,1.1d2,1.1e-2,1.1d+2"                                       ))
-    (is (= (nml-get m "ne" "r12345678901234567890123456789012345678901234567890123456789012") "0." ))
+    (is (= (nml-get m "ne" "r12345678901234567890123456789012345678901234567890123456789012") "1." ))
     (is (= (nml-get m "ne" "r2") "-1.1e2,+1.1e2,-1.1d-2,+1.1d+2"                                   ))
     (is (= (nml-get m "ne" "r3") ",,"                                                              ))
     (is (= (nml-get m "nf" "x0") ""                                                                ))
