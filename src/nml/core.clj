@@ -171,7 +171,8 @@
   (let [tree (nml-parse text start-symbol provenance)
         string-id (fn [& components] (apply str components))
         string-lc (fn [& components] (s/lower-case (apply string-id components)))
-        new (insta/transform
+        transform #_{:clj-kondo/ignore [:unresolved-var]} insta/transform
+        new (transform
               {:array string-id
                :c identity
                :comma identity
