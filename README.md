@@ -21,7 +21,7 @@ Alternatively, you may leverage [GraalVM](https://www.graalvm.org/) to build a n
 3. Install GraalVM's `native-image` tool: `$GRAALVM/bin/gu install native-image`.
 4. Run `make native`. This may take some time.
 
-You should now have an executable `nml` native executable in this directory.
+You should now have an `nml` native executable in this directory.
 
 ### Test
 
