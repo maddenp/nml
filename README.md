@@ -16,9 +16,9 @@ You should now be able to run `java -jar target/nml.jar --help` for a usage syno
 
 Alternatively, you may leverage [GraalVM](https://www.graalvm.org/) to build a native executable:
 
-1. Download and extract the [GraalVM release](https://github.com/graalvm/graalvm-ce-builds/releases) matching your OS and Java version. (A successful build was last done with GraalVM Community Edition 22.3.1 on Linux with Java 11.)
+1. Download and extract the [GraalVM release](https://github.com/graalvm/graalvm-ce-builds/releases) matching your OS and Java version. (A successful build was last done with GraalVM Community Edition 22.3.3 on Linux with Java 11.)
 2. Export environment variable `GRAALVM` pointing to the extracted directory's root.
-3. Install GraalVM's `native-image` tool: `$GRAALVM/bin/gu install native-image`.
+3. Run `$GRAALVM/bin/gu install native-image` to install GraalVM's `native-image` tool.
 4. Run `make native`. This may take some time.
 
 You should now have an `nml` native executable in this directory.
