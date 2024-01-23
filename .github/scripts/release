@@ -35,7 +35,7 @@ upload() {
   test $upload_id != null || exit 1
 }
 
-upload $release_id nml nml-x86_64
+upload $release_id nml nml-linux-amd64
 upload $release_id target/nml.jar nml.jar
 
 exit 0
