@@ -160,7 +160,7 @@ To set (or add) values:
 /
 ```
 
-Note that get and set commands may not be mixed in a single `nml` invovation.
+Note that get and set commands may not be mixed in a single `nml` invocation.
 
 A file may be edited in place with the `--edit` command (equivalent, in this case, to `--in nl --out nl`):
 
